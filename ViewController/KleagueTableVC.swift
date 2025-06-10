@@ -59,7 +59,7 @@ class KleagueTableVC:UIViewController {
     
     private func bindViewModel() {
         segmentedControl.rx.selectedSegmentIndex
-            .map { $0 == 0 ? 4689 : 4822 }
+            .map { $0 == 0 ? 7034 : 7016 }
             .bind(to: viewModel.leagueID)
             .disposed(by: disposeBag)
         

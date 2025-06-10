@@ -11,7 +11,7 @@ import RxCocoa
 import RxRelay
 
 class KleagueTableViewModel {
-    let leagueID = BehaviorRelay<Int>(value: 4689)
+    let leagueID = BehaviorRelay<Int>(value: 7034)
     let teams = BehaviorRelay<[KleagueTeam]>(value: [])
     let disposeBag = DisposeBag()
     
