@@ -27,7 +27,7 @@ class KleagueVC: UIViewController {
         ("경기/결과", "soccerball", MatchVC()),
         ("맛집", "fork.knife.circle.fill", RestaurantVC()),
         ("홈", "house.fill", HomeVC()),
-        ("순위", "list.number", RankingVC()),
+        ("순위", "list.number", KleagueTableVC()),
         ("더보기", "ellipsis.circle", MoreVC())
     ]
     
@@ -42,7 +42,7 @@ class KleagueVC: UIViewController {
 
               tabBarView.snp.makeConstraints {
                   $0.leading.trailing.bottom.equalToSuperview()
-                  $0.height.equalTo(110)
+                  $0.height.equalTo(100)
               }
 
               tabBarView.backgroundColor = .systemBackground
@@ -56,7 +56,7 @@ class KleagueVC: UIViewController {
         tabBarView.addSubview(stackView)
         
         stackView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
+            $0.edges.equalToSuperview().inset(10)
         }
         
         for (index, tab) in tabs.enumerated() {
@@ -110,6 +110,8 @@ class KleagueVC: UIViewController {
         selectedVC.didMove(toParent: self)
         
         currentVC = selectedVC
+        
+        view.bringSubviewToFront(tabBarView)
         
     }
     

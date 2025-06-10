@@ -11,6 +11,7 @@ import SnapKit
 class HomeVC: UIViewController {
     
     private let titleLabel = UILabel()
+    private let comingSoonLabel = UILabel()
     //    private let disposeBag = DisposeBag()
     
     override func viewDidLoad() {
@@ -33,5 +34,14 @@ class HomeVC: UIViewController {
             $0.leading.trailing.equalToSuperview().inset(20)
         }
         
+        comingSoonLabel.text = "서비스 준비 중..."
+        comingSoonLabel.textColor = .lightGray
+        comingSoonLabel.textAlignment = .center
+        comingSoonLabel.font = UIFont(name: "GmarketSansTTFMedium", size: 20)
+        view.addSubview(comingSoonLabel)
+        
+        comingSoonLabel.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
     }
 }

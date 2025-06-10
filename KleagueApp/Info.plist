@@ -2,6 +2,20 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NFM</key>
+	<string></string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+		<key>NSAppTransportSecurity</key>
+		<dict>
+			<key>NSAllowsArbitraryLoads</key>
+			<string>true</string>
+		</dict>
+	</dict>
+	<key>OS_ACTIVITY_MODE </key>
+	<string>disable</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>GmarketSansTTFBold.ttf</string>

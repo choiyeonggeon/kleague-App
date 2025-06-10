@@ -21,6 +21,7 @@ class SplashView: UIViewController {
         super.viewDidLoad()
         setUI()
         setLayout()
+        
     }
 }
 

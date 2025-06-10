@@ -7,10 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		42128B5E2DE7529F00C83D70 /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = 42128B5D2DE7529F00C83D70 /* RxCocoa */; };
-		42128B602DE7529F00C83D70 /* RxRelay in Frameworks */ = {isa = PBXBuildFile; productRef = 42128B5F2DE7529F00C83D70 /* RxRelay */; };
-		42128B622DE7529F00C83D70 /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 42128B612DE7529F00C83D70 /* RxSwift */; };
-		42128B652DE752AE00C83D70 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 42128B642DE752AE00C83D70 /* SnapKit */; };
+		4224C2AA2DF7FC4500E3D330 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 4224C2A92DF7FC4500E3D330 /* Alamofire */; };
+		4224C2AD2DF7FC5B00E3D330 /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = 4224C2AC2DF7FC5B00E3D330 /* RxCocoa */; };
+		4224C2AF2DF7FC5B00E3D330 /* RxRelay in Frameworks */ = {isa = PBXBuildFile; productRef = 4224C2AE2DF7FC5B00E3D330 /* RxRelay */; };
+		4224C2B12DF7FC5B00E3D330 /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 4224C2B02DF7FC5B00E3D330 /* RxSwift */; };
+		4224C2B42DF7FC9F00E3D330 /* RxGesture in Frameworks */ = {isa = PBXBuildFile; productRef = 4224C2B32DF7FC9F00E3D330 /* RxGesture */; };
+		4224C2B72DF7FCB900E3D330 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 4224C2B62DF7FCB900E3D330 /* SnapKit */; };
+		4224C2BA2DF7FCEE00E3D330 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 4224C2B92DF7FCEE00E3D330 /* FirebaseAuth */; };
+		4224C2BC2DF7FCEE00E3D330 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 4224C2BB2DF7FCEE00E3D330 /* FirebaseFirestore */; };
+		4224C2BE2DF7FCEE00E3D330 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 4224C2BD2DF7FCEE00E3D330 /* FirebaseStorage */; };
+		4228E7902DF8032100B4385B /* KakaoMapsSDK-SPM in Frameworks */ = {isa = PBXBuildFile; productRef = 4228E78F2DF8032100B4385B /* KakaoMapsSDK-SPM */; };
+		4228E7932DF8033400B4385B /* NMapsMap in Frameworks */ = {isa = PBXBuildFile; productRef = 4228E7922DF8033400B4385B /* NMapsMap */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -65,6 +72,21 @@
 			path = KleagueAppUITests;
 			sourceTree = "<group>";
 		};
+		4242C5002DE9D6AD005BC4EB /* Model */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Model;
+			sourceTree = "<group>";
+		};
+		4242C5032DE9D743005BC4EB /* Network */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Network;
+			sourceTree = "<group>";
+		};
+		4242C52F2DE9D824005BC4EB /* Font */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Font;
+			sourceTree = "<group>";
+		};
 		4248593B2DE87A0C00169194 /* ViewController */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = ViewController;
@@ -75,9 +97,9 @@
 			path = ViewModel;
 			sourceTree = "<group>";
 		};
-		427BC2C52DE8A16700E2D8B9 /* Font */ = {
+		42DA30662DEC343C00ABB45F /* Secret */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Font;
+			path = Secret;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -87,10 +109,17 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				42128B622DE7529F00C83D70 /* RxSwift in Frameworks */,
-				42128B652DE752AE00C83D70 /* SnapKit in Frameworks */,
-				42128B602DE7529F00C83D70 /* RxRelay in Frameworks */,
-				42128B5E2DE7529F00C83D70 /* RxCocoa in Frameworks */,
+				4224C2AF2DF7FC5B00E3D330 /* RxRelay in Frameworks */,
+				4224C2AD2DF7FC5B00E3D330 /* RxCocoa in Frameworks */,
+				4224C2BE2DF7FCEE00E3D330 /* FirebaseStorage in Frameworks */,
+				4224C2B42DF7FC9F00E3D330 /* RxGesture in Frameworks */,
+				4224C2B72DF7FCB900E3D330 /* SnapKit in Frameworks */,
+				4224C2B12DF7FC5B00E3D330 /* RxSwift in Frameworks */,
+				4228E7932DF8033400B4385B /* NMapsMap in Frameworks */,
+				4224C2BC2DF7FCEE00E3D330 /* FirebaseFirestore in Frameworks */,
+				4228E7902DF8032100B4385B /* KakaoMapsSDK-SPM in Frameworks */,
+				4224C2BA2DF7FCEE00E3D330 /* FirebaseAuth in Frameworks */,
+				4224C2AA2DF7FC4500E3D330 /* Alamofire in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -114,7 +143,10 @@
 		42128B1A2DE7520100C83D70 = {
 			isa = PBXGroup;
 			children = (
-				427BC2C52DE8A16700E2D8B9 /* Font */,
+				42DA30662DEC343C00ABB45F /* Secret */,
+				4242C52F2DE9D824005BC4EB /* Font */,
+				4242C5032DE9D743005BC4EB /* Network */,
+				4242C5002DE9D6AD005BC4EB /* Model */,
 				4248593C2DE87A3400169194 /* ViewModel */,
 				4248593B2DE87A0C00169194 /* ViewController */,
 				42128B252DE7520100C83D70 /* KleagueApp */,
@@ -151,16 +183,26 @@
 			);
 			fileSystemSynchronizedGroups = (
 				42128B252DE7520100C83D70 /* KleagueApp */,
+				4242C5002DE9D6AD005BC4EB /* Model */,
+				4242C5032DE9D743005BC4EB /* Network */,
+				4242C52F2DE9D824005BC4EB /* Font */,
 				4248593B2DE87A0C00169194 /* ViewController */,
 				4248593C2DE87A3400169194 /* ViewModel */,
-				427BC2C52DE8A16700E2D8B9 /* Font */,
+				42DA30662DEC343C00ABB45F /* Secret */,
 			);
 			name = KleagueApp;
 			packageProductDependencies = (
-				42128B5D2DE7529F00C83D70 /* RxCocoa */,
-				42128B5F2DE7529F00C83D70 /* RxRelay */,
-				42128B612DE7529F00C83D70 /* RxSwift */,
-				42128B642DE752AE00C83D70 /* SnapKit */,
+				4224C2A92DF7FC4500E3D330 /* Alamofire */,
+				4224C2AC2DF7FC5B00E3D330 /* RxCocoa */,
+				4224C2AE2DF7FC5B00E3D330 /* RxRelay */,
+				4224C2B02DF7FC5B00E3D330 /* RxSwift */,
+				4224C2B32DF7FC9F00E3D330 /* RxGesture */,
+				4224C2B62DF7FCB900E3D330 /* SnapKit */,
+				4224C2B92DF7FCEE00E3D330 /* FirebaseAuth */,
+				4224C2BB2DF7FCEE00E3D330 /* FirebaseFirestore */,
+				4224C2BD2DF7FCEE00E3D330 /* FirebaseStorage */,
+				4228E78F2DF8032100B4385B /* KakaoMapsSDK-SPM */,
+				4228E7922DF8033400B4385B /* NMapsMap */,
 			);
 			productName = KleagueApp;
 			productReference = 42128B232DE7520100C83D70 /* KleagueApp.app */;
@@ -245,8 +287,13 @@
 			mainGroup = 42128B1A2DE7520100C83D70;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				42128B5C2DE7529F00C83D70 /* XCRemoteSwiftPackageReference "RxSwift" */,
-				42128B632DE752AE00C83D70 /* XCRemoteSwiftPackageReference "SnapKit" */,
+				4224C2A82DF7FC4500E3D330 /* XCRemoteSwiftPackageReference "Alamofire" */,
+				4224C2AB2DF7FC5B00E3D330 /* XCRemoteSwiftPackageReference "RxSwift" */,
+				4224C2B22DF7FC9F00E3D330 /* XCRemoteSwiftPackageReference "RxGesture" */,
+				4224C2B52DF7FCB900E3D330 /* XCRemoteSwiftPackageReference "SnapKit" */,
+				4224C2B82DF7FCEE00E3D330 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				4228E78E2DF8032100B4385B /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */,
+				4228E7912DF8033400B4385B /* XCRemoteSwiftPackageReference "SPM-NMapsMap" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 42128B242DE7520100C83D70 /* Products */;
@@ -329,8 +376,12 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = N5PZ4NS352;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = KleagueApp/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
+				INFOPLIST_KEY_NSLocationUsageDescription = "사용자의 위치를 기반으로 맛집 정보를 제공하기 위해 권한이 필요합니다.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "사용자의 위치를 기반으로 맛집 정보를 제공하기 위해 권한이 필요합니다.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = "";
@@ -342,7 +393,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.cyg050217.112349.KleagueApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cyg050217.112399;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -357,8 +408,12 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = N5PZ4NS352;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = KleagueApp/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
+				INFOPLIST_KEY_NSLocationUsageDescription = "사용자의 위치를 기반으로 맛집 정보를 제공하기 위해 권한이 필요합니다.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "사용자의 위치를 기반으로 맛집 정보를 제공하기 위해 권한이 필요합니다.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = "";
@@ -370,7 +425,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.cyg050217.112349.KleagueApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cyg050217.112399;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -607,7 +662,15 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		42128B5C2DE7529F00C83D70 /* XCRemoteSwiftPackageReference "RxSwift" */ = {
+		4224C2A82DF7FC4500E3D330 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.10.2;
+			};
+		};
+		4224C2AB2DF7FC5B00E3D330 /* XCRemoteSwiftPackageReference "RxSwift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ReactiveX/RxSwift.git";
 			requirement = {
@@ -615,7 +678,15 @@
 				minimumVersion = 6.9.0;
 			};
 		};
-		42128B632DE752AE00C83D70 /* XCRemoteSwiftPackageReference "SnapKit" */ = {
+		4224C2B22DF7FC9F00E3D330 /* XCRemoteSwiftPackageReference "RxGesture" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/RxSwiftCommunity/RxGesture.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.0.4;
+			};
+		};
+		4224C2B52DF7FCB900E3D330 /* XCRemoteSwiftPackageReference "SnapKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SnapKit/SnapKit.git";
 			requirement = {
@@ -623,28 +694,87 @@
 				minimumVersion = 5.7.1;
 			};
 		};
+		4224C2B82DF7FCEE00E3D330 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.14.0;
+			};
+		};
+		4228E78E2DF8032100B4385B /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kakao-mapsSDK/KakaoMapsSDK-SPM.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.12.5;
+			};
+		};
+		4228E7912DF8033400B4385B /* XCRemoteSwiftPackageReference "SPM-NMapsMap" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/navermaps/SPM-NMapsMap";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.21.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		42128B5D2DE7529F00C83D70 /* RxCocoa */ = {
+		4224C2A92DF7FC4500E3D330 /* Alamofire */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 42128B5C2DE7529F00C83D70 /* XCRemoteSwiftPackageReference "RxSwift" */;
+			package = 4224C2A82DF7FC4500E3D330 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
+		};
+		4224C2AC2DF7FC5B00E3D330 /* RxCocoa */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4224C2AB2DF7FC5B00E3D330 /* XCRemoteSwiftPackageReference "RxSwift" */;
 			productName = RxCocoa;
 		};
-		42128B5F2DE7529F00C83D70 /* RxRelay */ = {
+		4224C2AE2DF7FC5B00E3D330 /* RxRelay */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 42128B5C2DE7529F00C83D70 /* XCRemoteSwiftPackageReference "RxSwift" */;
+			package = 4224C2AB2DF7FC5B00E3D330 /* XCRemoteSwiftPackageReference "RxSwift" */;
 			productName = RxRelay;
 		};
-		42128B612DE7529F00C83D70 /* RxSwift */ = {
+		4224C2B02DF7FC5B00E3D330 /* RxSwift */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 42128B5C2DE7529F00C83D70 /* XCRemoteSwiftPackageReference "RxSwift" */;
+			package = 4224C2AB2DF7FC5B00E3D330 /* XCRemoteSwiftPackageReference "RxSwift" */;
 			productName = RxSwift;
 		};
-		42128B642DE752AE00C83D70 /* SnapKit */ = {
+		4224C2B32DF7FC9F00E3D330 /* RxGesture */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 42128B632DE752AE00C83D70 /* XCRemoteSwiftPackageReference "SnapKit" */;
+			package = 4224C2B22DF7FC9F00E3D330 /* XCRemoteSwiftPackageReference "RxGesture" */;
+			productName = RxGesture;
+		};
+		4224C2B62DF7FCB900E3D330 /* SnapKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4224C2B52DF7FCB900E3D330 /* XCRemoteSwiftPackageReference "SnapKit" */;
 			productName = SnapKit;
+		};
+		4224C2B92DF7FCEE00E3D330 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4224C2B82DF7FCEE00E3D330 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		4224C2BB2DF7FCEE00E3D330 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4224C2B82DF7FCEE00E3D330 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		4224C2BD2DF7FCEE00E3D330 /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4224C2B82DF7FCEE00E3D330 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
+		4228E78F2DF8032100B4385B /* KakaoMapsSDK-SPM */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4228E78E2DF8032100B4385B /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */;
+			productName = "KakaoMapsSDK-SPM";
+		};
+		4228E7922DF8033400B4385B /* NMapsMap */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4228E7912DF8033400B4385B /* XCRemoteSwiftPackageReference "SPM-NMapsMap" */;
+			productName = NMapsMap;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

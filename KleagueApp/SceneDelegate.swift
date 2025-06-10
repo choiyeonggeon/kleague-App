@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import NMapsMap
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -13,25 +14,25 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-       
         guard let windowScene = (scene as? UIWindowScene) else { return }
-        
-        let window = UIWindow(windowScene: windowScene)
-      
-        window.overrideUserInterfaceStyle = UIUserInterfaceStyle.light
-        
-        //navigationLink를 위한 루트뷰 선언하기. 없으면 네비게이션 링크 안 먹음
-        let rootVC = SplashView()
-        let navController = UINavigationController(rootViewController: rootVC)
-        window.rootViewController = navController
-        self.window = window
-        window.makeKeyAndVisible()
-        
-        
+
+        // 반드시 self.window를 먼저 초기화
+        self.window = UIWindow(windowScene: windowScene)
+        self.window?.overrideUserInterfaceStyle = .light
+
+        // 네비게이션 컨트롤러를 루트로 지정
+        let splashVC = SplashView()
+        let navController = UINavigationController(rootViewController: splashVC)
+        self.window?.rootViewController = navController
+        self.window?.makeKeyAndVisible()
+
+        // 루트 교체 X → 네비게이션 컨트롤러 내부에서 setViewControllers
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            window.rootViewController = KleagueVC()
+            let kleagueVC = KleagueVC()
+            navController.setViewControllers([kleagueVC], animated: true)
         }
     }
+
     
     func sceneDidDisconnect(_ scene: UIScene) {
         // Called as the scene is being released by the system.
