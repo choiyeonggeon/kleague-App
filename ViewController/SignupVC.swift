@@ -16,11 +16,7 @@ class SignupVC: UIViewController {
     private let termsSwitch = UISwitch()
     private let errorLabel = UILabel()
     private let emailTextField = UITextField()
-    private let emailLabel = UILabel()
-    private let emailError = UILabel()
     private let passwordTextField = UITextField()
-    private let confirmPasswordLabel = UILabel()
-    private let passwordLabel = UILabel()
     private let confirmPasswordTextField = UITextField()
     private let signupButton = UIButton(type: .system)
     

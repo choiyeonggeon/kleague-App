@@ -18,6 +18,8 @@
 		4224C2BE2DF7FCEE00E3D330 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 4224C2BD2DF7FCEE00E3D330 /* FirebaseStorage */; };
 		4228E7902DF8032100B4385B /* KakaoMapsSDK-SPM in Frameworks */ = {isa = PBXBuildFile; productRef = 4228E78F2DF8032100B4385B /* KakaoMapsSDK-SPM */; };
 		4228E7932DF8033400B4385B /* NMapsMap in Frameworks */ = {isa = PBXBuildFile; productRef = 4228E7922DF8033400B4385B /* NMapsMap */; };
+		42C1DB0E2DF981BC00CD0409 /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 42C1DB0D2DF981BC00CD0409 /* SDWebImage */; };
+		42C1DB132DF988E200CD0409 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 42C1DB122DF988E200CD0409 /* Kingfisher */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -115,7 +117,9 @@
 				4224C2B42DF7FC9F00E3D330 /* RxGesture in Frameworks */,
 				4224C2B72DF7FCB900E3D330 /* SnapKit in Frameworks */,
 				4224C2B12DF7FC5B00E3D330 /* RxSwift in Frameworks */,
+				42C1DB0E2DF981BC00CD0409 /* SDWebImage in Frameworks */,
 				4228E7932DF8033400B4385B /* NMapsMap in Frameworks */,
+				42C1DB132DF988E200CD0409 /* Kingfisher in Frameworks */,
 				4224C2BC2DF7FCEE00E3D330 /* FirebaseFirestore in Frameworks */,
 				4228E7902DF8032100B4385B /* KakaoMapsSDK-SPM in Frameworks */,
 				4224C2BA2DF7FCEE00E3D330 /* FirebaseAuth in Frameworks */,
@@ -203,6 +207,8 @@
 				4224C2BD2DF7FCEE00E3D330 /* FirebaseStorage */,
 				4228E78F2DF8032100B4385B /* KakaoMapsSDK-SPM */,
 				4228E7922DF8033400B4385B /* NMapsMap */,
+				42C1DB0D2DF981BC00CD0409 /* SDWebImage */,
+				42C1DB122DF988E200CD0409 /* Kingfisher */,
 			);
 			productName = KleagueApp;
 			productReference = 42128B232DE7520100C83D70 /* KleagueApp.app */;
@@ -294,6 +300,8 @@
 				4224C2B82DF7FCEE00E3D330 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				4228E78E2DF8032100B4385B /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */,
 				4228E7912DF8033400B4385B /* XCRemoteSwiftPackageReference "SPM-NMapsMap" */,
+				42C1DB0C2DF981BC00CD0409 /* XCRemoteSwiftPackageReference "SDWebImage" */,
+				42C1DB112DF988E200CD0409 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 42128B242DE7520100C83D70 /* Products */;
@@ -718,6 +726,22 @@
 				minimumVersion = 3.21.0;
 			};
 		};
+		42C1DB0C2DF981BC00CD0409 /* XCRemoteSwiftPackageReference "SDWebImage" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SDWebImage/SDWebImage.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.21.1;
+			};
+		};
+		42C1DB112DF988E200CD0409 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.3.2;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -775,6 +799,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 4228E7912DF8033400B4385B /* XCRemoteSwiftPackageReference "SPM-NMapsMap" */;
 			productName = NMapsMap;
+		};
+		42C1DB0D2DF981BC00CD0409 /* SDWebImage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 42C1DB0C2DF981BC00CD0409 /* XCRemoteSwiftPackageReference "SDWebImage" */;
+			productName = SDWebImage;
+		};
+		42C1DB122DF988E200CD0409 /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 42C1DB112DF988E200CD0409 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

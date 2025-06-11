@@ -100,15 +100,6 @@ class MoreVC: UIViewController {
 
 extension MoreVC: UITableViewDataSource, UITableViewDelegate {
     
-    private func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        
-        if indexPath.row == 0 {
-            let noticeVC = NoticeVC()
-            navigationController?.pushViewController(noticeVC, animated: true)
-        }
-    }
-    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return items.count
     }
@@ -122,5 +113,13 @@ extension MoreVC: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         print("선택된 항목: \(items[indexPath.row])")
         tableView.deselectRow(at: indexPath, animated: true)
+        
+        switch indexPath.row {
+        case 0:
+            let noticeVC = NoticeVC()
+            navigationController?.pushViewController(noticeVC, animated: true)
+        default:
+            print("선택된 항목: \(items[indexPath.row])")
+        }
     }
 }

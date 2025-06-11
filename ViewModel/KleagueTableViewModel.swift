@@ -7,19 +7,20 @@
 
 import Foundation
 import RxSwift
-import RxCocoa
 import RxRelay
 
 class KleagueTableViewModel {
-    let leagueID = BehaviorRelay<Int>(value: 7034)
-    let teams = BehaviorRelay<[KleagueTeam]>(value: [])
-    let disposeBag = DisposeBag()
-    
+    let leagueID = BehaviorRelay<Int>(value: 292)
+    let standings = PublishRelay<[TeamStanding]>()
+
+    private let disposeBag = DisposeBag()
+
     init() {
         leagueID
-            .flatMapLatest { APIService.shared.fetchKleagueTableData(for: $0) }
-            .bind(to: teams)
+            .flatMapLatest { id in
+                APIService.shared.fetchKleagueStandings(for: id)
+            }
+            .bind(to: standings)
             .disposed(by: disposeBag)
-
     }
 }

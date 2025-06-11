@@ -12,6 +12,7 @@ class LoginVC: UIViewController {
     
     private let emailTextField = UITextField()
     private let passwordTextField = UITextField()
+    private let errorLabel = UILabel()
     private let loginButton = UIButton()
     private let signupButton = UIButton()
     
@@ -62,13 +63,18 @@ class LoginVC: UIViewController {
         Auth.auth().signIn(withEmail: email, password: password) { result, error in
             if let error = error {
                 print("로그인 실패: \(error.localizedDescription)")
+                
+                let alert = UIAlertController(title: "로그인 실패", message: "이메일 또는 비밀번호를 다시 확인해주세요.", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "확인", style: .default))
+                self.present(alert, animated: true)
+                
                 return
             }
+            
             print("로그인 성공: \(result?.user.uid ?? "")")
             self.navigationController?.popViewController(animated: true)
         }
     }
-    
     
     @objc private func goToSignup() {
            let signupVC = SignupVC()
