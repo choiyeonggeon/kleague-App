@@ -8,7 +8,6 @@
 import UIKit
 import RxSwift
 import RxCocoa
-import RxRelay
 import SnapKit
 import NMapsMap
 import Foundation
@@ -37,6 +36,7 @@ class RestaurantVC: UIViewController {
             $0.edges.equalToSuperview()
         }
         
+        // 초기 위치: 수원월드컵경기장
         let stadiumLocation = NMGLatLng(lat: 37.2860, lng: 127.0015)
         mapView.moveCamera(NMFCameraUpdate(scrollTo: stadiumLocation))
     }
@@ -66,18 +66,30 @@ class RestaurantVC: UIViewController {
     }
     
     private func addMarkers(lat: Double, lng: Double, title: String) {
+        let coord = convertTM128ToWGS84(x: lng, y: lat) // TM128 → 위경도 변환
+        let latLng = NMGLatLng(lat: coord.latitude, lng: coord.longitude)
+
         let marker = NMFMarker()
-        marker.position = NMGLatLng(lat: lat, lng: lng)
-        marker.captionText = title
+        marker.position = latLng
+        marker.captionText = title.htmlStripped
         marker.mapView = mapView
         markers.append(marker)
-        
-        let cameraUpdate = NMFCameraUpdate(scrollTo: marker.position)
-        cameraUpdate.animation = .easeIn
+
+        let cameraUpdate = NMFCameraUpdate(scrollTo: latLng)
+        cameraUpdate.animation = NMFCameraUpdateAnimation.easeIn
         mapView.moveCamera(cameraUpdate)
     }
+    
+    private func convertTM128ToWGS84(x: Double, y: Double) -> CLLocationCoordinate2D {
+        let lon = x - 0.0000416 * y - 0.0009683
+        let lat = y + 0.0000405 * x + 0.0006539
+        return CLLocationCoordinate2D(latitude: lat, longitude: lon)
+    }
+
+
 }
 
+// MARK: - HTML 태그 제거용 확장
 extension String {
     var htmlStripped: String {
         guard let data = self.data(using: .utf8) else { return self }
@@ -113,7 +125,6 @@ extension RestaurantVC: UISearchBarDelegate {
                 for place in places {
                     let lng = place.mapx
                     let lat = place.mapy
-
                     let cleanTitle = place.title
 
                     self.addMarkers(lat: lat, lng: lng, title: cleanTitle)
@@ -122,6 +133,5 @@ extension RestaurantVC: UISearchBarDelegate {
             }, onError: { error in
                 print("검색 실패: \(error.localizedDescription)")
             }).disposed(by: disposeBag)
-
     }
 }

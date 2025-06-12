@@ -23,7 +23,6 @@ class APIService {
         request.httpMethod = "GET"
         request.setValue(apiKey, forHTTPHeaderField: "X-RapidAPI-Key")  // RapidAPI 키만
         request.setValue("api-football-v1.p.rapidapi.com", forHTTPHeaderField: "X-RapidAPI-Host")
-        // request.setValue("d1c0ec6504fb13aa8e2e11781afab0b1", forHTTPHeaderField: "x-api-key")  // 제거
         
         return URLSession.shared.rx.data(request: request)
             .do(onNext: { data in
@@ -37,4 +36,21 @@ class APIService {
             }
             .catchAndReturn([])
     }
+    
+//    func fetchKleagueMatches(leagueID: Int, season: Int = 2025) -> Observable<[Match]> {
+//        guard let url = URL(string: "https://api-football-v1.p.rapidapi.com/v3/fixtures?league=\(leagueID)&season=\(season)") else {
+//            return .error(NSError(domain: "Invalid URL", code: -1))
+//        }
+//
+//        var request = URLRequest(url: url)
+//        request.httpMethod = "GET"
+//        request.setValue(apiKey, forHTTPHeaderField: "X-RapidAPI-Key")
+//        request.setValue("api-football-v1.p.rapidapi.com", forHTTPHeaderField: "X-RapidAPI-Host")
+//
+//        return URLSession.shared.rx.data(request: request)
+//            .map { data in
+//                let decoded = try JSONDecoder().decode(MatchResponse.self, from: data)
+//                return decoded.response
+//            }
+//    }
 }

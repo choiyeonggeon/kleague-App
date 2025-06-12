@@ -15,6 +15,13 @@ class MatchVC: UIViewController {
     private let titleLabel = UILabel()
     let segmentedControl1 = UISegmentedControl(items: ["K리그1", "K리그2"])
     let MatchTableView = UITableView()
+//    private let leftButton = UIButton()
+//    private let rightButton = UIButton()
+//    private let monthLabel = UILabel()
+//    private var selectedMonth = Calendar.current.component(.month, from: Date())
+//    private var allMatches: [Match] = []
+//    private let disposeBag = DisposeBag()
+
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -47,8 +54,5 @@ class MatchVC: UIViewController {
             $0.top.equalTo(segmentedControl1.snp.bottom).offset(16)
             $0.leading.trailing.bottom.equalToSuperview()
         }
-        
-
     }
-    
 }
