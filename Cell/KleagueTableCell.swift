@@ -19,32 +19,19 @@ class KleagueTableCell: UITableViewCell {
     private let recordLabel = UILabel()
     private let rankLabel = UILabel()
     private let koreanTeamNames: [String: String] = [
-        "Jeonbuk Motors": "전북",
-        "Daegu FC": "대구",
-        "Ulsan Hyundai FC": "울산",
-        "Daejeon Citizen": "대전",
-        "Pohang Steelers": "포항",
-        "Gimcheon Sangmu FC": "김천",
-        "Gwangju FC": "광주",
-        "FC Seoul": "서울",
-        "FC Anyang": "안양",
-        "Gangwon FC": "강원",
-        "Jeju United FC": "제주 SK",
-        "Suwon City FC": "수원FC",
-        "Incheon United": "인천",
-        "Suwon Bluewings": "수원",
-        "Jeonnam Dragons": "전남",
-        "Seoul E-Land FC": "서울E",
-        "Busan I Park": "부산",
-        "Bucheon FC 1995": "부천",
-        "Asan Mugunghwa": "충남 아산",
-        "Seongnam FC": "성남",
-        "Gyeongnam FC": "경남",
-        "Gimpo Citizen": "김포FC",
-        "Cheongju": "충북 청주",
-        "Ansan Greeners": "안산",
-        "Hwaseong": "화성",
-        "Cheonan City": "천안"
+        "Jeonbuk Motors": "전북", "Daegu FC": "대구",
+        "Ulsan Hyundai FC": "울산", "Daejeon Citizen": "대전",
+        "Pohang Steelers": "포항", "Gimcheon Sangmu FC": "김천",
+        "Gwangju FC": "광주", "FC Seoul": "서울",
+        "FC Anyang": "안양", "Gangwon FC": "강원",
+        "Jeju United FC": "제주 SK", "Suwon City FC": "수원FC",
+        "Incheon United": "인천", "Suwon Bluewings": "수원",
+        "Jeonnam Dragons": "전남", "Seoul E-Land FC": "서울E",
+        "Busan I Park": "부산", "Bucheon FC 1995": "부천",
+        "Asan Mugunghwa": "충남 아산", "Seongnam FC": "성남",
+        "Gyeongnam FC": "경남", "Gimpo Citizen": "김포FC",
+        "Cheongju": "충북 청주", "Ansan Greeners": "안산",
+        "Hwaseong": "화성", "Cheonan City": "천안"
     ]
     
     private let outdatedLogoTeams: [String: String] = [

@@ -7,6 +7,8 @@
 
 import Foundation
 
+// MARK: - Standings
+
 struct StandingsResponse: Codable {
     let response: [LeagueResponse]
 }
@@ -28,7 +30,7 @@ struct TeamStanding: Codable {
 }
 
 struct Team: Codable {
-    let id: Int
+    let id: Int?
     let name: String
     let logo: String
 }
@@ -38,4 +40,43 @@ struct AllStats: Codable {
     let win: Int
     let draw: Int
     let lose: Int
+}
+
+// MARK: - Matches
+
+struct MatchResponse: Codable {
+    let response: [Match]
+}
+
+struct Match: Codable {
+    let fixture: Fixture
+    let teams: Teams
+    let goals: Goals
+}
+
+struct Fixture: Codable {
+    let status: MatchStatus
+    let date: String
+    let referee: String?             // ✅ Optional
+    let venue: Venue?
+}
+
+struct MatchStatus: Codable {
+    let short: String // 예: "FT", "NS", "1H"
+    let elapsed: Int?
+}
+
+struct Venue: Codable {
+    let name: String?
+}
+
+
+struct Teams: Codable {
+    let home: Team
+    let away: Team
+}
+
+struct Goals: Codable {
+    let home: Int?
+    let away: Int?
 }

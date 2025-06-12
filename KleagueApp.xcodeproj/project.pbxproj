@@ -74,6 +74,11 @@
 			path = KleagueAppUITests;
 			sourceTree = "<group>";
 		};
+		42264EB02DFAE2E8006C0045 /* Cell */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Cell;
+			sourceTree = "<group>";
+		};
 		4242C5002DE9D6AD005BC4EB /* Model */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Model;
@@ -147,6 +152,7 @@
 		42128B1A2DE7520100C83D70 = {
 			isa = PBXGroup;
 			children = (
+				42264EB02DFAE2E8006C0045 /* Cell */,
 				42DA30662DEC343C00ABB45F /* Secret */,
 				4242C52F2DE9D824005BC4EB /* Font */,
 				4242C5032DE9D743005BC4EB /* Network */,
@@ -187,6 +193,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				42128B252DE7520100C83D70 /* KleagueApp */,
+				42264EB02DFAE2E8006C0045 /* Cell */,
 				4242C5002DE9D6AD005BC4EB /* Model */,
 				4242C5032DE9D743005BC4EB /* Network */,
 				4242C52F2DE9D824005BC4EB /* Font */,
