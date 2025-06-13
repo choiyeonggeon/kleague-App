@@ -112,7 +112,6 @@ class MoreVC: UIViewController {
             
         }
     }
-
 }
 
 extension MoreVC: UITableViewDataSource, UITableViewDelegate {
@@ -173,8 +172,8 @@ extension MoreVC: UITableViewDataSource, UITableViewDelegate {
         
         switch indexPath.row {
         case 5:
-            let cheeringSongVC = CheeringSongVC()
-            navigationController?.pushViewController(cheeringSongVC, animated: true)
+            let cheeringTeamVC = CheeringTeamListVC()
+            navigationController?.pushViewController(cheeringTeamVC, animated: true)
         default:
             print("선택된 항목: \(items[indexPath.row])")
         }

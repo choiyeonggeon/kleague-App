@@ -43,8 +43,6 @@ class KleagueTableCell: UITableViewCell {
         "Gimpo Citizen": "gimpo",
         "Ulsan Hyundai FC": "ulsan",
         "Jeju United FC": "jeju"
-//        "": ""
-        // 추가 가능
     ]
 
     

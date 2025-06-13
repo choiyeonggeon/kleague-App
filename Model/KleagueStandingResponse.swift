@@ -80,3 +80,14 @@ struct Goals: Codable {
     let home: Int?
     let away: Int?
 }
+
+struct CheeringSong {
+    let title: String
+    let lyrics: String
+    let youtubeURL: String
+}
+
+struct TeamCheeringSongs {
+    let teamName: String
+    let songs: [CheeringSong]
+}

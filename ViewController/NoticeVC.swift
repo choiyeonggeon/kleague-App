@@ -61,7 +61,6 @@ class NoticeVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
             return UITableViewCell()
         }
         
-        
         let notice = sortedNotices[indexPath.row]
         let fullText = notice.title
         let attributedText = NSMutableAttributedString(string: fullText)

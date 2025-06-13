@@ -1,5 +1,3 @@
-
-
 //
 //  MatchCell.swift
 //  KleagueApp
@@ -103,15 +101,18 @@ class MatchCell: UITableViewCell {
         case"FT":
             statusLabel.text = "경기 종료"
             statusLabel.textColor = .systemRed
+        case "HT":
+            statusLabel.text = "HT"
+            statusLabel.textColor = .systemOrange
             
-        case "1H", "2H", "LIVE", "HT":
+        case "1H", "2H", "LIVE":
             if let minutes = match.fixture.status.elapsed {
                 statusLabel.text = ("진행 중 \(minutes)분")
             } else {
                 statusLabel.text = "경기 진행 중"
             }
             
-            statusLabel.backgroundColor = .systemGreen
+            statusLabel.textColor = .systemGreen
             
         default:
             statusLabel.text = "상태: \(match.fixture.status.short)"
@@ -121,21 +122,19 @@ class MatchCell: UITableViewCell {
     }
     
     private func setupViews() {
-        // homeStackView 세팅
+      
         homeStackView.axis = .horizontal
         homeStackView.spacing = 4
         homeStackView.alignment = .center
         homeStackView.addArrangedSubview(homeLogoImageView)
         homeStackView.addArrangedSubview(homeLabel)
 
-        // awayStackView 세팅
         awayStackView.axis = .horizontal
         awayStackView.spacing = 4
         awayStackView.alignment = .center
         awayStackView.addArrangedSubview(awayLogoImageView)
         awayStackView.addArrangedSubview(awayLabel)
         
-        // 로고 이미지 뷰 크기 설정
         [homeLogoImageView, awayLogoImageView].forEach {
             $0.contentMode = .scaleAspectFit
             $0.snp.makeConstraints { $0.size.equalTo(35) }
@@ -191,7 +190,6 @@ class MatchCell: UITableViewCell {
         }
     }
 
-    
     override func prepareForReuse() {
         super.prepareForReuse()
         [homeLabel, awayLabel, scoreLabel, dateLabel, refereeLabel, venueLabel].forEach {

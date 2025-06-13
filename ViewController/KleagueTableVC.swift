@@ -74,6 +74,5 @@ class KleagueTableVC: UIViewController {
                 cell.configure(with: team)
             }
             .disposed(by: disposeBag)
-
     }
 }

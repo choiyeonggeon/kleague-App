@@ -83,12 +83,11 @@ class KleagueVC: UIViewController {
                 button.titleEdgeInsets = UIEdgeInsets(top: 4, left: 0, bottom: 4, right: 0)
                 button.imageEdgeInsets = UIEdgeInsets(top: 0, left: 15, bottom: 10, right: 0)
             }
+            
             button.tag = index
             button.addTarget(self, action: #selector(tabTapped(_:)), for: .touchUpInside)
             stackView.addArrangedSubview(button)
-            
         }
-        
     }
     
     @objc private func tabTapped(_ sender: UIButton) {

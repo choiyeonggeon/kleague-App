@@ -18,6 +18,7 @@
 		4224C2BE2DF7FCEE00E3D330 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 4224C2BD2DF7FCEE00E3D330 /* FirebaseStorage */; };
 		4228E7902DF8032100B4385B /* KakaoMapsSDK-SPM in Frameworks */ = {isa = PBXBuildFile; productRef = 4228E78F2DF8032100B4385B /* KakaoMapsSDK-SPM */; };
 		4228E7932DF8033400B4385B /* NMapsMap in Frameworks */ = {isa = PBXBuildFile; productRef = 4228E7922DF8033400B4385B /* NMapsMap */; };
+		427D4C822DFC21E100B16959 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 427D4C812DFC21E100B16959 /* FirebaseMessaging */; };
 		42C1DB0E2DF981BC00CD0409 /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 42C1DB0D2DF981BC00CD0409 /* SDWebImage */; };
 		42C1DB132DF988E200CD0409 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 42C1DB122DF988E200CD0409 /* Kingfisher */; };
 /* End PBXBuildFile section */
@@ -40,18 +41,18 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		42128B232DE7520100C83D70 /* KleagueApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KleagueApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		42128B3C2DE7520100C83D70 /* KleagueAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KleagueAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		42128B462DE7520100C83D70 /* KleagueAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KleagueAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		42128B232DE7520100C83D70 /* gugchugyeojido.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = gugchugyeojido.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		42128B3C2DE7520100C83D70 /* gugchugyeojidoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = gugchugyeojidoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		42128B462DE7520100C83D70 /* gugchugyeojidoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = gugchugyeojidoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		42128B4E2DE7520100C83D70 /* Exceptions for "KleagueApp" folder in "KleagueApp" target */ = {
+		427D4DAD2DFC806500B16959 /* Exceptions for "KleagueApp" folder in "gugchugyeojido" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 42128B222DE7520100C83D70 /* KleagueApp */;
+			target = 42128B222DE7520100C83D70 /* gugchugyeojido */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -59,7 +60,7 @@
 		42128B252DE7520100C83D70 /* KleagueApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				42128B4E2DE7520100C83D70 /* Exceptions for "KleagueApp" folder in "KleagueApp" target */,
+				427D4DAD2DFC806500B16959 /* Exceptions for "KleagueApp" folder in "gugchugyeojido" target */,
 			);
 			path = KleagueApp;
 			sourceTree = "<group>";
@@ -118,6 +119,7 @@
 			files = (
 				4224C2AF2DF7FC5B00E3D330 /* RxRelay in Frameworks */,
 				4224C2AD2DF7FC5B00E3D330 /* RxCocoa in Frameworks */,
+				427D4C822DFC21E100B16959 /* FirebaseMessaging in Frameworks */,
 				4224C2BE2DF7FCEE00E3D330 /* FirebaseStorage in Frameworks */,
 				4224C2B42DF7FC9F00E3D330 /* RxGesture in Frameworks */,
 				4224C2B72DF7FCB900E3D330 /* SnapKit in Frameworks */,
@@ -169,9 +171,9 @@
 		42128B242DE7520100C83D70 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				42128B232DE7520100C83D70 /* KleagueApp.app */,
-				42128B3C2DE7520100C83D70 /* KleagueAppTests.xctest */,
-				42128B462DE7520100C83D70 /* KleagueAppUITests.xctest */,
+				42128B232DE7520100C83D70 /* gugchugyeojido.app */,
+				42128B3C2DE7520100C83D70 /* gugchugyeojidoTests.xctest */,
+				42128B462DE7520100C83D70 /* gugchugyeojidoUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -179,9 +181,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		42128B222DE7520100C83D70 /* KleagueApp */ = {
+		42128B222DE7520100C83D70 /* gugchugyeojido */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 42128B4F2DE7520100C83D70 /* Build configuration list for PBXNativeTarget "KleagueApp" */;
+			buildConfigurationList = 42128B4F2DE7520100C83D70 /* Build configuration list for PBXNativeTarget "gugchugyeojido" */;
 			buildPhases = (
 				42128B1F2DE7520100C83D70 /* Sources */,
 				42128B202DE7520100C83D70 /* Frameworks */,
@@ -201,7 +203,7 @@
 				4248593C2DE87A3400169194 /* ViewModel */,
 				42DA30662DEC343C00ABB45F /* Secret */,
 			);
-			name = KleagueApp;
+			name = gugchugyeojido;
 			packageProductDependencies = (
 				4224C2A92DF7FC4500E3D330 /* Alamofire */,
 				4224C2AC2DF7FC5B00E3D330 /* RxCocoa */,
@@ -216,14 +218,15 @@
 				4228E7922DF8033400B4385B /* NMapsMap */,
 				42C1DB0D2DF981BC00CD0409 /* SDWebImage */,
 				42C1DB122DF988E200CD0409 /* Kingfisher */,
+				427D4C812DFC21E100B16959 /* FirebaseMessaging */,
 			);
 			productName = KleagueApp;
-			productReference = 42128B232DE7520100C83D70 /* KleagueApp.app */;
+			productReference = 42128B232DE7520100C83D70 /* gugchugyeojido.app */;
 			productType = "com.apple.product-type.application";
 		};
-		42128B3B2DE7520100C83D70 /* KleagueAppTests */ = {
+		42128B3B2DE7520100C83D70 /* gugchugyeojidoTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 42128B542DE7520100C83D70 /* Build configuration list for PBXNativeTarget "KleagueAppTests" */;
+			buildConfigurationList = 42128B542DE7520100C83D70 /* Build configuration list for PBXNativeTarget "gugchugyeojidoTests" */;
 			buildPhases = (
 				42128B382DE7520100C83D70 /* Sources */,
 				42128B392DE7520100C83D70 /* Frameworks */,
@@ -237,16 +240,16 @@
 			fileSystemSynchronizedGroups = (
 				42128B3F2DE7520100C83D70 /* KleagueAppTests */,
 			);
-			name = KleagueAppTests;
+			name = gugchugyeojidoTests;
 			packageProductDependencies = (
 			);
 			productName = KleagueAppTests;
-			productReference = 42128B3C2DE7520100C83D70 /* KleagueAppTests.xctest */;
+			productReference = 42128B3C2DE7520100C83D70 /* gugchugyeojidoTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		42128B452DE7520100C83D70 /* KleagueAppUITests */ = {
+		42128B452DE7520100C83D70 /* gugchugyeojidoUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 42128B572DE7520100C83D70 /* Build configuration list for PBXNativeTarget "KleagueAppUITests" */;
+			buildConfigurationList = 42128B572DE7520100C83D70 /* Build configuration list for PBXNativeTarget "gugchugyeojidoUITests" */;
 			buildPhases = (
 				42128B422DE7520100C83D70 /* Sources */,
 				42128B432DE7520100C83D70 /* Frameworks */,
@@ -260,11 +263,11 @@
 			fileSystemSynchronizedGroups = (
 				42128B492DE7520100C83D70 /* KleagueAppUITests */,
 			);
-			name = KleagueAppUITests;
+			name = gugchugyeojidoUITests;
 			packageProductDependencies = (
 			);
 			productName = KleagueAppUITests;
-			productReference = 42128B462DE7520100C83D70 /* KleagueAppUITests.xctest */;
+			productReference = 42128B462DE7520100C83D70 /* gugchugyeojidoUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -275,7 +278,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1630;
-				LastUpgradeCheck = 1630;
+				LastUpgradeCheck = 1640;
 				TargetAttributes = {
 					42128B222DE7520100C83D70 = {
 						CreatedOnToolsVersion = 16.3;
@@ -290,12 +293,13 @@
 					};
 				};
 			};
-			buildConfigurationList = 42128B1E2DE7520100C83D70 /* Build configuration list for PBXProject "KleagueApp" */;
+			buildConfigurationList = 42128B1E2DE7520100C83D70 /* Build configuration list for PBXProject "gugchugyeojido" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
+				ko,
 			);
 			mainGroup = 42128B1A2DE7520100C83D70;
 			minimizedProjectReferenceProxies = 1;
@@ -315,9 +319,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				42128B222DE7520100C83D70 /* KleagueApp */,
-				42128B3B2DE7520100C83D70 /* KleagueAppTests */,
-				42128B452DE7520100C83D70 /* KleagueAppUITests */,
+				42128B222DE7520100C83D70 /* gugchugyeojido */,
+				42128B3B2DE7520100C83D70 /* gugchugyeojidoTests */,
+				42128B452DE7520100C83D70 /* gugchugyeojidoUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -373,12 +377,12 @@
 /* Begin PBXTargetDependency section */
 		42128B3E2DE7520100C83D70 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 42128B222DE7520100C83D70 /* KleagueApp */;
+			target = 42128B222DE7520100C83D70 /* gugchugyeojido */;
 			targetProxy = 42128B3D2DE7520100C83D70 /* PBXContainerItemProxy */;
 		};
 		42128B482DE7520100C83D70 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 42128B222DE7520100C83D70 /* KleagueApp */;
+			target = 42128B222DE7520100C83D70 /* gugchugyeojido */;
 			targetProxy = 42128B472DE7520100C83D70 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -389,6 +393,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = KleagueApp/KleagueApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = N5PZ4NS352;
@@ -421,10 +426,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = KleagueApp/KleagueApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = N5PZ4NS352;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = KleagueApp/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
 				INFOPLIST_KEY_NSLocationUsageDescription = "사용자의 위치를 기반으로 맛집 정보를 제공하기 위해 권한이 필요합니다.";
@@ -453,6 +459,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -516,6 +523,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -581,7 +589,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KleagueApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/KleagueApp";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/gugchugyeojido.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/gugchugyeojido";
 			};
 			name = Debug;
 		};
@@ -599,7 +607,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KleagueApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/KleagueApp";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/gugchugyeojido.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/gugchugyeojido";
 			};
 			name = Release;
 		};
@@ -638,7 +646,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		42128B1E2DE7520100C83D70 /* Build configuration list for PBXProject "KleagueApp" */ = {
+		42128B1E2DE7520100C83D70 /* Build configuration list for PBXProject "gugchugyeojido" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				42128B522DE7520100C83D70 /* Debug */,
@@ -647,7 +655,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		42128B4F2DE7520100C83D70 /* Build configuration list for PBXNativeTarget "KleagueApp" */ = {
+		42128B4F2DE7520100C83D70 /* Build configuration list for PBXNativeTarget "gugchugyeojido" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				42128B502DE7520100C83D70 /* Debug */,
@@ -656,7 +664,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		42128B542DE7520100C83D70 /* Build configuration list for PBXNativeTarget "KleagueAppTests" */ = {
+		42128B542DE7520100C83D70 /* Build configuration list for PBXNativeTarget "gugchugyeojidoTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				42128B552DE7520100C83D70 /* Debug */,
@@ -665,7 +673,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		42128B572DE7520100C83D70 /* Build configuration list for PBXNativeTarget "KleagueAppUITests" */ = {
+		42128B572DE7520100C83D70 /* Build configuration list for PBXNativeTarget "gugchugyeojidoUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				42128B582DE7520100C83D70 /* Debug */,
@@ -806,6 +814,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 4228E7912DF8033400B4385B /* XCRemoteSwiftPackageReference "SPM-NMapsMap" */;
 			productName = NMapsMap;
+		};
+		427D4C812DFC21E100B16959 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4224C2B82DF7FCEE00E3D330 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
 		};
 		42C1DB0D2DF981BC00CD0409 /* SDWebImage */ = {
 			isa = XCSwiftPackageProductDependency;
