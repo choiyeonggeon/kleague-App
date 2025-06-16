@@ -8,7 +8,7 @@
 import UIKit
 import FirebaseAuth
 
-class LoginVC: UIViewController {
+class LoginVC: UIViewController, UITextFieldDelegate {
     
     private let emailTextField = UITextField()
     private let passwordTextField = UITextField()
@@ -20,9 +20,15 @@ class LoginVC: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupLoginVC()
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        view.addGestureRecognizer(tapGesture)
     }
     
     private func setupLoginVC() {
+        
+        emailTextField.delegate = self
+        passwordTextField.delegate = self
         
         emailTextField.placeholder = "이메일"
         emailTextField.borderStyle = .roundedRect
@@ -57,6 +63,11 @@ class LoginVC: UIViewController {
         ])
     }
     
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
+    
     @objc private func handleLogin() {
         guard let email = emailTextField.text, let password = passwordTextField.text else { return }
         
@@ -71,9 +82,12 @@ class LoginVC: UIViewController {
                 return
             }
             
-            print("로그인 성공: \(result?.user.uid ?? "")")
             self.navigationController?.popViewController(animated: true)
         }
+    }
+    
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
     }
     
     @objc private func goToSignup() {

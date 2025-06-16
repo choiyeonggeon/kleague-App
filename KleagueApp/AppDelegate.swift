@@ -7,6 +7,7 @@
 
 import UIKit
 import Firebase
+import FirebaseCore
 import NMapsMap
 import NMapsGeometry
 import CoreData
@@ -18,8 +19,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         NMFAuthManager.shared().ncpKeyId = "cno4k7hscd"
-        FirebaseApp.configure()
         
+        FirebaseApp.configure()
         return true
     }
     

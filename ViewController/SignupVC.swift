@@ -8,9 +8,10 @@
 import UIKit
 import SnapKit
 import FirebaseAuth
+import FirebaseCore
 import FirebaseFirestore
 
-class SignupVC: UIViewController {
+class SignupVC: UIViewController, UITextFieldDelegate, AuthUIDelegate {
     
     private let termsLabel = UILabel()
     private let termsSwitch = UISwitch()
@@ -20,13 +21,26 @@ class SignupVC: UIViewController {
     private let confirmPasswordTextField = UITextField()
     private let signupButton = UIButton(type: .system)
     
+    private let phoneTextField = UITextField()
+    private let verifyCodeTextField = UITextField()
+    private let sendCodeButton = UIButton(type: .system)
+    private let verifiButton = UIButton(type: .system)
+    private var verificationID: String?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupSigne()
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        view.addGestureRecognizer(tapGesture)
     }
     
     private func setupSigne() {
         view.backgroundColor = .white
+        
+        emailTextField.delegate = self
+        passwordTextField.delegate = self
+        confirmPasswordTextField.delegate = self
         
         emailTextField.placeholder = "이메일"
         emailTextField.borderStyle = .roundedRect
@@ -39,6 +53,22 @@ class SignupVC: UIViewController {
         confirmPasswordTextField.placeholder = "비밀번호 확인"
         confirmPasswordTextField.isSecureTextEntry = true
         confirmPasswordTextField.borderStyle = .roundedRect
+        
+        phoneTextField.placeholder = "휴대폰 번호 (+821012345678)"
+        phoneTextField.borderStyle = .roundedRect
+        phoneTextField.keyboardType = .phonePad
+        
+        verifyCodeTextField.placeholder = "인증번호 입력"
+        verifyCodeTextField.borderStyle = .roundedRect
+        verifyCodeTextField.keyboardType = .numberPad
+        verifyCodeTextField.isHidden = true
+        
+        sendCodeButton.setTitle("인증번호 전송", for: .normal)
+        sendCodeButton.addTarget(self, action: #selector(sendVerificationCode), for: .touchUpInside)
+        
+        verifiButton.setTitle("인증 확인", for: .normal)
+        verifiButton.addTarget(self, action: #selector(verifyCode), for: .touchUpInside)
+        verifiButton.isHidden = true
         
         termsLabel.text = "앱 이용 약관에 동의합니다."
         termsLabel.font = .systemFont(ofSize: 14)
@@ -63,6 +93,12 @@ class SignupVC: UIViewController {
         stack.axis = .vertical
         stack.spacing = 16
         self.view.addSubview(stack)
+        
+        
+        stack.insertArrangedSubview(phoneTextField, at: 3)
+        stack.insertArrangedSubview(sendCodeButton, at: 4)
+        stack.insertArrangedSubview(verifyCodeTextField, at: 5)
+        stack.insertArrangedSubview(verifiButton, at: 6)
         
         stack.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
@@ -122,6 +158,58 @@ class SignupVC: UIViewController {
         }
     }
     
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
+    }
+    
+    @objc private func sendVerificationCode() {
+        guard let phoneNumber = phoneTextField.text, !phoneNumber.isEmpty else {
+            showError("휴대폰 번호를 입력해주세요.")
+            return
+        }
+
+        PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumber, uiDelegate: nil) { [weak self] verificationID, error in
+            guard let self = self else { return }
+
+            if let error = error {
+                self.showError("인증번호 전송 실패: \(error.localizedDescription)")
+                return
+            }
+
+            guard let verificationID = verificationID else {
+                self.showError("인증번호 전송에 실패했습니다.")
+                return
+            }
+
+            self.verificationID = verificationID
+            self.showError("인증번호가 전송되었습니다.")
+            self.verifyCodeTextField.isHidden = false
+            self.verifiButton.isHidden = false
+        }
+    }
+    
+    @objc private func verifyCode() {
+        guard let verificationID = verificationID,
+              let verificationCode = verifyCodeTextField.text, !verificationCode.isEmpty else {
+            showError("인증 코드를 입력해주세요.")
+            return
+        }
+        
+        let credential = PhoneAuthProvider.provider().credential(
+            withVerificationID: verificationID, verificationCode: verificationCode)
+        
+        Auth.auth().signIn(with: credential) { [weak self] authResult, error in
+            guard let self = self else { return }
+            
+            if let error = error {
+                self.showError(error.localizedDescription)
+                return
+            }
+            self.showError("휴대폰 인증 성공")
+            print("Phone Auth User UID: \(authResult?.user.uid ?? "")")
+        }
+    }
+    
     private func showError(_ message: String) {
         errorLabel.text = message
         errorLabel.isHidden = false
@@ -136,5 +224,9 @@ class SignupVC: UIViewController {
         let passwordRegex = "^(?=.*[!@#$%^&*(),.?\":{}|<>]).{8,}$"
         return NSPredicate(format: "SELF MATCHES %@", passwordRegex).evaluate(with: password)
     }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
 }
-

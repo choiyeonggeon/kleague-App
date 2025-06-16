@@ -18,6 +18,7 @@
 		4224C2BE2DF7FCEE00E3D330 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 4224C2BD2DF7FCEE00E3D330 /* FirebaseStorage */; };
 		4228E7902DF8032100B4385B /* KakaoMapsSDK-SPM in Frameworks */ = {isa = PBXBuildFile; productRef = 4228E78F2DF8032100B4385B /* KakaoMapsSDK-SPM */; };
 		4228E7932DF8033400B4385B /* NMapsMap in Frameworks */ = {isa = PBXBuildFile; productRef = 4228E7922DF8033400B4385B /* NMapsMap */; };
+		427661A82DFFFF2000499502 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 427661A72DFFFF2000499502 /* FirebaseCore */; };
 		427D4C822DFC21E100B16959 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 427D4C812DFC21E100B16959 /* FirebaseMessaging */; };
 		42C1DB0E2DF981BC00CD0409 /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 42C1DB0D2DF981BC00CD0409 /* SDWebImage */; };
 		42C1DB132DF988E200CD0409 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 42C1DB122DF988E200CD0409 /* Kingfisher */; };
@@ -118,6 +119,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4224C2AF2DF7FC5B00E3D330 /* RxRelay in Frameworks */,
+				427661A82DFFFF2000499502 /* FirebaseCore in Frameworks */,
 				4224C2AD2DF7FC5B00E3D330 /* RxCocoa in Frameworks */,
 				427D4C822DFC21E100B16959 /* FirebaseMessaging in Frameworks */,
 				4224C2BE2DF7FCEE00E3D330 /* FirebaseStorage in Frameworks */,
@@ -219,6 +221,7 @@
 				42C1DB0D2DF981BC00CD0409 /* SDWebImage */,
 				42C1DB122DF988E200CD0409 /* Kingfisher */,
 				427D4C812DFC21E100B16959 /* FirebaseMessaging */,
+				427661A72DFFFF2000499502 /* FirebaseCore */,
 			);
 			productName = KleagueApp;
 			productReference = 42128B232DE7520100C83D70 /* gugchugyeojido.app */;
@@ -399,6 +402,7 @@
 				DEVELOPMENT_TEAM = N5PZ4NS352;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = KleagueApp/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "국축여지도";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
 				INFOPLIST_KEY_NSLocationUsageDescription = "사용자의 위치를 기반으로 맛집 정보를 제공하기 위해 권한이 필요합니다.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "사용자의 위치를 기반으로 맛집 정보를 제공하기 위해 권한이 필요합니다.";
@@ -412,7 +416,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.cyg050217.112399;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -432,6 +436,7 @@
 				DEVELOPMENT_TEAM = N5PZ4NS352;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = KleagueApp/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "국축여지도";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
 				INFOPLIST_KEY_NSLocationUsageDescription = "사용자의 위치를 기반으로 맛집 정보를 제공하기 위해 권한이 필요합니다.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "사용자의 위치를 기반으로 맛집 정보를 제공하기 위해 권한이 필요합니다.";
@@ -445,7 +450,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.cyg050217.112399;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -814,6 +819,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 4228E7912DF8033400B4385B /* XCRemoteSwiftPackageReference "SPM-NMapsMap" */;
 			productName = NMapsMap;
+		};
+		427661A72DFFFF2000499502 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4224C2B82DF7FCEE00E3D330 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
 		};
 		427D4C812DFC21E100B16959 /* FirebaseMessaging */ = {
 			isa = XCSwiftPackageProductDependency;

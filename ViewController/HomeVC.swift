@@ -30,7 +30,7 @@ class HomeVC: UIViewController {
         view.addSubview(titleLabel)
         
         titleLabel.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(90)
+            $0.top.equalTo(view.safeAreaLayoutGuide.snp.top).inset(-10)
             $0.leading.trailing.equalToSuperview().inset(20)
         }
         
