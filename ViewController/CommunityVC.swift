@@ -1,9 +1,8 @@
 //
-//  MatchVC.swift
+//  CommunityVC.swift
 //  KleagueApp
 //
 //  Created by 최영건 on 5/29/25.
-//
 //
 
 import UIKit
@@ -140,6 +139,7 @@ class CommunityVC: UIViewController {
     }
 }
 
+// MARK: - UITableViewDataSource & UITableViewDelegate
 extension CommunityVC: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return filteredPosts.count
@@ -155,6 +155,8 @@ extension CommunityVC: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        // 상세 화면으로 이동 예정
+        let post = filteredPosts[indexPath.row]
+        let detailVC = CommunityDetailVC(post: post)
+        navigationController?.pushViewController(detailVC, animated: true)
     }
 }

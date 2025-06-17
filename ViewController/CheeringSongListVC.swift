@@ -27,6 +27,26 @@ class CheeringSongListVC: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        title = team.teamName
+        setupCheeringUI()
+        bindCheeringTableView()
+    }
+    
+    func setupCheeringUI() {
+        view.addSubview(tableView)
+        tableView.snp.makeConstraints { $0.edges.equalToSuperview() }
+        tableView.register(UITableView.self, forCellReuseIdentifier: "SongCell")
+    }
+    
+    func bindCheeringTableView() {
+        songsRelay.bind(to: tableView.rx.items(cellIdentifier: "SongCell")) { row, song, cell in
+            cell.textLabel?.text = song.title
+        }.disposed(by: disposeBag)
         
+        tableView.rx.modelSelected(CheeringSong.self)
+            .subscribe(onNext: { [weak self] song in
+                let vc = CheeringSongDetailVC(song: song)
+                self?.navigationController?.pushViewController(vc, animated: true)
+            }).disposed(by: disposeBag)
     }
 }

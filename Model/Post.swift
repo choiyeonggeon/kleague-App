@@ -6,29 +6,43 @@
 //
 
 import Foundation
+import FirebaseFirestore
 
 struct Post {
+    let id: String
     let title: String
+    let content: String
     let preview: String
-    let likes: Int
-    let comments: Int
+    var likes: Int
+    var dislikes: Int
+    let commentsCount: Int
     let team: String
     let author: String
+    let createdAt: Date
 
-    init?(from data: [String: Any]) {
+    init?(from document: DocumentSnapshot) {
+        let data = document.data() ?? [:]
+        
         guard let title = data["title"] as? String,
-              let preview = data["content"] as? String,
+              let content = data["content"] as? String,
               let likes = data["likes"] as? Int,
-              let comments = data["commentsCount"] as? Int,
+              let dislikes = data["dislikes"] as? Int,
+              let commentsCount = data["commentsCount"] as? Int,
               let team = data["teamName"] as? String,
-              let author = data["author"] as? String else {
+              let author = data["author"] as? String,
+              let timestamp = data["createdAt"] as? Timestamp else {
             return nil
         }
+
+        self.id = document.documentID
         self.title = title
-        self.preview = preview
+        self.content = content
+        self.preview = String(content.prefix(50))  // 미리보기는 본문에서 50자만
         self.likes = likes
-        self.comments = comments
+        self.dislikes = dislikes
+        self.commentsCount = commentsCount
         self.team = team
         self.author = author
+        self.createdAt = timestamp.dateValue()
     }
 }

@@ -26,7 +26,7 @@ class CheeringTeamListVC: UIViewController {
         view.backgroundColor = .white
         title = "응원가"
         setupSong()
-//        bindTableView()
+        bindTableView()
     }
     
     func setupSong() {
@@ -35,15 +35,15 @@ class CheeringTeamListVC: UIViewController {
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "TeamCell")
     }
     
-//    func bindTableView() {
-//        teams.bind(to: tableView.rx.items(cellIdentifier: "TeamCell")) { row, model, cell in
-//            cell.textLabel?.text = model.teamName
-//        }.disposed(by: disposeBag)
-//        
-//        tableView.rx.modelSelected(CheeringSong.self)
-//            .subscribe(onNext: {[weak self] song in
-//                let vc = CheeringSongDetailVC(song: song)
-//                self?.navigationController?.pushViewController(vc, animated: true)
-//            })
-//    }
+    func bindTableView() {
+        teams.bind(to: tableView.rx.items(cellIdentifier: "TeamCell")) { row, model, cell in
+            cell.textLabel?.text = model.teamName
+        }.disposed(by: disposeBag)
+        
+        tableView.rx.modelSelected(TeamCheeringSongs.self)
+            .subscribe(onNext: { [weak self] team in
+                let vc = CheeringSongListVC(team: team)
+                self?.navigationController?.pushViewController(vc, animated: true)
+            }).disposed(by: disposeBag)
+    }
 }

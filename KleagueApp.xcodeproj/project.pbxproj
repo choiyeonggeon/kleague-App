@@ -42,18 +42,18 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		42128B232DE7520100C83D70 /* gugchugyeojido.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = gugchugyeojido.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		42128B3C2DE7520100C83D70 /* gugchugyeojidoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = gugchugyeojidoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		42128B462DE7520100C83D70 /* gugchugyeojidoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = gugchugyeojidoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		42128B232DE7520100C83D70 /* KleagueApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KleagueApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		42128B3C2DE7520100C83D70 /* KleagueAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KleagueAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		42128B462DE7520100C83D70 /* KleagueAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KleagueAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		427D4DAD2DFC806500B16959 /* Exceptions for "KleagueApp" folder in "gugchugyeojido" target */ = {
+		427D4DAD2DFC806500B16959 /* Exceptions for "KleagueApp" folder in "KleagueApp" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 42128B222DE7520100C83D70 /* gugchugyeojido */;
+			target = 42128B222DE7520100C83D70 /* KleagueApp */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -61,7 +61,7 @@
 		42128B252DE7520100C83D70 /* KleagueApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				427D4DAD2DFC806500B16959 /* Exceptions for "KleagueApp" folder in "gugchugyeojido" target */,
+				427D4DAD2DFC806500B16959 /* Exceptions for "KleagueApp" folder in "KleagueApp" target */,
 			);
 			path = KleagueApp;
 			sourceTree = "<group>";
@@ -173,9 +173,9 @@
 		42128B242DE7520100C83D70 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				42128B232DE7520100C83D70 /* gugchugyeojido.app */,
-				42128B3C2DE7520100C83D70 /* gugchugyeojidoTests.xctest */,
-				42128B462DE7520100C83D70 /* gugchugyeojidoUITests.xctest */,
+				42128B232DE7520100C83D70 /* KleagueApp.app */,
+				42128B3C2DE7520100C83D70 /* KleagueAppTests.xctest */,
+				42128B462DE7520100C83D70 /* KleagueAppUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -183,9 +183,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		42128B222DE7520100C83D70 /* gugchugyeojido */ = {
+		42128B222DE7520100C83D70 /* KleagueApp */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 42128B4F2DE7520100C83D70 /* Build configuration list for PBXNativeTarget "gugchugyeojido" */;
+			buildConfigurationList = 42128B4F2DE7520100C83D70 /* Build configuration list for PBXNativeTarget "KleagueApp" */;
 			buildPhases = (
 				42128B1F2DE7520100C83D70 /* Sources */,
 				42128B202DE7520100C83D70 /* Frameworks */,
@@ -205,7 +205,7 @@
 				4248593C2DE87A3400169194 /* ViewModel */,
 				42DA30662DEC343C00ABB45F /* Secret */,
 			);
-			name = gugchugyeojido;
+			name = KleagueApp;
 			packageProductDependencies = (
 				4224C2A92DF7FC4500E3D330 /* Alamofire */,
 				4224C2AC2DF7FC5B00E3D330 /* RxCocoa */,
@@ -224,12 +224,12 @@
 				427661A72DFFFF2000499502 /* FirebaseCore */,
 			);
 			productName = KleagueApp;
-			productReference = 42128B232DE7520100C83D70 /* gugchugyeojido.app */;
+			productReference = 42128B232DE7520100C83D70 /* KleagueApp.app */;
 			productType = "com.apple.product-type.application";
 		};
-		42128B3B2DE7520100C83D70 /* gugchugyeojidoTests */ = {
+		42128B3B2DE7520100C83D70 /* KleagueAppTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 42128B542DE7520100C83D70 /* Build configuration list for PBXNativeTarget "gugchugyeojidoTests" */;
+			buildConfigurationList = 42128B542DE7520100C83D70 /* Build configuration list for PBXNativeTarget "KleagueAppTests" */;
 			buildPhases = (
 				42128B382DE7520100C83D70 /* Sources */,
 				42128B392DE7520100C83D70 /* Frameworks */,
@@ -243,16 +243,16 @@
 			fileSystemSynchronizedGroups = (
 				42128B3F2DE7520100C83D70 /* KleagueAppTests */,
 			);
-			name = gugchugyeojidoTests;
+			name = KleagueAppTests;
 			packageProductDependencies = (
 			);
 			productName = KleagueAppTests;
-			productReference = 42128B3C2DE7520100C83D70 /* gugchugyeojidoTests.xctest */;
+			productReference = 42128B3C2DE7520100C83D70 /* KleagueAppTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		42128B452DE7520100C83D70 /* gugchugyeojidoUITests */ = {
+		42128B452DE7520100C83D70 /* KleagueAppUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 42128B572DE7520100C83D70 /* Build configuration list for PBXNativeTarget "gugchugyeojidoUITests" */;
+			buildConfigurationList = 42128B572DE7520100C83D70 /* Build configuration list for PBXNativeTarget "KleagueAppUITests" */;
 			buildPhases = (
 				42128B422DE7520100C83D70 /* Sources */,
 				42128B432DE7520100C83D70 /* Frameworks */,
@@ -266,11 +266,11 @@
 			fileSystemSynchronizedGroups = (
 				42128B492DE7520100C83D70 /* KleagueAppUITests */,
 			);
-			name = gugchugyeojidoUITests;
+			name = KleagueAppUITests;
 			packageProductDependencies = (
 			);
 			productName = KleagueAppUITests;
-			productReference = 42128B462DE7520100C83D70 /* gugchugyeojidoUITests.xctest */;
+			productReference = 42128B462DE7520100C83D70 /* KleagueAppUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -296,7 +296,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 42128B1E2DE7520100C83D70 /* Build configuration list for PBXProject "gugchugyeojido" */;
+			buildConfigurationList = 42128B1E2DE7520100C83D70 /* Build configuration list for PBXProject "KleagueApp" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -322,9 +322,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				42128B222DE7520100C83D70 /* gugchugyeojido */,
-				42128B3B2DE7520100C83D70 /* gugchugyeojidoTests */,
-				42128B452DE7520100C83D70 /* gugchugyeojidoUITests */,
+				42128B222DE7520100C83D70 /* KleagueApp */,
+				42128B3B2DE7520100C83D70 /* KleagueAppTests */,
+				42128B452DE7520100C83D70 /* KleagueAppUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -380,12 +380,12 @@
 /* Begin PBXTargetDependency section */
 		42128B3E2DE7520100C83D70 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 42128B222DE7520100C83D70 /* gugchugyeojido */;
+			target = 42128B222DE7520100C83D70 /* KleagueApp */;
 			targetProxy = 42128B3D2DE7520100C83D70 /* PBXContainerItemProxy */;
 		};
 		42128B482DE7520100C83D70 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 42128B222DE7520100C83D70 /* gugchugyeojido */;
+			target = 42128B222DE7520100C83D70 /* KleagueApp */;
 			targetProxy = 42128B472DE7520100C83D70 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -416,7 +416,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.cyg050217.112399;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -450,7 +450,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.cyg050217.112399;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -594,7 +594,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/gugchugyeojido.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/gugchugyeojido";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KleagueApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/KleagueApp";
 			};
 			name = Debug;
 		};
@@ -612,7 +612,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/gugchugyeojido.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/gugchugyeojido";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KleagueApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/KleagueApp";
 			};
 			name = Release;
 		};
@@ -651,7 +651,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		42128B1E2DE7520100C83D70 /* Build configuration list for PBXProject "gugchugyeojido" */ = {
+		42128B1E2DE7520100C83D70 /* Build configuration list for PBXProject "KleagueApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				42128B522DE7520100C83D70 /* Debug */,
@@ -660,7 +660,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		42128B4F2DE7520100C83D70 /* Build configuration list for PBXNativeTarget "gugchugyeojido" */ = {
+		42128B4F2DE7520100C83D70 /* Build configuration list for PBXNativeTarget "KleagueApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				42128B502DE7520100C83D70 /* Debug */,
@@ -669,7 +669,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		42128B542DE7520100C83D70 /* Build configuration list for PBXNativeTarget "gugchugyeojidoTests" */ = {
+		42128B542DE7520100C83D70 /* Build configuration list for PBXNativeTarget "KleagueAppTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				42128B552DE7520100C83D70 /* Debug */,
@@ -678,7 +678,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		42128B572DE7520100C83D70 /* Build configuration list for PBXNativeTarget "gugchugyeojidoUITests" */ = {
+		42128B572DE7520100C83D70 /* Build configuration list for PBXNativeTarget "KleagueAppUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				42128B582DE7520100C83D70 /* Debug */,

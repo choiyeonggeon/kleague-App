@@ -81,7 +81,7 @@ class NoticeDetailVC: UIViewController {
     }
 
     private func configureContent() {
-        // [공지] 부분 파란색 처리
+        
         let attributedTitle = NSMutableAttributedString(string: notice.title)
         if let range = notice.title.range(of: "[공지]") {
             let nsRange = NSRange(range, in: notice.title)
