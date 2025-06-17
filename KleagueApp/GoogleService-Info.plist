@@ -7,23 +7,23 @@
 	<key>GCM_SENDER_ID</key>
 	<string>975831183463</string>
 	<key>PLIST_VERSION</key>
-	<string>1.0</string>
+	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.cyg050217.112399</string>
 	<key>PROJECT_ID</key>
-	<string>KleagueApp</string>
+	<string>kleagueapp</string>
 	<key>STORAGE_BUCKET</key>
-	<string>KleagueApp.firebasestorage.app</string>
+	<string>kleagueapp.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
-	<false/>
+	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
-	<false/>
+	<false></false>
 	<key>IS_APPINVITE_ENABLED</key>
-	<true/>
+	<true></true>
 	<key>IS_GCM_ENABLED</key>
-	<true/>
+	<true></true>
 	<key>IS_SIGNIN_ENABLED</key>
-	<true/>
+	<true></true>
 	<key>GOOGLE_APP_ID</key>
 	<string>1:975831183463:ios:89eefde634bcac1725a4c2</string>
 </dict>

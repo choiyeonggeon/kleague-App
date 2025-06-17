@@ -5,13 +5,6 @@
 //  Created by 최영건 on 6/16/25.
 //
 
-//
-//  CommunityWriteVC.swift
-//  gugchugyeojido
-//
-//  Created by 최영건 on 6/16/25.
-//
-
 import UIKit
 import SnapKit
 import FirebaseAuth
@@ -105,6 +98,7 @@ class CommunityWriteVC: UIViewController {
             "content": content,
             "teamName": team,
             "likes": 0,
+            "dislikes": 0,
             "commentsCount": 0,
             "author": user.email ?? "알 수 없음",
             "createdAt": Timestamp()

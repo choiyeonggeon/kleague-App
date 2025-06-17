@@ -15,7 +15,7 @@ struct Post {
     let preview: String
     var likes: Int
     var dislikes: Int
-    let commentsCount: Int
+    let commentsCount: Int  // 'commentsCount' 로 변경
     let team: String
     let author: String
     let createdAt: Date
@@ -37,7 +37,7 @@ struct Post {
         self.id = document.documentID
         self.title = title
         self.content = content
-        self.preview = String(content.prefix(50))  // 미리보기는 본문에서 50자만
+        self.preview = String(content.prefix(50))
         self.likes = likes
         self.dislikes = dislikes
         self.commentsCount = commentsCount

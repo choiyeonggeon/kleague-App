@@ -27,9 +27,10 @@ class PostCell: UITableViewCell {
     func configure(with post: Post) {
         titleLabel.text = "📌" + post.title
         previewLabel.text = post.preview
-        infoLabel.text = "❤️ \(post.likes)   👍 댓글 \(post.comments)"
+        infoLabel.text = "❤️ \(post.likes)   👍 댓글 \(post.commentsCount)"  // 수정됨
         authorLabel.text = "작성자: \(post.author)"
     }
+
     
     private func setupPostUI() {
         let stack = UIStackView(arrangedSubviews: [titleLabel, previewLabel, infoLabel, authorLabel])

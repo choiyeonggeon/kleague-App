@@ -119,12 +119,12 @@ class CommunityVC: UIViewController {
     private func fetchPosts() {
         Firestore.firestore().collection("posts")
             .order(by: "createdAt", descending: true)
-            .getDocuments { [weak self] Snapshot, error in
-                guard let documents = Snapshot?.documents, error == nil else {
-                    print("Error fetching posts: \(error?.localizedDescription ?? "Unknow error")")
+            .getDocuments { [weak self] snapshot, error in
+                guard let documents = snapshot?.documents, error == nil else {
+                    print("Error fetching posts: \(error?.localizedDescription ?? "Unknown error")")
                     return
                 }
-                self?.posts = documents.compactMap { Post(from: $0.data()) }
+                self?.posts = documents.compactMap { Post(from: $0) }  // document snapshot 전달
                 self?.applyFilter()
             }
     }
