@@ -6,9 +6,10 @@
 //
 
 import Foundation
+import FirebaseAuth
 import FirebaseFirestore
 
-struct Post {
+struct Post: Codable {
     let id: String
     let title: String
     let content: String

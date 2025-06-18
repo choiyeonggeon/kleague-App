@@ -7,6 +7,8 @@
 
 import UIKit
 import SnapKit
+import FirebaseAuth
+import FirebaseFirestore
 
 class PostCell: UITableViewCell {
     
@@ -50,13 +52,15 @@ class PostCell: UITableViewCell {
         contentView.addSubview(stack)
         
         reportButton.snp.makeConstraints {
-            $0.top.trailing.equalToSuperview().inset(12)
+            $0.top.equalToSuperview().inset(12)
+            $0.trailing.equalToSuperview().inset(12)
         }
-        
+
         stack.snp.makeConstraints {
-            $0.edges.equalToSuperview().inset(16)
+            $0.top.leading.bottom.equalToSuperview().inset(16)
             $0.trailing.equalTo(reportButton.snp.leading).offset(-8)
         }
+
         
         titleLabel.font = .boldSystemFont(ofSize: 16)
         previewLabel.font = .systemFont(ofSize: 14)

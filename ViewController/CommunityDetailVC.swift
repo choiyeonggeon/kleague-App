@@ -5,7 +5,6 @@
 //  Created by 최영건 on 6/17/25.
 //
 
-import Foundation
 import UIKit
 import SnapKit
 import FirebaseAuth
@@ -22,7 +21,6 @@ struct Comment {
 class CommunityDetailVC: UIViewController {
     
     var post: Post!
-    
     private var comments: [Comment] = []
     
     private let titleLabel = UILabel()
@@ -81,7 +79,7 @@ class CommunityDetailVC: UIViewController {
         commentButton.addTarget(self, action: #selector(didTapComment), for: .touchUpInside)
         
         commentTableView.dataSource = self
-        commentTableView.register(UITableViewCell.self, forCellReuseIdentifier: "CommentCell")
+        commentTableView.register(CommentCell.self, forCellReuseIdentifier: "CommentCell")
         
         [titleLabel, contentLabel, authorLabel, likeButton, dislikeButton, commentField, commentButton, commentTableView].forEach {
             view.addSubview($0)
@@ -206,10 +204,58 @@ extension CommunityDetailVC: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CommentCell", for: indexPath)
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "CommentCell", for: indexPath) as? CommentCell else {
+            return UITableViewCell()
+        }
         let comment = comments[indexPath.row]
-        cell.textLabel?.text = "\(comment.author): \(comment.text)"
-        cell.textLabel?.numberOfLines = 0
+        cell.configure(author: comment.author, text: comment.text, time: timeAgoString(from: comment.createdAt))
+        cell.onReportTapped = { [weak self] in
+            self?.reportComment(comment)
+        }
         return cell
+    }
+}
+
+// 신고 처리 함수 추가
+extension CommunityDetailVC {
+    private func reportComment(_ comment: Comment) {
+        let alert = UIAlertController(title: "댓글 신고", message: "이 댓글을 신고하시겠습니까?", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        alert.addAction(UIAlertAction(title: "신고", style: .destructive, handler: { _ in
+            let reportData: [String: Any] = [
+                "commentId": comment.id,
+                "postId": comment.postId,
+                "reportedBy": self.currentUserName,
+                "reportedAt": Timestamp(date: Date())
+            ]
+            Firestore.firestore().collection("reports").addDocument(data: reportData) { error in
+                if let error = error {
+                    print("신고 실패: \(error.localizedDescription)")
+                } else {
+                    DispatchQueue.main.async {
+                        let successAlert = UIAlertController(title: "신고 완료", message: "신고가 접수되었습니다.", preferredStyle: .alert)
+                        successAlert.addAction(UIAlertAction(title: "확인", style: .default))
+                        self.present(successAlert, animated: true)
+                    }
+                }
+            }
+        }))
+        present(alert, animated: true)
+    }
+}
+
+// 날짜를 "몇 분 전" 같은 문자열로 변환하는 간단한 함수
+extension CommunityDetailVC {
+    private func timeAgoString(from date: Date) -> String {
+        let interval = Date().timeIntervalSince(date)
+        if interval < 60 {
+            return "방금 전"
+        } else if interval < 3600 {
+            return "\(Int(interval / 60))분 전"
+        } else if interval < 86400 {
+            return "\(Int(interval / 3600))시간 전"
+        } else {
+            return "\(Int(interval / 86400))일 전"
+        }
     }
 }
