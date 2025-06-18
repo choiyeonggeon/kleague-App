@@ -15,7 +15,7 @@ struct Post {
     let preview: String
     var likes: Int
     var dislikes: Int
-    let commentsCount: Int  // 'commentsCount' 로 변경
+    let commentsCount: Int
     let team: String
     let author: String
     let createdAt: Date
@@ -44,5 +44,25 @@ struct Post {
         self.team = team
         self.author = author
         self.createdAt = timestamp.dateValue()
+    }
+}
+
+extension Date {
+    var timeAgoDisplay: String {
+        let secondsAgo = Int(Date().timeIntervalSince(self))
+
+        if secondsAgo < 60 {
+            return "방금 전"
+        } else if secondsAgo < 3600 {
+            return "\(secondsAgo / 60)분 전"
+        } else if secondsAgo < 86400 {
+            return "\(secondsAgo / 3600)시간 전"
+        } else if secondsAgo < 604800 {
+            return "\(secondsAgo / 86400)일 전"
+        } else {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy.MM.dd"
+            return formatter.string(from: self)
+        }
     }
 }

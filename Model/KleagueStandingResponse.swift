@@ -57,7 +57,7 @@ struct Match: Codable {
 struct Fixture: Codable {
     let status: MatchStatus
     let date: String
-    let referee: String?             // ✅ Optional
+    let referee: String?
     let venue: Venue?
 }
 

@@ -10,10 +10,14 @@ import SnapKit
 
 class PostCell: UITableViewCell {
     
+    var onReportButtonTapped: (() -> Void)?
+    
     private let titleLabel = UILabel()
     private let previewLabel = UILabel()
     private let infoLabel = UILabel()
     private let authorLabel = UILabel()
+    private let timeLabel = UILabel()
+    private let reportButton = UIButton()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -27,19 +31,31 @@ class PostCell: UITableViewCell {
     func configure(with post: Post) {
         titleLabel.text = "📌" + post.title
         previewLabel.text = post.preview
-        infoLabel.text = "❤️ \(post.likes)   👍 댓글 \(post.commentsCount)"  // 수정됨
+        infoLabel.text = "❤️ \(post.likes)   👍 댓글 \(post.commentsCount)"
         authorLabel.text = "작성자: \(post.author)"
+        timeLabel.text = "\(post.createdAt)"
     }
-
     
     private func setupPostUI() {
-        let stack = UIStackView(arrangedSubviews: [titleLabel, previewLabel, infoLabel, authorLabel])
+        
+        reportButton.setTitle("신고", for: .normal)
+        reportButton.setTitleColor(.systemRed, for: .normal)
+        reportButton.titleLabel?.font = .systemFont(ofSize: 13)
+        reportButton.addTarget(self, action: #selector(reportTapped), for: .touchUpInside)
+        contentView.addSubview(reportButton)
+        
+        let stack = UIStackView(arrangedSubviews: [titleLabel, previewLabel, infoLabel, authorLabel, timeLabel])
         stack.axis = .vertical
         stack.spacing = 8
         contentView.addSubview(stack)
         
+        reportButton.snp.makeConstraints {
+            $0.top.trailing.equalToSuperview().inset(12)
+        }
+        
         stack.snp.makeConstraints {
             $0.edges.equalToSuperview().inset(16)
+            $0.trailing.equalTo(reportButton.snp.leading).offset(-8)
         }
         
         titleLabel.font = .boldSystemFont(ofSize: 16)
@@ -49,5 +65,12 @@ class PostCell: UITableViewCell {
         infoLabel.textColor = .gray
         authorLabel.font = .systemFont(ofSize: 13)
         authorLabel.textColor = .lightGray
+        timeLabel.font = .systemFont(ofSize: 13)
+        timeLabel.textColor = .lightGray
     }
+    
+    @objc private func reportTapped() {
+        onReportButtonTapped?()
+    }
+    
 }

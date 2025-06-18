@@ -17,6 +17,7 @@ class CommunityVC: UIViewController {
     private let writeButton = UIButton(type: .system)
     private let seachButton = UIButton(type: .system)
     private let teamFilterButton = UIButton(type: .system)
+    private let reportButton = UIButton(type: .system)
     
     private var posts: [Post] = []
     private var filteredPosts: [Post] = []
@@ -116,6 +117,52 @@ class CommunityVC: UIViewController {
         present(alert, animated: true)
     }
     
+    private func showReportAlert(postId: String) {
+        let alert = UIAlertController(title: "신고", message: "신고 사유를 입력해주세요.", preferredStyle: .alert)
+        
+        alert.addTextField { textField in
+            textField.placeholder = "신고 사유"
+        }
+        
+        let reportAction = UIAlertAction(title: "신고", style: .default) { _ in
+            guard let reason = alert.textFields?.first?.text, !reason.isEmpty else { return }
+            self.reportPost(postId: postId, reason: reason)
+        }
+        
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        alert.addAction(reportAction)
+        
+        present(alert, animated: true)
+    }
+    
+    private func reportPost(postId: String, reason: String) {
+        guard let user = Auth.auth().currentUser else {
+            print("❌ 로그인된 사용자가 없습니다.")
+            return
+        }
+        
+        let db = Firestore.firestore()
+        let reportRef = db.collection("reports").document("postReports").collection("items").document()
+        
+        let data: [String: Any] = [
+            "postId": postId,
+            "reportedBy": user.uid,
+            "reason": reason,
+            "createdAt": Timestamp(date: Date())
+        ]
+        
+        reportRef.setData(data) { error in
+            if let error = error {
+                print("❌ 신고 작성 중 오류: \(error.localizedDescription)")
+                return
+            }
+            print("✅ 신고 작성 성공")
+            let alert = UIAlertController(title: "신고", message: "신고가 접수되었습니다.", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "확인", style: .default))
+            self.present(alert, animated: true)
+        }
+    }
+    
     private func fetchPosts() {
         Firestore.firestore().collection("posts")
             .order(by: "createdAt", descending: true)
@@ -144,13 +191,18 @@ extension CommunityVC: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return filteredPosts.count
     }
-
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "PostCell", for: indexPath) as? PostCell else {
             return UITableViewCell()
         }
-
-        cell.configure(with: filteredPosts[indexPath.row])
+        
+        let post = filteredPosts[indexPath.row]
+        cell.configure(with: post)
+        cell.onReportButtonTapped = { [weak self] in
+            self?.showReportAlert(postId: post.id)
+        }
+        
         return cell
     }
     

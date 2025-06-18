@@ -12,15 +12,18 @@ import FirebaseAuth
 import FirebaseFirestore
 
 struct Comment {
+    let id: String
+    let postId: String
     let author: String
     let text: String
+    let createdAt: Date
 }
 
 class CommunityDetailVC: UIViewController {
     
     var post: Post!
     
-    private var comments: [Comment] = [] // ✅ 오타 수정
+    private var comments: [Comment] = []
     
     private let titleLabel = UILabel()
     private let contentLabel = UILabel()
@@ -31,7 +34,9 @@ class CommunityDetailVC: UIViewController {
     private let commentButton = UIButton(type: .system)
     private let commentTableView = UITableView()
     
-    private let currentUserName = "현재사용자"
+    private var currentUserName: String {
+        Auth.auth().currentUser?.email ?? "익명"
+    }
     
     init(post: Post) {
         self.post = post
@@ -145,8 +150,15 @@ class CommunityDetailVC: UIViewController {
     
     @objc private func didTapComment() {
         guard let text = commentField.text, !text.isEmpty else { return }
+
+        let newComment = Comment(
+            id: UUID().uuidString,
+            postId: post.id,
+            author: currentUserName,
+            text: text,
+            createdAt: Date()
+        )
         
-        let newComment = Comment(author: currentUserName, text: text)
         comments.append(newComment)
         commentField.text = ""
         commentTableView.reloadData()
@@ -155,7 +167,7 @@ class CommunityDetailVC: UIViewController {
         postRef.collection("comments").addDocument(data: [
             "author": newComment.author,
             "text": newComment.text,
-            "createdAt": Timestamp()
+            "createdAt": Timestamp(date: newComment.createdAt)
         ])
         
         postRef.updateData(["commentsCount": FieldValue.increment(Int64(1))])
@@ -172,8 +184,15 @@ class CommunityDetailVC: UIViewController {
                     self.comments = documents.compactMap { doc in
                         let data = doc.data()
                         guard let author = data["author"] as? String,
-                              let text = data["text"] as? String else { return nil }
-                        return Comment(author: author, text: text)
+                              let text = data["text"] as? String,
+                              let timestamp = data["createdAt"] as? Timestamp else { return nil }
+                        return Comment(
+                            id: doc.documentID,
+                            postId: self.post.id,
+                            author: author,
+                            text: text,
+                            createdAt: timestamp.dateValue()
+                        )
                     }
                     self.commentTableView.reloadData()
                 }
