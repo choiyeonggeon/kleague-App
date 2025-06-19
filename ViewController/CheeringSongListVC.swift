@@ -35,7 +35,7 @@ class CheeringSongListVC: UIViewController {
     func setupCheeringUI() {
         view.addSubview(tableView)
         tableView.snp.makeConstraints { $0.edges.equalToSuperview() }
-        tableView.register(UITableView.self, forCellReuseIdentifier: "SongCell")
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "SongCell")
     }
     
     func bindCheeringTableView() {

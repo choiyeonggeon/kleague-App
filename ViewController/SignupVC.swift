@@ -7,6 +7,7 @@
 
 import UIKit
 import SnapKit
+import PDFKit
 import FirebaseAuth
 import FirebaseCore
 import FirebaseFirestore
@@ -16,6 +17,7 @@ class SignupVC: UIViewController, UITextFieldDelegate, AuthUIDelegate {
     private let termsLabel = UILabel()
     private let termsSwitch = UISwitch()
     private let errorLabel = UILabel()
+    private let privacyButtton = UIButton(type: .system)
     private let emailTextField = UITextField()
     private let passwordTextField = UITextField()
     private let confirmPasswordTextField = UITextField()
@@ -73,6 +75,11 @@ class SignupVC: UIViewController, UITextFieldDelegate, AuthUIDelegate {
         termsLabel.text = "앱 이용 약관에 동의합니다."
         termsLabel.font = .systemFont(ofSize: 14)
         
+        privacyButtton.setTitle("보기", for: .normal)
+        privacyButtton.setTitleColor(.blue, for: .normal)
+        privacyButtton.titleLabel?.font = .systemFont(ofSize: 14)
+        privacyButtton.addTarget(self, action: #selector(pdfVC), for: .touchUpInside)
+        
         signupButton.setTitle("회원가입", for: .normal)
         signupButton.backgroundColor = .systemGray
         signupButton.setTitleColor(.white, for: .normal)
@@ -84,7 +91,7 @@ class SignupVC: UIViewController, UITextFieldDelegate, AuthUIDelegate {
         errorLabel.numberOfLines = 0
         errorLabel.isHidden = true
         
-        let termsStack = UIStackView(arrangedSubviews: [termsLabel, termsSwitch])
+        let termsStack = UIStackView(arrangedSubviews: [termsLabel, privacyButtton, termsSwitch])
         termsStack.axis = .horizontal
         termsStack.spacing = 8
         termsStack.alignment = .center
@@ -160,6 +167,11 @@ class SignupVC: UIViewController, UITextFieldDelegate, AuthUIDelegate {
             self.verifyCodeTextField.isHidden = false
             self.verifiButton.isHidden = false
         }
+    }
+    
+    @objc private func pdfVC() {
+        let vc = PDFViewerVC()
+        navigationController?.pushViewController(vc, animated: true)
     }
     
     @objc private func dismissKeyboard() {

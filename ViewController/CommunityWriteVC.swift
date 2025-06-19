@@ -101,6 +101,7 @@ class CommunityWriteVC: UIViewController {
             "dislikes": 0,
             "commentsCount": 0,
             "author": user.email ?? "알 수 없음",
+            "authorUid": user.uid,
             "createdAt": Timestamp()
         ]
         

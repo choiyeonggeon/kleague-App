@@ -18,7 +18,8 @@ class CheeringTeamListVC: UIViewController {
     let teams = BehaviorRelay<[TeamCheeringSongs]>(value: [
         TeamCheeringSongs(teamName: "수원", songs: [
             CheeringSong(title: "나의 사랑 나의 수원", lyrics: "오오오오~ 사랑한다\n나의 사랑 나의 수원 오오오오\n좋아한다 오직 너만을 사랑해", youtubeURL: "https://www.youtube.com/watch?v=Oh0xmdjG4GY")
-        ])
+        ]),
+        TeamCheeringSongs(teamName: "FC서울", songs: [])
     ])
     
     override func viewDidLoad() {

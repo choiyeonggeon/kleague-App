@@ -44,6 +44,7 @@ struct Post: Codable {
         self.commentsCount = commentsCount
         self.team = team
         self.author = author
+        self.authorUid = authorUid
         self.createdAt = timestamp.dateValue()
     }
 }

@@ -67,30 +67,39 @@ class MoreVC: UIViewController {
     
     private func setupMoreTableView() {
         view.addSubview(moreTableView)
-    
+        
         moreTableView.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(20)
             $0.leading.trailing.bottom.equalToSuperview()
         }
         
-        let headerView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: 80))
-       
+        // MARK: - Header View 설정
+        let headerContainer = UIView()
+        headerContainer.backgroundColor = .clear
+        
         loginButton.setTitle("로그인", for: .normal)
         loginButton.setTitleColor(.black, for: .normal)
         loginButton.backgroundColor = .systemGray6
         loginButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 17)
         loginButton.addTarget(self, action: #selector(loginButtonTapped), for: .touchUpInside)
         
-        headerView.addSubview(loginButton)
+        headerContainer.addSubview(loginButton)
         loginButton.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview().inset(20)
-            $0.centerY.equalToSuperview()
+            $0.top.bottom.equalToSuperview().inset(18)
             $0.height.equalTo(44)
         }
         
-        moreTableView.tableHeaderView = headerView
+        // 높이 계산 후 frame 설정
+        headerContainer.layoutIfNeeded()
+        let headerHeight = headerContainer.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize).height
+        headerContainer.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: headerHeight)
         
-        let lastLabelView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: 100))
+        moreTableView.tableHeaderView = headerContainer
+        
+        // MARK: - Footer View 설정
+        let footerContainer = UIView()
+        footerContainer.backgroundColor = .clear
         
         lastLabel.text = "문의 및 건의 사항이 있으시다면\ngugchugyeojido@gmail.com\n031)1234-5678\n으로 연락해 주시기 바랍니다."
         lastLabel.numberOfLines = 0
@@ -98,18 +107,24 @@ class MoreVC: UIViewController {
         lastLabel.textColor = .gray
         lastLabel.textAlignment = .center
         
-        lastLabelView.addSubview(lastLabel)
+        footerContainer.addSubview(lastLabel)
         lastLabel.snp.makeConstraints {
             $0.edges.equalToSuperview().inset(16)
         }
         
-        moreTableView.tableFooterView = lastLabelView
+        footerContainer.layoutIfNeeded()
+        let footerHeight = footerContainer.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize).height
+        footerContainer.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: footerHeight)
         
+        moreTableView.tableFooterView = footerContainer
+        
+        // MARK: - TableView 설정
         moreTableView.dataSource = self
         moreTableView.delegate = self
         moreTableView.register(UITableViewCell.self, forCellReuseIdentifier: "MoreCell")
         moreTableView.separatorStyle = .singleLine
     }
+    
     
     @objc private func loginButtonTapped() {
         if Auth.auth().currentUser != nil {
@@ -140,13 +155,13 @@ extension MoreVC: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return items.count
     }
-
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MoreCell", for: indexPath)
         cell.textLabel?.text = items[indexPath.row]
         return cell
     }
-
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         print("선택된 항목: \(items[indexPath.row])")
         tableView.deselectRow(at: indexPath, animated: true)
@@ -205,6 +220,7 @@ extension MoreVC: UITableViewDataSource, UITableViewDelegate {
             navigationController?.pushViewController(customerServiceVC, animated: true)
         default:
             print("선택된 항목: \(items[indexPath.row])")
+            break
         }
     }
 }

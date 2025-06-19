@@ -24,6 +24,7 @@ class CheeringSongDetailVC: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = .white
         title = song.title
         setDetailUI()
         loadYoutube()
@@ -40,7 +41,7 @@ class CheeringSongDetailVC: UIViewController {
         
         lyricsLabel.text = song.lyrics
         lyricsLabel.numberOfLines = 0
-        lyricsLabel.textAlignment = .center
+        lyricsLabel.textAlignment = .left
         
         titleLabel.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide).offset(20)
@@ -54,7 +55,7 @@ class CheeringSongDetailVC: UIViewController {
         
         webView.snp.makeConstraints {
             $0.top.equalTo(lyricsLabel.snp.bottom).offset(20)
-            $0.leading.trailing.bottom.equalToSuperview().inset(20)
+            $0.leading.trailing.equalToSuperview().inset(20)
             $0.height.equalTo(200)
         }
     }
