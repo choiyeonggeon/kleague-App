@@ -23,11 +23,11 @@ class CommentCell: UITableViewCell {
         setupUI()
         setupActions()
     }
-
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
+    
     private func setupUI() {
         authorLabel.font = .boldSystemFont(ofSize: 14)
         
@@ -68,7 +68,7 @@ class CommentCell: UITableViewCell {
     @objc private func reportButtonTapped() {
         onReportTapped?()
     }
-
+    
     func configure(author: String, text: String, time: String) {
         authorLabel.text = author
         commentLabel.text = text

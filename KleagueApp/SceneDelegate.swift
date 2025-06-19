@@ -16,17 +16,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
 
-        // 반드시 self.window를 먼저 초기화
         self.window = UIWindow(windowScene: windowScene)
         self.window?.overrideUserInterfaceStyle = .light
 
-        // 네비게이션 컨트롤러를 루트로 지정
         let splashVC = SplashView()
         let navController = UINavigationController(rootViewController: splashVC)
         self.window?.rootViewController = navController
         self.window?.makeKeyAndVisible()
 
-        // 루트 교체 X → 네비게이션 컨트롤러 내부에서 setViewControllers
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
             let kleagueVC = KleagueVC()
             navController.setViewControllers([kleagueVC], animated: true)

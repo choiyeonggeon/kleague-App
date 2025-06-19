@@ -32,6 +32,27 @@ class MoreVC: UIViewController {
         updateLoginButtonTitle()
     }
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        
+        if let header = moreTableView.tableHeaderView {
+            let size = header.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
+            if header.frame.size.height != size.height || header.frame.size.width != view.frame.width {
+                header.frame.size = CGSize(width: view.frame.width, height: size.height)
+                moreTableView.tableHeaderView = header
+                
+            }
+        }
+        
+        if let footer = moreTableView.tableFooterView {
+            let size = footer.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
+            if footer.frame.height != size.height || footer.frame.width != view.frame.width {
+                footer.frame.size = CGSize(width: view.frame.width, height: size.height)
+                moreTableView.tableFooterView = footer
+            }
+        }
+    }
+    
     private func setMoreVC() {
         titleLabel.text = "국축여지도"
         titleLabel.textColor = .black

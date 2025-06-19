@@ -148,7 +148,7 @@ class CommunityDetailVC: UIViewController {
     
     @objc private func didTapComment() {
         guard let text = commentField.text, !text.isEmpty else { return }
-
+        
         let newComment = Comment(
             id: UUID().uuidString,
             postId: post.id,
@@ -244,7 +244,6 @@ extension CommunityDetailVC {
     }
 }
 
-// 날짜를 "몇 분 전" 같은 문자열로 변환하는 간단한 함수
 extension CommunityDetailVC {
     private func timeAgoString(from date: Date) -> String {
         let interval = Date().timeIntervalSince(date)

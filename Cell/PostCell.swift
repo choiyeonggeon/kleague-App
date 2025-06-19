@@ -31,9 +31,9 @@ class PostCell: UITableViewCell {
     }
     
     func configure(with post: Post) {
-        titleLabel.text = "📌" + post.title
+        titleLabel.text = post.title
         previewLabel.text = post.preview
-        infoLabel.text = "❤️ \(post.likes)   👍 댓글 \(post.commentsCount)"
+        infoLabel.text = "❤️ \(post.likes)    💬 \(post.commentsCount)"
         authorLabel.text = "작성자: \(post.author)"
         timeLabel.text = "\(post.createdAt)"
     }
@@ -53,14 +53,13 @@ class PostCell: UITableViewCell {
         
         reportButton.snp.makeConstraints {
             $0.top.equalToSuperview().inset(12)
-            $0.trailing.equalToSuperview().inset(12)
+            $0.trailing.equalToSuperview()
         }
-
+        
         stack.snp.makeConstraints {
             $0.top.leading.bottom.equalToSuperview().inset(16)
             $0.trailing.equalTo(reportButton.snp.leading).offset(-8)
         }
-
         
         titleLabel.font = .boldSystemFont(ofSize: 16)
         previewLabel.font = .systemFont(ofSize: 14)
@@ -76,5 +75,4 @@ class PostCell: UITableViewCell {
     @objc private func reportTapped() {
         onReportButtonTapped?()
     }
-    
 }

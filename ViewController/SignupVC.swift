@@ -138,13 +138,14 @@ class SignupVC: UIViewController, UITextFieldDelegate, AuthUIDelegate {
         
         Auth.auth().createUser(withEmail: email, password: password) { result, error in
             if let error = error {
-                print("회원가입 실패: \(error.localizedDescription)")
+                self.showError("회원가입 실패: \(error.localizedDescription)")
                 return
             }
-            print("회원가입 성공: \(result?.user.uid ?? "")")
+            
+            guard let uid = result?.user.uid else { return }
             
             let db = Firestore.firestore()
-            db.collection("users").document(result!.user.uid).setData([
+            db.collection("users").document(uid).setData([
                 "email": email,
                 "createdAt": Timestamp()
             ]) { error in
@@ -153,8 +154,11 @@ class SignupVC: UIViewController, UITextFieldDelegate, AuthUIDelegate {
                     return
                 }
                 print("DB 저장 성공")
-                self.navigationController?.popViewController(animated: true)
             }
+            
+            self.showError("회원가입 성공! 휴대폰 인증을 진행해주세요.")
+            self.verifyCodeTextField.isHidden = false
+            self.verifiButton.isHidden = false
         }
     }
     
@@ -167,20 +171,20 @@ class SignupVC: UIViewController, UITextFieldDelegate, AuthUIDelegate {
             showError("휴대폰 번호를 입력해주세요.")
             return
         }
-
+        
         PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumber, uiDelegate: nil) { [weak self] verificationID, error in
             guard let self = self else { return }
-
+            
             if let error = error {
                 self.showError("인증번호 전송 실패: \(error.localizedDescription)")
                 return
             }
-
+            
             guard let verificationID = verificationID else {
                 self.showError("인증번호 전송에 실패했습니다.")
                 return
             }
-
+            
             self.verificationID = verificationID
             self.showError("인증번호가 전송되었습니다.")
             self.verifyCodeTextField.isHidden = false
@@ -196,17 +200,17 @@ class SignupVC: UIViewController, UITextFieldDelegate, AuthUIDelegate {
         }
         
         let credential = PhoneAuthProvider.provider().credential(
-            withVerificationID: verificationID, verificationCode: verificationCode)
+            withVerificationID: verificationID,
+            verificationCode: verificationCode)
         
-        Auth.auth().signIn(with: credential) { [weak self] authResult, error in
-            guard let self = self else { return }
-            
+        Auth.auth().currentUser?.link(with: credential) { authResult, error in
             if let error = error {
-                self.showError(error.localizedDescription)
+                self.showError("전화번호 인증 실패: \(error.localizedDescription)")
                 return
             }
             self.showError("휴대폰 인증 성공")
-            print("Phone Auth User UID: \(authResult?.user.uid ?? "")")
+            print("전화번호 인증 성공, 링크된 UID: \(authResult?.user.uid ?? "")")
+            self.navigationController?.popToRootViewController(animated: true)
         }
     }
     

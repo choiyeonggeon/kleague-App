@@ -7,6 +7,8 @@
 
 import UIKit
 import SnapKit
+import RxSwift
+import RxCocoa
 import FirebaseAuth
 import FirebaseFirestore
 
@@ -18,6 +20,7 @@ class CommunityVC: UIViewController {
     private let seachButton = UIButton(type: .system)
     private let teamFilterButton = UIButton(type: .system)
     private let reportButton = UIButton(type: .system)
+    private let refreshControl = UIRefreshControl()
     
     private var posts: [Post] = []
     private var filteredPosts: [Post] = []
@@ -63,6 +66,8 @@ class CommunityVC: UIViewController {
         tableView.dataSource = self
         tableView.delegate = self
         tableView.separatorStyle = .none
+        tableView.refreshControl = refreshControl
+        refreshControl.addTarget(self, action: #selector(refreshPosts), for: .valueChanged)
         view.addSubview(tableView)
         
         tableView.snp.makeConstraints {
@@ -101,6 +106,10 @@ class CommunityVC: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "취소", style: .cancel))
         present(alert, animated: true)
+    }
+    
+    @objc private func refreshPosts() {
+        fetchPosts()
     }
     
     @objc private func didTapSearch() {
@@ -167,6 +176,7 @@ class CommunityVC: UIViewController {
         Firestore.firestore().collection("posts")
             .order(by: "createdAt", descending: true)
             .getDocuments { [weak self] snapshot, error in
+                self?.refreshControl.endRefreshing()
                 guard let documents = snapshot?.documents, error == nil else {
                     print("Error fetching posts: \(error?.localizedDescription ?? "Unknown error")")
                     return

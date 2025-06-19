@@ -16,7 +16,7 @@ class CommunityWriteVC: UIViewController {
     private let contentTextView = UITextView()
     private let teamPicker = UIPickerView()
     private let submitButton = UIButton(type: .system)
-
+    
     private let teams = ["전체", "서울", "서울E", "인천", "부천", "김포", "성남", "수원", "수원FC", "안양", "안산", "화성","대전", "충북청주","충남아산", "천안", "김천상무", "대구FC", "전북", "전남", "광주FC", "포항", "울산", "부산", "경남", "제주SK"]
     
     private var selectedTeam: String? = "전체"
@@ -125,15 +125,15 @@ extension CommunityWriteVC: UIPickerViewDataSource, UIPickerViewDelegate {
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1
     }
-
+    
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         return teams.count
     }
-
+    
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         return teams[row]
     }
-
+    
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         selectedTeam = teams[row]
     }
