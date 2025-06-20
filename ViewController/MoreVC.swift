@@ -17,7 +17,7 @@ class MoreVC: UIViewController {
     private let loginButton = UIButton(type: .system)
     private let moreTableView = UITableView()
     
-    let items = ["공지사항", "개인정보", "구단", "선수/감독", "이벤트", "응원가", "고객센터"]
+    let items = ["공지사항", "개인정보", "구단", "이벤트", "응원가", "고객센터"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -192,14 +192,6 @@ extension MoreVC: UITableViewDataSource, UITableViewDelegate {
         
         switch indexPath.row {
         case 3:
-            let playerAndDirectorVC = PlayerAndDirectorVC()
-            navigationController?.pushViewController(playerAndDirectorVC, animated: true)
-        default:
-            print("선택된 항목: \(items[indexPath.row])")
-        }
-        
-        switch indexPath.row {
-        case 4:
             let eventVC = eventVC()
             navigationController?.pushViewController(eventVC, animated: true)
         default:
@@ -207,7 +199,7 @@ extension MoreVC: UITableViewDataSource, UITableViewDelegate {
         }
         
         switch indexPath.row {
-        case 5:
+        case 4:
             let cheeringTeamVC = CheeringTeamListVC()
             navigationController?.pushViewController(cheeringTeamVC, animated: true)
         default:
@@ -215,7 +207,7 @@ extension MoreVC: UITableViewDataSource, UITableViewDelegate {
         }
         
         switch indexPath.row {
-        case 6:
+        case 5:
             let customerServiceVC = CustomerServiceVC()
             navigationController?.pushViewController(customerServiceVC, animated: true)
         default:

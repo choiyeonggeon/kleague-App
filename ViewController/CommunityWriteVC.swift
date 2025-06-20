@@ -10,7 +10,10 @@ class CommunityWriteVC: UIViewController {
     private let teamPicker = UIPickerView()
     private let submitButton = UIButton(type: .system)
     
-    private let teams = ["전체", "서울", "서울E", "인천", "부천", "김포", "성남", "수원", "수원FC", "안양", "안산", "화성", "대전", "충북청주", "충남아산", "천안", "김천상무", "대구FC", "전북", "전남", "광주FC", "포항", "울산", "부산", "경남", "제주SK"]
+    private let teams = ["전체", "서울", "서울E", "인천", "부천", "김포",
+                         "성남", "수원", "수원FC", "안양", "안산", "화성",
+                         "대전", "충북청주", "충남아산", "천안", "김천상무", "대구FC",
+                         "전북", "전남", "광주FC", "포항", "울산", "부산", "경남", "제주SK"]
     
     private var selectedTeam: String? = "전체"
     
@@ -89,7 +92,7 @@ class CommunityWriteVC: UIViewController {
         let postData: [String: Any] = [
             "title": title,
             "content": content,
-            "team": team,  // ✅ 수정
+            "team": team,
             "likes": 0,
             "dislikes": 0,
             "commentsCount": 0,
