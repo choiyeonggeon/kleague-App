@@ -1,10 +1,3 @@
-//
-//  CommunityWriteVC.swift
-//  gugchugyeojido
-//
-//  Created by 최영건 on 6/16/25.
-//
-
 import UIKit
 import SnapKit
 import FirebaseAuth
@@ -17,7 +10,7 @@ class CommunityWriteVC: UIViewController {
     private let teamPicker = UIPickerView()
     private let submitButton = UIButton(type: .system)
     
-    private let teams = ["전체", "서울", "서울E", "인천", "부천", "김포", "성남", "수원", "수원FC", "안양", "안산", "화성","대전", "충북청주","충남아산", "천안", "김천상무", "대구FC", "전북", "전남", "광주FC", "포항", "울산", "부산", "경남", "제주SK"]
+    private let teams = ["전체", "서울", "서울E", "인천", "부천", "김포", "성남", "수원", "수원FC", "안양", "안산", "화성", "대전", "충북청주", "충남아산", "천안", "김천상무", "대구FC", "전북", "전남", "광주FC", "포항", "울산", "부산", "경남", "제주SK"]
     
     private var selectedTeam: String? = "전체"
     
@@ -96,15 +89,16 @@ class CommunityWriteVC: UIViewController {
         let postData: [String: Any] = [
             "title": title,
             "content": content,
-            "teamName": team,
+            "team": team,  // ✅ 수정
             "likes": 0,
             "dislikes": 0,
             "commentsCount": 0,
             "author": user.email ?? "알 수 없음",
             "authorUid": user.uid,
+            "showReportAlert": false,
             "createdAt": Timestamp()
         ]
-        
+
         Firestore.firestore().collection("posts").addDocument(data: postData) { error in
             if let error = error {
                 self.showAlert(message: "글 등록 실패: \(error.localizedDescription)")
@@ -123,16 +117,14 @@ class CommunityWriteVC: UIViewController {
 
 // MARK: - UIPickerViewDataSource & Delegate
 extension CommunityWriteVC: UIPickerViewDataSource, UIPickerViewDelegate {
-    func numberOfComponents(in pickerView: UIPickerView) -> Int {
-        return 1
-    }
+    func numberOfComponents(in pickerView: UIPickerView) -> Int { 1 }
     
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return teams.count
+        teams.count
     }
     
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return teams[row]
+        teams[row]
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {

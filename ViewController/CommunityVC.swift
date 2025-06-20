@@ -7,8 +7,6 @@
 
 import UIKit
 import SnapKit
-import RxSwift
-import RxCocoa
 import FirebaseAuth
 import FirebaseFirestore
 
@@ -17,11 +15,9 @@ class CommunityVC: UIViewController {
     private let titleLabel = UILabel()
     private let tableView = UITableView()
     private let writeButton = UIButton(type: .system)
-    private let seachButton = UIButton(type: .system)
+    private let searchButton = UIButton(type: .system)
     private let teamFilterButton = UIButton(type: .system)
-    private let reportButton = UIButton(type: .system)
     private let refreshControl = UIRefreshControl()
-    
     private var posts: [Post] = []
     private var filteredPosts: [Post] = []
     private var selectedTeam: String?
@@ -48,10 +44,10 @@ class CommunityVC: UIViewController {
         teamFilterButton.setTitle("팀 필터 ⌄", for: .normal)
         teamFilterButton.addTarget(self, action: #selector(didTapTeamFilter), for: .touchUpInside)
         
-        seachButton.setTitle("🔍", for: .normal)
-        seachButton.addTarget(self, action: #selector(didTapSearch), for: .touchUpInside)
+        searchButton.setTitle("🔍", for: .normal)
+        searchButton.addTarget(self, action: #selector(didTapSearch), for: .touchUpInside)
         
-        let topBar = UIStackView(arrangedSubviews: [teamFilterButton, UIView(), seachButton])
+        let topBar = UIStackView(arrangedSubviews: [teamFilterButton, UIView(), searchButton])
         topBar.axis = .horizontal
         topBar.spacing = 10
         topBar.distribution = .fill
@@ -96,7 +92,7 @@ class CommunityVC: UIViewController {
     }
     
     @objc private func didTapTeamFilter() {
-        let teams = ["전체", "서울", "서울E", "인천", "부천", "김포", "성남", "수원", "수원FC", "안양", "안산", "화성","대전", "충북청주","충남아산", "천안", "김천상무", "대구FC", "전북", "전남", "광주FC", "포항", "울산", "부산", "경남", "제주SK"]
+        let teams = ["전체", "서울", "서울E", "인천", "부천", "김포", "성남", "수원", "수원FC", "안양", "안산", "화성", "대전", "충북청주", "충남아산", "천안", "김천상무", "대구FC", "전북", "전남", "광주FC", "포항", "울산", "부산", "경남", "제주SK"]
         let alert = UIAlertController(title: "팀 선택", message: nil, preferredStyle: .actionSheet)
         for team in teams {
             alert.addAction(UIAlertAction(title: team, style: .default, handler: { _ in
@@ -126,52 +122,6 @@ class CommunityVC: UIViewController {
         present(alert, animated: true)
     }
     
-    private func showReportAlert(postId: String) {
-        let alert = UIAlertController(title: "신고", message: "신고 사유를 입력해주세요.", preferredStyle: .alert)
-        
-        alert.addTextField { textField in
-            textField.placeholder = "신고 사유"
-        }
-        
-        let reportAction = UIAlertAction(title: "신고", style: .default) { _ in
-            guard let reason = alert.textFields?.first?.text, !reason.isEmpty else { return }
-            self.reportPost(postId: postId, reason: reason)
-        }
-        
-        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
-        alert.addAction(reportAction)
-        
-        present(alert, animated: true)
-    }
-    
-    private func reportPost(postId: String, reason: String) {
-        guard let user = Auth.auth().currentUser else {
-            print("❌ 로그인된 사용자가 없습니다.")
-            return
-        }
-        
-        let db = Firestore.firestore()
-        let reportRef = db.collection("reports").document("postReports").collection("items").document()
-        
-        let data: [String: Any] = [
-            "postId": postId,
-            "reportedBy": user.uid,
-            "reason": reason,
-            "createdAt": Timestamp(date: Date())
-        ]
-        
-        reportRef.setData(data) { error in
-            if let error = error {
-                print("❌ 신고 작성 중 오류: \(error.localizedDescription)")
-                return
-            }
-            print("✅ 신고 작성 성공")
-            let alert = UIAlertController(title: "신고", message: "신고가 접수되었습니다.", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "확인", style: .default))
-            self.present(alert, animated: true)
-        }
-    }
-    
     private func fetchPosts() {
         Firestore.firestore().collection("posts")
             .order(by: "createdAt", descending: true)
@@ -181,7 +131,7 @@ class CommunityVC: UIViewController {
                     print("Error fetching posts: \(error?.localizedDescription ?? "Unknown error")")
                     return
                 }
-                self?.posts = documents.compactMap { Post(from: $0) }  // document snapshot 전달
+                self?.posts = documents.compactMap { Post(from: $0) }
                 self?.applyFilter()
             }
     }
@@ -199,20 +149,38 @@ class CommunityVC: UIViewController {
 // MARK: - UITableViewDataSource & UITableViewDelegate
 extension CommunityVC: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return filteredPosts.count
+        filteredPosts.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "PostCell", for: indexPath) as? PostCell else {
             return UITableViewCell()
         }
         
         let post = filteredPosts[indexPath.row]
         cell.configure(with: post)
-        cell.onReportButtonTapped = { [weak self] in
-            self?.showReportAlert(postId: post.id)
+        
+        cell.onReportButtonTapped = {
+            let alelrt = UIAlertController(title: "신고", message: "이 게시글을 신고하시겠습니까?", preferredStyle: .alert)
+            alelrt.addAction(UIAlertAction(title: "취소", style: .cancel))
+            alelrt.addAction(UIAlertAction(title: "신고", style: .destructive, handler: { _ in
+                print("신고된 게시글")
+            }))
+            self.present(alelrt, animated: true)
         }
         
+        cell.onLikeButtonTapped = {
+            let postRef = Firestore.firestore().collection("posts").document(post.id)
+            postRef.updateData(["likes": post.likes + 1]) { error in
+                if let error = error {
+                    print("Error updating document: \(error)")
+                } else {
+                    print("좋아요 성공")
+                    self.tableView.reloadData()
+                }
+            }
+        }
         return cell
     }
     

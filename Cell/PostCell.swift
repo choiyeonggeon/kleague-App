@@ -1,78 +1,99 @@
 //
 //  PostCell.swift
-//  gugchugyeojido
-//
-//  Created by 최영건 on 6/16/25.
+//  KleagueApp
 //
 
 import UIKit
-import SnapKit
-import FirebaseAuth
-import FirebaseFirestore
 
 class PostCell: UITableViewCell {
-    
-    var onReportButtonTapped: (() -> Void)?
-    
     private let titleLabel = UILabel()
     private let previewLabel = UILabel()
-    private let infoLabel = UILabel()
     private let authorLabel = UILabel()
-    private let timeLabel = UILabel()
-    private let reportButton = UIButton()
-    
+    private let dateLabel = UILabel()
+    private let commentCountLabel = UILabel()
+    private let likeButton = UIButton(type: .system)
+    let reportButton = UIButton(type: .system)
+
+    var onReportButtonTapped: (() -> Void)?
+    var onLikeButtonTapped: (() -> Void)?
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        setupPostUI()
+        setupUI()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
+    private func setupUI() {
+        titleLabel.font = .boldSystemFont(ofSize: 16)
+
+        previewLabel.font = .systemFont(ofSize: 14)
+        previewLabel.textColor = .darkGray
+        previewLabel.numberOfLines = 2
+
+        authorLabel.font = .systemFont(ofSize: 12)
+        authorLabel.textColor = .gray
+
+        dateLabel.font = .systemFont(ofSize: 12)
+        dateLabel.textColor = .gray
+
+        commentCountLabel.font = .systemFont(ofSize: 12)
+        commentCountLabel.textColor = .gray
+
+        likeButton.setTitle("👍 0", for: .normal)
+        likeButton.titleLabel?.font = .systemFont(ofSize: 12)
+        likeButton.setContentHuggingPriority(.required, for: .horizontal)
+        likeButton.addTarget(self, action: #selector(didTapLike), for: .touchUpInside)
+
+        reportButton.setTitle("신고", for: .normal)
+        reportButton.titleLabel?.font = .systemFont(ofSize: 12)
+        reportButton.setContentHuggingPriority(.required, for: .horizontal)
+        reportButton.addTarget(self, action: #selector(didTapReport), for: .touchUpInside)
+
+        let topInfoStack = UIStackView(arrangedSubviews: [authorLabel, dateLabel])
+        topInfoStack.axis = .horizontal
+        topInfoStack.spacing = 10
+        topInfoStack.distribution = .fillProportionally
+
+        let bottomInfoStack = UIStackView(arrangedSubviews: [commentCountLabel, likeButton, UIView(), reportButton])
+        bottomInfoStack.axis = .horizontal
+        bottomInfoStack.spacing = 10
+
+        let stackView = UIStackView(arrangedSubviews: [titleLabel, previewLabel, topInfoStack, bottomInfoStack])
+        stackView.axis = .vertical
+        stackView.spacing = 8
+
+        contentView.addSubview(stackView)
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            stackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
+            stackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
+            stackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            stackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16)
+        ])
+    }
+
     func configure(with post: Post) {
         titleLabel.text = post.title
         previewLabel.text = post.preview
-        infoLabel.text = "❤️ \(post.likes)    💬 \(post.commentsCount)"
-        authorLabel.text = "작성자: \(post.author)"
-        timeLabel.text = "\(post.createdAt)"
+        authorLabel.text = "글쓴이: \(post.author)"
+        commentCountLabel.text = "💬 \(post.commentsCount)"
+        likeButton.setTitle("👍 \(post.likes)", for: .normal)
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy.MM.dd HH:mm"
+        dateLabel.text = formatter.string(from: post.createdAt)
     }
-    
-    private func setupPostUI() {
-        
-        reportButton.setTitle("신고", for: .normal)
-        reportButton.setTitleColor(.systemRed, for: .normal)
-        reportButton.titleLabel?.font = .systemFont(ofSize: 13)
-        reportButton.addTarget(self, action: #selector(reportTapped), for: .touchUpInside)
-        contentView.addSubview(reportButton)
-        
-        let stack = UIStackView(arrangedSubviews: [titleLabel, previewLabel, infoLabel, authorLabel, timeLabel])
-        stack.axis = .vertical
-        stack.spacing = 8
-        contentView.addSubview(stack)
-        
-        reportButton.snp.makeConstraints {
-            $0.top.equalToSuperview().inset(12)
-            $0.trailing.equalToSuperview()
-        }
-        
-        stack.snp.makeConstraints {
-            $0.top.leading.bottom.equalToSuperview().inset(16)
-            $0.trailing.equalTo(reportButton.snp.leading).offset(-8)
-        }
-        
-        titleLabel.font = .boldSystemFont(ofSize: 16)
-        previewLabel.font = .systemFont(ofSize: 14)
-        previewLabel.textColor = .darkGray
-        infoLabel.font = .systemFont(ofSize: 13)
-        infoLabel.textColor = .gray
-        authorLabel.font = .systemFont(ofSize: 13)
-        authorLabel.textColor = .lightGray
-        timeLabel.font = .systemFont(ofSize: 13)
-        timeLabel.textColor = .lightGray
-    }
-    
-    @objc private func reportTapped() {
+
+    @objc private func didTapReport() {
+        print("신고 버튼 눌림")
         onReportButtonTapped?()
+    }
+
+    @objc private func didTapLike() {
+        print("좋아요 버튼 눌림")
+        onLikeButtonTapped?()
     }
 }

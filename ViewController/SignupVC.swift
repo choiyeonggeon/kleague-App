@@ -1,248 +1,204 @@
-//
-//  SignupVC.swift
-//  KleagueApp
-//
-//  Created by 최영건 on 6/9/25.
-//
-
 import UIKit
-import SnapKit
-import PDFKit
 import FirebaseAuth
-import FirebaseCore
 import FirebaseFirestore
+import SnapKit
 
-class SignupVC: UIViewController, UITextFieldDelegate, AuthUIDelegate {
+class SignupVC: UIViewController {
     
-    private let termsLabel = UILabel()
-    private let termsSwitch = UISwitch()
-    private let errorLabel = UILabel()
-    private let privacyButtton = UIButton(type: .system)
+    // MARK: - UI Elements
     private let emailTextField = UITextField()
     private let passwordTextField = UITextField()
-    private let confirmPasswordTextField = UITextField()
-    private let signupButton = UIButton(type: .system)
-    
     private let phoneTextField = UITextField()
-    private let verifyCodeTextField = UITextField()
-    private let sendCodeButton = UIButton(type: .system)
-    private let verifiButton = UIButton(type: .system)
-    private var verificationID: String?
+    private let codeTextField = UITextField()
     
+    private let signupButton = UIButton()
+    private let verifyCodeButton = UIButton()
+    
+    private let successLabel = UILabel()
+    private let errorLabel = UILabel()
+
+    // MARK: - Properties
+    private var verificationID: String?
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupSigne()
+        view.backgroundColor = .white
+        setupUI()
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         view.addGestureRecognizer(tapGesture)
     }
-    
-    private func setupSigne() {
-        view.backgroundColor = .white
-        
-        emailTextField.delegate = self
-        passwordTextField.delegate = self
-        confirmPasswordTextField.delegate = self
-        
+
+    // MARK: - UI Setup
+    private func setupUI() {
         emailTextField.placeholder = "이메일"
-        emailTextField.borderStyle = .roundedRect
-        emailTextField.keyboardType = .emailAddress
-        
-        passwordTextField.placeholder = "비밀번호 (8자 이상, 특수문자 포함)"
+        passwordTextField.placeholder = "비밀번호"
         passwordTextField.isSecureTextEntry = true
-        passwordTextField.borderStyle = .roundedRect
-        
-        confirmPasswordTextField.placeholder = "비밀번호 확인"
-        confirmPasswordTextField.isSecureTextEntry = true
-        confirmPasswordTextField.borderStyle = .roundedRect
-        
         phoneTextField.placeholder = "휴대폰 번호 (+821012345678)"
-        phoneTextField.borderStyle = .roundedRect
-        phoneTextField.keyboardType = .phonePad
-        
-        verifyCodeTextField.placeholder = "인증번호 입력"
-        verifyCodeTextField.borderStyle = .roundedRect
-        verifyCodeTextField.keyboardType = .numberPad
-        verifyCodeTextField.isHidden = true
-        
-        sendCodeButton.setTitle("인증번호 전송", for: .normal)
-        sendCodeButton.addTarget(self, action: #selector(sendVerificationCode), for: .touchUpInside)
-        
-        verifiButton.setTitle("인증 확인", for: .normal)
-        verifiButton.addTarget(self, action: #selector(verifyCode), for: .touchUpInside)
-        verifiButton.isHidden = true
-        
-        termsLabel.text = "앱 이용 약관에 동의합니다."
-        termsLabel.font = .systemFont(ofSize: 14)
-        
-        privacyButtton.setTitle("보기", for: .normal)
-        privacyButtton.setTitleColor(.blue, for: .normal)
-        privacyButtton.titleLabel?.font = .systemFont(ofSize: 14)
-        privacyButtton.addTarget(self, action: #selector(pdfVC), for: .touchUpInside)
+        codeTextField.placeholder = "인증번호 입력"
         
         signupButton.setTitle("회원가입", for: .normal)
-        signupButton.backgroundColor = .systemGray
         signupButton.setTitleColor(.white, for: .normal)
+        signupButton.backgroundColor = .systemBlue
         signupButton.layer.cornerRadius = 8
-        signupButton.addTarget(self, action: #selector(handleSignup), for: .touchUpInside)
+        signupButton.addTarget(self, action: #selector(signupTapped), for: .touchUpInside)
         
-        errorLabel.textColor = .red
-        errorLabel.font = .systemFont(ofSize: 14)
+        verifyCodeButton.setTitle("인증 확인", for: .normal)
+        verifyCodeButton.setTitleColor(.white, for: .normal)
+        verifyCodeButton.backgroundColor = .systemGreen
+        verifyCodeButton.layer.cornerRadius = 8
+        verifyCodeButton.addTarget(self, action: #selector(verifyCodeTapped), for: .touchUpInside)
+        
+        successLabel.textColor = .systemGreen
+        successLabel.numberOfLines = 0
+        successLabel.font = .systemFont(ofSize: 14)
+        successLabel.isHidden = true
+        successLabel.textAlignment = .center
+        
+        errorLabel.textColor = .systemRed
         errorLabel.numberOfLines = 0
+        errorLabel.font = .systemFont(ofSize: 14)
         errorLabel.isHidden = true
-        
-        let termsStack = UIStackView(arrangedSubviews: [termsLabel, privacyButtton, termsSwitch])
-        termsStack.axis = .horizontal
-        termsStack.spacing = 8
-        termsStack.alignment = .center
-        
-        let stack = UIStackView(arrangedSubviews: [emailTextField, passwordTextField, confirmPasswordTextField, termsStack, errorLabel, signupButton])
-        stack.axis = .vertical
-        stack.spacing = 16
-        self.view.addSubview(stack)
-        
-        
-        stack.insertArrangedSubview(phoneTextField, at: 3)
-        stack.insertArrangedSubview(sendCodeButton, at: 4)
-        stack.insertArrangedSubview(verifyCodeTextField, at: 5)
-        stack.insertArrangedSubview(verifiButton, at: 6)
-        
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            stack.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            stack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            stack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            emailTextField.heightAnchor.constraint(equalToConstant: 44),
-            passwordTextField.heightAnchor.constraint(equalToConstant: 44),
-            confirmPasswordTextField.heightAnchor.constraint(equalToConstant: 44),
-            signupButton.heightAnchor.constraint(equalToConstant: 44)
-        ])
+        errorLabel.textAlignment = .center
+
+        [emailTextField, passwordTextField, phoneTextField, codeTextField,
+         signupButton, verifyCodeButton, successLabel, errorLabel].forEach {
+            $0.layer.borderWidth = 0.5
+            $0.layer.cornerRadius = 6
+            view.addSubview($0)
+        }
+
+        emailTextField.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide).offset(40)
+            $0.leading.trailing.equalToSuperview().inset(20)
+            $0.height.equalTo(44)
+        }
+
+        passwordTextField.snp.makeConstraints {
+            $0.top.equalTo(emailTextField.snp.bottom).offset(12)
+            $0.leading.trailing.height.equalTo(emailTextField)
+        }
+
+        phoneTextField.snp.makeConstraints {
+            $0.top.equalTo(passwordTextField.snp.bottom).offset(12)
+            $0.leading.trailing.height.equalTo(emailTextField)
+        }
+
+        codeTextField.snp.makeConstraints {
+            $0.top.equalTo(phoneTextField.snp.bottom).offset(12)
+            $0.leading.trailing.height.equalTo(emailTextField)
+        }
+
+        signupButton.snp.makeConstraints {
+            $0.top.equalTo(codeTextField.snp.bottom).offset(20)
+            $0.leading.trailing.equalToSuperview().inset(80)
+            $0.height.equalTo(44)
+        }
+
+        verifyCodeButton.snp.makeConstraints {
+            $0.top.equalTo(signupButton.snp.bottom).offset(12)
+            $0.leading.trailing.equalToSuperview().inset(80)
+            $0.height.equalTo(44)
+        }
+
+        successLabel.snp.makeConstraints {
+            $0.top.equalTo(verifyCodeButton.snp.bottom).offset(20)
+            $0.leading.trailing.equalToSuperview().inset(20)
+        }
+
+        errorLabel.snp.makeConstraints {
+            $0.top.equalTo(successLabel.snp.bottom).offset(8)
+            $0.leading.trailing.equalToSuperview().inset(20)
+        }
     }
-    
-    @objc private func handleSignup() {
-        errorLabel.isHidden = true
-        guard let email = emailTextField.text, let password = passwordTextField.text, let confirmPassword = confirmPasswordTextField.text else { return }
-        
-        guard isValidEmail(email) else {
-            showError("올바른 이메일 형식을 입력해주세요.")
+
+    // MARK: - Actions
+
+    /// 1. 회원가입
+    @objc private func signupTapped() {
+        guard let email = emailTextField.text,
+              let password = passwordTextField.text,
+              let phone = phoneTextField.text else {
+            showError("모든 필드를 입력해주세요.")
             return
         }
-        
-        guard isValidPassword(password) else {
-            showError("비밀번호는 8자 이상이며 특수문자를 포함해야 합니다.")
-            return
-        }
-        
-        guard password == confirmPassword else {
-            showError("비밀번호가 일치하지 않습니다.")
-            return
-        }
-        
-        guard termsSwitch.isOn else {
-            showError("약관에 동의해야 회원가입이 가능합니다.")
-            return
-        }
-        
-        Auth.auth().createUser(withEmail: email, password: password) { result, error in
+
+        Auth.auth().createUser(withEmail: email, password: password) { [weak self] result, error in
             if let error = error {
-                self.showError("회원가입 실패: \(error.localizedDescription)")
+                self?.showError("회원가입 실패: \(error.localizedDescription)")
                 return
             }
-            
-            guard let uid = result?.user.uid else { return }
-            
-            let db = Firestore.firestore()
-            db.collection("users").document(uid).setData([
-                "email": email,
-                "createdAt": Timestamp()
-            ]) { error in
-                if let error = error {
-                    print("DB 저장 실패: \(error.localizedDescription)")
-                    return
-                }
-                print("DB 저장 성공")
+
+            self?.showSuccess("회원가입 성공! 휴대폰 인증을 진행해주세요.")
+            self?.startPhoneVerification(phoneNumber: phone)
+        }
+        
+        print("🔥 UID: \(Auth.auth().currentUser?.uid ?? "없음")")
+        print("🔥 Email: \(Auth.auth().currentUser?.email ?? "없음")")
+        print("🔥 Phone: \(Auth.auth().currentUser?.phoneNumber ?? "없음")")
+
+    }
+
+    /// 2. 인증코드 전송
+    private func startPhoneVerification(phoneNumber: String) {
+        PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumber, uiDelegate: nil) { [weak self] verificationID, error in
+            if let error = error {
+                self?.showError("인증번호 전송 실패: \(error.localizedDescription)")
+                return
             }
-            
-            self.showError("회원가입 성공! 휴대폰 인증을 진행해주세요.")
-            self.verifyCodeTextField.isHidden = false
-            self.verifiButton.isHidden = false
+
+            self?.verificationID = verificationID
+            self?.showSuccess("인증번호가 전송되었습니다.")
         }
     }
-    
-    @objc private func pdfVC() {
-        let vc = PDFViewerVC()
-        navigationController?.pushViewController(vc, animated: true)
+
+    /// 3. 인증번호 확인 및 계정 연결
+    @objc private func verifyCodeTapped() {
+        guard let verificationID = verificationID,
+              let code = codeTextField.text else {
+            showError("인증번호를 입력해주세요.")
+            return
+        }
+
+        let credential = PhoneAuthProvider.provider().credential(
+            withVerificationID: verificationID,
+            verificationCode: code
+        )
+
+        Auth.auth().currentUser?.link(with: credential) { [weak self] authResult, error in
+            if let error = error {
+                self?.showError("전화번호 연결 실패: \(error.localizedDescription)")
+            } else {
+                self?.showSuccess("전화번호 인증이 완료되었습니다!")
+                self?.navigateToCommunity()
+            }
+        }
+    }
+
+    // MARK: - 메시지 표시 메서드
+
+    private func showSuccess(_ message: String) {
+        DispatchQueue.main.async {
+            self.successLabel.text = message
+            self.successLabel.isHidden = false
+            self.errorLabel.isHidden = true
+        }
+    }
+
+    private func showError(_ message: String) {
+        DispatchQueue.main.async {
+            self.errorLabel.text = message
+            self.errorLabel.isHidden = false
+            self.successLabel.isHidden = true
+        }
+    }
+
+    // MARK: - 이동
+    private func navigateToCommunity() {
+        navigationController?.popViewController(animated: true)
     }
     
     @objc private func dismissKeyboard() {
         view.endEditing(true)
-    }
-    
-    @objc private func sendVerificationCode() {
-        guard let phoneNumber = phoneTextField.text, !phoneNumber.isEmpty else {
-            showError("휴대폰 번호를 입력해주세요.")
-            return
-        }
-        
-        PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumber, uiDelegate: nil) { [weak self] verificationID, error in
-            guard let self = self else { return }
-            
-            if let error = error {
-                self.showError("인증번호 전송 실패: \(error.localizedDescription)")
-                return
-            }
-            
-            guard let verificationID = verificationID else {
-                self.showError("인증번호 전송에 실패했습니다.")
-                return
-            }
-            
-            self.verificationID = verificationID
-            self.showError("인증번호가 전송되었습니다.")
-            self.verifyCodeTextField.isHidden = false
-            self.verifiButton.isHidden = false
-        }
-    }
-    
-    @objc private func verifyCode() {
-        guard let verificationID = verificationID,
-              let verificationCode = verifyCodeTextField.text, !verificationCode.isEmpty else {
-            showError("인증 코드를 입력해주세요.")
-            return
-        }
-        
-        let credential = PhoneAuthProvider.provider().credential(
-            withVerificationID: verificationID,
-            verificationCode: verificationCode)
-        
-        Auth.auth().currentUser?.link(with: credential) { authResult, error in
-            if let error = error {
-                self.showError("전화번호 인증 실패: \(error.localizedDescription)")
-                return
-            }
-            self.showError("휴대폰 인증 성공")
-            print("전화번호 인증 성공, 링크된 UID: \(authResult?.user.uid ?? "")")
-            self.navigationController?.popToRootViewController(animated: true)
-        }
-    }
-    
-    private func showError(_ message: String) {
-        errorLabel.text = message
-        errorLabel.isHidden = false
-    }
-    
-    private func isValidEmail(_ email: String) -> Bool {
-        let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
-        return NSPredicate(format: "SELF MATCHES %@", emailRegex).evaluate(with: email)
-    }
-    
-    private func isValidPassword(_ password: String) -> Bool {
-        let passwordRegex = "^(?=.*[!@#$%^&*(),.?\":{}|<>]).{8,}$"
-        return NSPredicate(format: "SELF MATCHES %@", passwordRegex).evaluate(with: password)
-    }
-    
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
-        return true
     }
 }

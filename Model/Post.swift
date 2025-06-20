@@ -1,15 +1,12 @@
 //
 //  Post.swift
-//  gugchugyeojido
-//
-//  Created by 최영건 on 6/16/25.
+//  KleagueApp
 //
 
 import Foundation
-import FirebaseAuth
 import FirebaseFirestore
 
-struct Post: Codable {
+struct Post {
     let id: String
     let title: String
     let content: String
@@ -19,23 +16,30 @@ struct Post: Codable {
     let commentsCount: Int
     let team: String
     let author: String
+    let authorUid: String
+    let showReportAlert: Bool
     let createdAt: Date
 
     init?(from document: DocumentSnapshot) {
+        self.id = document.documentID
+
         let data = document.data() ?? [:]
-        
-        guard let title = data["title"] as? String,
-              let content = data["content"] as? String,
-              let likes = data["likes"] as? Int,
-              let dislikes = data["dislikes"] as? Int,
-              let commentsCount = data["commentsCount"] as? Int,
-              let team = data["teamName"] as? String,
-              let author = data["author"] as? String,
-              let timestamp = data["createdAt"] as? Timestamp else {
+
+        guard
+            let title = data["title"] as? String,
+            let content = data["content"] as? String,
+            let likes = data["likes"] as? Int,
+            let dislikes = data["dislikes"] as? Int,
+            let commentsCount = data["commentsCount"] as? Int,
+            let team = data["team"] as? String,
+            let author = data["author"] as? String,
+            let authorUid = data["authorUid"] as? String,
+            let timestamp = data["createdAt"] as? Timestamp
+        else {
+            print("❌ Post 초기화 실패: 필수 필드 없음 또는 타입 불일치")
             return nil
         }
 
-        self.id = document.documentID
         self.title = title
         self.content = content
         self.preview = String(content.prefix(50))
@@ -46,25 +50,9 @@ struct Post: Codable {
         self.author = author
         self.authorUid = authorUid
         self.createdAt = timestamp.dateValue()
-    }
-}
 
-extension Date {
-    var timeAgoDisplay: String {
-        let secondsAgo = Int(Date().timeIntervalSince(self))
-
-        if secondsAgo < 60 {
-            return "방금 전"
-        } else if secondsAgo < 3600 {
-            return "\(secondsAgo / 60)분 전"
-        } else if secondsAgo < 86400 {
-            return "\(secondsAgo / 3600)시간 전"
-        } else if secondsAgo < 604800 {
-            return "\(secondsAgo / 86400)일 전"
-        } else {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "yyyy.MM.dd"
-            return formatter.string(from: self)
-        }
+        // showReportAlert은 없어도 false로 처리
+        self.showReportAlert = data["showReportAlert"] as? Bool ?? false
     }
+
 }
