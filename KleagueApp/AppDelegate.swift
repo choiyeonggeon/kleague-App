@@ -14,7 +14,7 @@ import NMapsGeometry
 import CoreData
 import CoreLocation
 
-@UIApplicationMain
+@main
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
     var window: UIWindow?
