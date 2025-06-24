@@ -17,7 +17,7 @@ class MoreVC: UIViewController {
     private let loginButton = UIButton(type: .system)
     private let moreTableView = UITableView()
     
-    let items = ["공지사항", "개인정보", "구단", "이벤트", "응원가", "고객센터"]
+    let items = ["공지사항", "개인정보", "구단", "이벤트", "응원가", "고객센터", "관리자 메뉴"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -45,9 +45,11 @@ class MoreVC: UIViewController {
         }
         
         if let footer = moreTableView.tableFooterView {
-            let size = footer.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
-            if footer.frame.height != size.height || footer.frame.width != view.frame.width {
-                footer.frame.size = CGSize(width: view.frame.width, height: size.height)
+            let targetWidth = moreTableView.frame.width > 0 ? moreTableView.frame.width : UIScreen.main.bounds.width
+            let size = footer.systemLayoutSizeFitting(
+                CGSize(width: targetWidth, height: UIView.layoutFittingCompressedSize.height))
+            if footer.frame.height != size.height || footer.frame.width != targetWidth {
+                footer.frame.size = CGSize(width: targetWidth, height: size.height)
                 moreTableView.tableFooterView = footer
             }
         }
@@ -90,10 +92,9 @@ class MoreVC: UIViewController {
             $0.height.equalTo(44)
         }
         
-        // 높이 계산 후 frame 설정
         headerContainer.layoutIfNeeded()
         let headerHeight = headerContainer.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize).height
-        headerContainer.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: headerHeight)
+        headerContainer.frame = CGRect(x: 0, y: 0, width: moreTableView.frame.width, height: headerHeight)
         
         moreTableView.tableHeaderView = headerContainer
         
@@ -101,7 +102,13 @@ class MoreVC: UIViewController {
         let footerContainer = UIView()
         footerContainer.backgroundColor = .clear
         
-        lastLabel.text = "문의 및 건의 사항이 있으시다면\ngugchugyeojido@gmail.com\n031)1234-5678\n으로 연락해 주시기 바랍니다."
+        lastLabel.text = """
+        문의 및 건의 사항이 있으시다면
+        gugchugyeojido@gmail.com
+        031)1234-5678
+        으로 연락해 주시기 바랍니다.
+        """
+        
         lastLabel.numberOfLines = 0
         lastLabel.font = .systemFont(ofSize: 14)
         lastLabel.textColor = .gray
@@ -114,7 +121,7 @@ class MoreVC: UIViewController {
         
         footerContainer.layoutIfNeeded()
         let footerHeight = footerContainer.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize).height
-        footerContainer.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: footerHeight)
+        footerContainer.frame = CGRect(x: 0, y: 0, width: moreTableView.frame.width, height: footerHeight)
         
         moreTableView.tableFooterView = footerContainer
         
@@ -124,7 +131,6 @@ class MoreVC: UIViewController {
         moreTableView.register(UITableViewCell.self, forCellReuseIdentifier: "MoreCell")
         moreTableView.separatorStyle = .singleLine
     }
-    
     
     @objc private func loginButtonTapped() {
         if Auth.auth().currentUser != nil {
@@ -170,46 +176,36 @@ extension MoreVC: UITableViewDataSource, UITableViewDelegate {
         case 0:
             let noticeVC = NoticeVC()
             navigationController?.pushViewController(noticeVC, animated: true)
-        default:
-            print("선택된 항목: \(items[indexPath.row])")
-        }
-        
-        switch indexPath.row {
         case 1:
             let PersonalVC = PersonalInformationVC()
             navigationController?.pushViewController(PersonalVC, animated: true)
-        default:
-            print("선택된 항목: \(items[indexPath.row])")
-        }
-        
-        switch indexPath.row {
         case 2:
             let teamVC = TeamVC()
             navigationController?.pushViewController(teamVC, animated: true)
-        default:
-            print("선택된 항목: \(items[indexPath.row])")
-        }
-        
-        switch indexPath.row {
         case 3:
             let eventVC = eventVC()
             navigationController?.pushViewController(eventVC, animated: true)
-        default:
-            print("선택된 항목: \(items[indexPath.row])")
-        }
-        
-        switch indexPath.row {
         case 4:
             let cheeringTeamVC = CheeringTeamListVC()
             navigationController?.pushViewController(cheeringTeamVC, animated: true)
-        default:
-            print("선택된 항목: \(items[indexPath.row])")
-        }
-        
-        switch indexPath.row {
         case 5:
             let customerServiceVC = CustomerServiceVC()
             navigationController?.pushViewController(customerServiceVC, animated: true)
+        case 6:
+            UserService.shared.checkIfAdmin { [weak self]isAdmin in
+                DispatchQueue.main.async {
+                    if isAdmin {
+                        let adminVC = AdminReportedPostsVC()
+                        self?.navigationController?.pushViewController(adminVC, animated: true)
+                    } else {
+                        let alert = UIAlertController(title: "권한없음",
+                                                      message: "관리자만 접근할 수 있습니다.",
+                                                      preferredStyle: .alert)
+                        alert.addAction(UIAlertAction(title: "확인", style: .default))
+                        self?.present(alert, animated: true)
+                    }
+                }
+            }
         default:
             print("선택된 항목: \(items[indexPath.row])")
             break

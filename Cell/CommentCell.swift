@@ -15,7 +15,6 @@ class CommentCell: UITableViewCell {
     let commentLabel = UILabel()
     let timeLabel = UILabel()
     
-    // 신고 버튼 클릭 시 호출할 클로저
     var onReportTapped: (() -> Void)?
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {

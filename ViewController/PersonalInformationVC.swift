@@ -12,6 +12,7 @@ import FirebaseFirestore
 
 class PersonalInformationVC: UIViewController {
     
+    private let teamLabel = UILabel()
     private let emailLabel = UILabel()
     private let phoneLabel = UILabel()
     private let logoutButton = UIButton()
@@ -23,7 +24,7 @@ class PersonalInformationVC: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         title = "개인정보"
-        setupPsronll()
+        setupPersonal()
         loadUserInfo()
     }
     
@@ -32,8 +33,7 @@ class PersonalInformationVC: UIViewController {
         updateAuthButtonTitle()
     }
     
-    
-    private func setupPsronll() {
+    private func setupPersonal() {
         emailLabel.font = .systemFont(ofSize: 17, weight: .medium)
         phoneLabel.font = .systemFont(ofSize: 17, weight: .medium)
         
@@ -53,7 +53,7 @@ class PersonalInformationVC: UIViewController {
         privacyPolicyButton.setTitleColor(.systemBlue, for: .normal)
         privacyPolicyButton.addTarget(self, action: #selector(TappedPrivacyPolicy), for: .touchUpInside)
         
-        let stack = UIStackView(arrangedSubviews: [emailLabel, phoneLabel, logoutButton, privacyPolicyButton, resetPasswordButton, deleteButton])
+        let stack = UIStackView(arrangedSubviews: [emailLabel, phoneLabel, teamLabel, logoutButton, privacyPolicyButton, resetPasswordButton, deleteButton])
         stack.axis = .vertical
         stack.spacing = 16
         stack.alignment = .leading
@@ -71,6 +71,17 @@ class PersonalInformationVC: UIViewController {
         guard let user = Auth.auth().currentUser else { return }
         emailLabel.text = "이메일: \(user.email ?? "없음")"
         phoneLabel.text = "전화번호: \(user.phoneNumber ?? "없음")"
+        
+        Firestore.firestore().collection("users").document(user.uid).getDocument { snapshot, error in
+            if let error = error {
+                print("팀 정보 불러오기 실패 \(error.localizedDescription)")
+                self.teamLabel.text = "선택한 팀: 오류"
+            } else if let data = snapshot?.data(), let team = data["team"] as? String {
+                self.teamLabel.text = "선택한 팀: \(team)"
+            } else {
+                self.teamLabel.text = "선택한 팀: 없음"
+            }
+        }
     }
     
     private func updateAuthButtonTitle() {
@@ -125,6 +136,7 @@ class PersonalInformationVC: UIViewController {
                 
             }
         }))
+        present(alert, animated: true)
     }
     
     @objc private func TappedPrivacyPolicy() {

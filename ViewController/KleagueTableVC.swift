@@ -54,7 +54,6 @@ class KleagueTableVC: UIViewController {
             $0.leading.trailing.bottom.equalToSuperview()
         }
 
-        // ✅ 핵심 설정들
         tableView.register(KleagueTableCell.self, forCellReuseIdentifier: "cell")
         tableView.separatorStyle = .singleLine
         tableView.backgroundColor = .white

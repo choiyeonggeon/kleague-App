@@ -5,6 +5,8 @@ import FirebaseFirestore
 
 class CommunityWriteVC: UIViewController {
     
+    
+    var editingPost: Post?
     private let titleField = UITextField()
     private let contentTextView = UITextView()
     private let teamPicker = UIPickerView()
@@ -16,6 +18,7 @@ class CommunityWriteVC: UIViewController {
                          "전북", "전남", "광주FC", "포항", "울산", "부산", "경남", "제주SK"]
     
     private var selectedTeam: String? = "전체"
+    private var userTeam: String?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -23,13 +26,51 @@ class CommunityWriteVC: UIViewController {
         teamPicker.dataSource = self
         teamPicker.delegate = self
         setupWriteUI()
+        checkUserTeam()
+        
+        if let post = editingPost {
+            title = "게시글 수정"
+            titleField.text = post.title
+            contentTextView.text = post.content
+            if let index = teams.firstIndex(of: post.team) {
+                teamPicker.selectRow(index, inComponent: 0, animated: false)
+                selectedTeam = post.team
+            }
+            submitButton.setTitle("수정 완료", for: .normal)
+        } else {
+            title = "글쓰기"
+        }
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         view.addGestureRecognizer(tapGesture)
     }
     
+    private func checkUserTeam() {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        Firestore.firestore().collection("users").document(uid).getDocument { [weak self] snapshot, error in
+            if let data = snapshot?.data(), let team = data["team"] as? String, team != "선택 안 함" {
+                self?.userTeam = team
+                self?.restrictTeamSelection()
+            } else {
+                self?.showAlert(message: "응원 팀을 선택해야 글쓰기가 가능합니다.") {
+                    self?.navigationController?.popViewController(animated: true)
+                }
+            }
+         
+        }
+    }
+    
+    private func restrictTeamSelection() {
+        guard editingPost == nil else { return }
+        teams.enumerated().forEach { index, name in
+            if name != "전체" && name != userTeam {
+                teamPicker.selectRow(teams.firstIndex(of: userTeam!) ?? 0, inComponent: 0, animated: false)
+                selectedTeam = userTeam
+            }
+        }
+    }
+    
     private func setupWriteUI() {
-        title = "글쓰기"
         
         titleField.placeholder = "제목을 입력하세요"
         titleField.borderStyle = .roundedRect
@@ -101,20 +142,40 @@ class CommunityWriteVC: UIViewController {
             "showReportAlert": false,
             "createdAt": Timestamp()
         ]
-
-        Firestore.firestore().collection("posts").addDocument(data: postData) { error in
-            if let error = error {
-                self.showAlert(message: "글 등록 실패: \(error.localizedDescription)")
-            } else {
-                self.navigationController?.popViewController(animated: true)
+        
+        if let editingPost = editingPost {
+            Firestore.firestore().collection("posts").document(editingPost.id).updateData(postData) { error in
+                if let error = error {
+                    self.showAlert(message: "글 수정 실패: \(error.localizedDescription)")
+                } else {
+                    self.navigationController?.popViewController(animated: true)
+                }
+            }
+        } else {
+            var newPostData = postData
+            newPostData["likes"] = 0
+            newPostData["dislikes"] = 0
+            newPostData["commentsCount"] = 0
+            newPostData["createdAt"] = Timestamp()
+            newPostData["showReportAlert"] = false
+            
+            Firestore.firestore().collection("posts").addDocument(data: newPostData) { error in
+                if let error = error {
+                    self.showAlert(message: "글 등록 실패: \(error.localizedDescription)")
+                } else {
+                    self.navigationController?.popViewController(animated: true)
+                }
             }
         }
     }
     
-    private func showAlert(message: String) {
+    private func showAlert(message: String, completion: (() -> Void)? = nil) {
         let alert = UIAlertController(title: "알림", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        alert.addAction(UIAlertAction(title: "확인", style: .default) { _ in
+            completion?()
+        })
         present(alert, animated: true)
+        
     }
 }
 

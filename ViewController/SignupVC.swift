@@ -17,6 +17,14 @@ class SignupVC: UIViewController {
     private let termsLabel = UILabel()
     private let termsSwitch = UISwitch()
     
+    private let teamPicker = UIPickerView()
+    private let teamLabel = UILabel()
+    private let teams = ["선택 안 함", "서울", "서울E", "인천", "부천", "김포",
+                         "성남", "수원", "수원FC", "안양", "안산", "화성",
+                         "대전", "충북청주", "충남아산", "천안", "김천상무", "대구FC",
+                         "전북", "전남", "광주FC", "포항", "울산", "부산", "경남", "제주SK"]
+    private var selectedTeam: String? = "선택 안 함"
+    
     private let signupButton = UIButton()
     private let verifyCodeButton = UIButton()
     
@@ -25,6 +33,7 @@ class SignupVC: UIViewController {
     private let privacyButtton = UIButton(type: .system)
     
     private var verificationID: String?
+    private var verificationCredential: PhoneAuthCredential?
     
     // MARK: - View Life Cycle
     override func viewDidLoad() {
@@ -34,6 +43,8 @@ class SignupVC: UIViewController {
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         view.addGestureRecognizer(tapGesture)
+        
+        checkLastLoginAndLogoutIfNeeded()
     }
     
     // MARK: - UI Setup
@@ -58,6 +69,10 @@ class SignupVC: UIViewController {
         codeTextField.borderStyle = .roundedRect
         codeTextField.keyboardType = .numberPad
         
+        teamLabel.text = "응원 팀 선택 (선택 후 변경 불가)"
+        teamPicker.delegate = self
+        teamPicker.dataSource = self
+        
         termsLabel.text = "앱 이용 약관에 동의합니다."
         termsLabel.font = .systemFont(ofSize: 14)
         
@@ -65,7 +80,6 @@ class SignupVC: UIViewController {
         privacyButtton.setTitleColor(.blue, for: .normal)
         privacyButtton.titleLabel?.font = .systemFont(ofSize: 14)
         privacyButtton.addTarget(self, action: #selector(pdfVC), for: .touchUpInside)
-        
         
         successLabel.textColor = .systemGreen
         successLabel.font = .systemFont(ofSize: 14)
@@ -90,7 +104,6 @@ class SignupVC: UIViewController {
         requestCodeButton.backgroundColor = .systemOrange
         requestCodeButton.layer.cornerRadius = 8
         requestCodeButton.addTarget(self, action: #selector(requestCodeTapped), for: .touchUpInside)
-        
         
         verifyCodeButton.setTitle("인증 완료", for: .normal)
         verifyCodeButton.backgroundColor = .systemGreen
@@ -130,6 +143,7 @@ class SignupVC: UIViewController {
         let stack = UIStackView(arrangedSubviews: [
             emailTextField, passwordTextField, confirmPasswordTextField,
             phoneStack, codeStack, termsStack,
+            teamLabel, teamPicker,
             signupButton, successLabel, errorLabel
         ])
         stack.axis = .vertical
@@ -149,12 +163,44 @@ class SignupVC: UIViewController {
         }
     }
     
+    private func checkLastLoginAndLogoutIfNeeded() {
+        guard let user = Auth.auth().currentUser else { return }
+        
+        let userDoc = Firestore.firestore().collection("users").document(user.uid)
+        userDoc.getDocument { [weak self] snapshot, error in
+            if let error = error {
+                print("사용자 정보 불러오기 실패: \(error.localizedDescription)")
+                return
+            }
+            
+            guard let data = snapshot?.data(),
+            let lastLoginTimestamp = data["lastLogin"] as? Timestamp
+            else { return }
+            
+            let lastLoginDate = lastLoginTimestamp.dateValue()
+            let now = Date()
+            let diff = now.timeIntervalSince(lastLoginDate)
+            let thirtyDays: TimeInterval = 30 * 24 * 60 * 60
+            
+            if diff > thirtyDays {
+                do {
+                    try Auth.auth().signOut()
+                    DispatchQueue.main.async {
+                        self?.showError("30일 동안 미접속으로 자동 로그아웃되었습니다. 다시 로그인해주세요.")
+                        self?.navigationController?.popViewController(animated: true)
+                    }
+                } catch {
+                    print("로그인 실패: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+    
     // MARK: - Actions
     @objc private func handleSignup() {
         guard let email = emailTextField.text,
               let password = passwordTextField.text,
-              let confirmPassword = confirmPasswordTextField.text,
-              let phone = phoneTextField.text else {
+              let confirmPassword = confirmPasswordTextField.text else {
             showError("모든 항목을 입력해주세요.")
             return
         }
@@ -179,14 +225,69 @@ class SignupVC: UIViewController {
             return
         }
         
-        Auth.auth().createUser(withEmail: email, password: password) { [weak self] result, error in
+        guard let credential = verificationCredential else {
+            showError("전화번호 인증을 완료해주세요.")
+            return
+        }
+        
+        guard let phone = phoneTextField.text else {
+            showError("전화번호를 확인할 수 없습니다.")
+            return
+        }
+        
+        if selectedTeam == "선택 안 함" {
+            showError("응원 팀을 선택해주세요. (선택 후 변경 불가)")
+            return
+        }
+        
+        Auth.auth().createUser(withEmail: email, password: password) { [weak self] authResult, error in
+            guard let self = self else { return }
+            
             if let error = error {
-                self?.showError("회원가입 실패: \(error.localizedDescription)")
+                self.showError("회원가입 실패: \(error.localizedDescription)")
                 return
             }
             
-            self?.showSuccess("회원가입 성공! 인증번호를 전송합니다.")
-            self?.startPhoneVerification(phoneNumber: phone)
+            guard let user = authResult?.user else {
+                self.showError("회원가입 중 문제가 발생했습니다.")
+                return
+            }
+            
+            user.link(with: credential) { linkResult, linkError in
+                if let linkError = linkError {
+                    self.showError("전화번호 연결 실패: \(linkError.localizedDescription)")
+                    return
+                }
+                
+                let userData: [String: Any] = [
+                    "email": email,
+                    "phone": phone,
+                    "team": self.selectedTeam ?? "선택 안 함",
+                    "createdAt": Timestamp(),
+                    "lastLogin": Timestamp()
+                ]
+                
+                Firestore.firestore().collection("users").document(user.uid).setData(userData) { error in
+                    if let error = error {
+                        self.showError("사용자 정보 저장 실패: \(error.localizedDescription)")
+                        return
+                    }
+                    
+                    self.showSuccess("회원가입이 완료되었습니다.")
+                    
+                    // 이미 로그인된 상태이므로 별도 로그인 절차 없이 메인 화면으로 이동
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                        let mainVC = MoreVC()  // 실제 메인 화면 VC로 교체 가능
+                        let nav = UINavigationController(rootViewController: mainVC)
+                        
+                        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                           let window = windowScene.windows.first {
+                            window.rootViewController = nav
+                            window.makeKeyAndVisible()
+                        }
+                    }
+                }
+            }
         }
     }
     
@@ -212,26 +313,18 @@ class SignupVC: UIViewController {
     
     @objc private func verifyCodeTapped() {
         guard let verificationID = verificationID,
-              let code = codeTextField.text else {
+              let code = codeTextField.text, !code.isEmpty else {
             showError("인증번호를 입력해주세요.")
             return
         }
         
-        let credential = PhoneAuthProvider.provider().credential(
+        verificationCredential = PhoneAuthProvider.provider().credential(
             withVerificationID: verificationID,
-            verificationCode: code)
-        
-        Auth.auth().currentUser?.link(with: credential) { [weak self] authResult, error in
-            if let error = error {
-                self?.showError("전화번호 연결 실패: \(error.localizedDescription)")
-            } else {
-                self?.showSuccess("전화번호 인증이 완료되었습니다!")
-                self?.goToMainScreen()
-            }
-        }
+            verificationCode: code
+        )
+        showSuccess("전화번호 인증 성공! 회원가입을 완료해주세요.")
     }
     
-    // MARK: - 유효성 검사 및 헬퍼
     private func showSuccess(_ message: String) {
         successLabel.text = message
         successLabel.isHidden = false
@@ -243,15 +336,6 @@ class SignupVC: UIViewController {
         errorLabel.isHidden = false
         successLabel.isHidden = true
     }
-    
-    private func goToMainScreen() {
-          let nav = UINavigationController(rootViewController: CommunityVC())
-          if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-             let window = windowScene.windows.first {
-              window.rootViewController = nav
-              window.makeKeyAndVisible()
-          }
-      }
     
     private func isValidEmail(_ email: String) -> Bool {
         let regex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
@@ -270,5 +354,30 @@ class SignupVC: UIViewController {
     
     @objc private func dismissKeyboard() {
         view.endEditing(true)
+    }
+}
+
+extension SignupVC: UIPickerViewDataSource, UIPickerViewDelegate {
+    func numberOfComponents(in pickerView: UIPickerView) -> Int { 1 }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        teams.count
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        teams[row]
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        let team = teams[row]
+        
+        if selectedTeam == "선택 안 함" || selectedTeam == nil {
+            selectedTeam = team
+        } else {
+            showError("응원 팀은 한번 선택하면 변경할 수 없습니다.")
+            if let index = teams.firstIndex(of: selectedTeam ?? "선택 안 함") {
+                pickerView.selectRow(index, inComponent: 0, animated: true)
+            }
+        }
     }
 }

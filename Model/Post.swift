@@ -8,9 +8,9 @@ import FirebaseFirestore
 
 struct Post {
     let id: String
-    let title: String
-    let content: String
-    let preview: String
+    var title: String
+    var content: String
+    var preview: String
     var likes: Int
     var dislikes: Int
     let commentsCount: Int
@@ -19,6 +19,7 @@ struct Post {
     let authorUid: String
     let showReportAlert: Bool
     let createdAt: Date
+    let reportCount: Int
 
     init?(from document: DocumentSnapshot) {
         self.id = document.documentID
@@ -51,8 +52,8 @@ struct Post {
         self.authorUid = authorUid
         self.createdAt = timestamp.dateValue()
 
-        // showReportAlert은 없어도 false로 처리
         self.showReportAlert = data["showReportAlert"] as? Bool ?? false
+        self.reportCount = data["reportCount"] as? Int ?? 0
     }
 
 }

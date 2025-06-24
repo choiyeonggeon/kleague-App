@@ -7,20 +7,29 @@
 
 import UIKit
 import Firebase
+import FirebaseAuth
 import FirebaseCore
 import NMapsMap
 import NMapsGeometry
 import CoreData
 import CoreLocation
 
-@main
+@UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
+    
+    var window: UIWindow?
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         NMFAuthManager.shared().ncpKeyId = "cno4k7hscd"
         
         FirebaseApp.configure()
+        
+        if let user = Auth.auth().currentUser,
+                 user.isSessionExpired(thresholdDays: 30) {
+                  try? Auth.auth().signOut()
+                  print("🔒 자동 로그아웃: 30일 이상 경과")
+              }
         return true
     }
     
@@ -83,4 +92,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
 }
-
+// MARK: - Firebase Auth 세션 만료 확장
+extension User {
+    func isSessionExpired(thresholdDays: Int = 30) -> Bool {
+        guard let lastSignIn = self.metadata.lastSignInDate else { return false }
+        let interval = Date().timeIntervalSince(lastSignIn)
+        return interval > Double(thresholdDays * 86400) // 초 단위
+    }
+}

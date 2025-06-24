@@ -62,7 +62,7 @@ struct Fixture: Codable {
 }
 
 struct MatchStatus: Codable {
-    let short: String // 예: "FT", "NS", "1H"
+    let short: String
     let elapsed: Int?
 }
 

@@ -11,6 +11,7 @@ import SnapKit
 class HomeVC: UIViewController {
     
     private let titleLabel = UILabel()
+    private let tableView = UITableView()
     private let comingSoonLabel = UILabel()
     //    private let disposeBag = DisposeBag()
     

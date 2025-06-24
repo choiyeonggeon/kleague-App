@@ -32,6 +32,9 @@ class CommunityDetailVC: UIViewController {
     private let commentButton = UIButton(type: .system)
     private let commentTableView = UITableView()
     
+    private let editButton = UIButton(type: .system)
+    private let deletButton = UIButton(type: .system)
+    
     private var currentUserName: String {
         Auth.auth().currentUser?.email ?? "익명"
     }
@@ -50,6 +53,14 @@ class CommunityDetailVC: UIViewController {
         view.backgroundColor = .white
         setupDetailUI()
         loadComments()
+        
+        if Auth.auth().currentUser?.uid != post.authorUid {
+            editButton.isHidden = true
+            deletButton.isHidden = true
+        }
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        view.addGestureRecognizer(tapGesture)
     }
     
     private func setupDetailUI() {
@@ -78,10 +89,21 @@ class CommunityDetailVC: UIViewController {
         commentButton.setTitle("작성", for: .normal)
         commentButton.addTarget(self, action: #selector(didTapComment), for: .touchUpInside)
         
+        editButton.setTitle("수정", for: .normal)
+        editButton.setTitleColor(.systemBlue, for: .normal)
+        editButton.addTarget(self, action: #selector(didTapEdit), for: .touchUpInside)
+        
+        deletButton.setTitle("삭제", for: .normal)
+        deletButton.setTitleColor(.systemRed, for: .normal)
+        deletButton.addTarget(self, action: #selector(didTapDelete), for: .touchUpInside)
+        
+        view.addSubview(editButton)
+        view.addSubview(deletButton)
+        
         commentTableView.dataSource = self
         commentTableView.register(CommentCell.self, forCellReuseIdentifier: "CommentCell")
         
-        [titleLabel, contentLabel, authorLabel, likeButton, dislikeButton, commentField, commentButton, commentTableView].forEach {
+        [titleLabel, contentLabel, authorLabel, likeButton, dislikeButton, commentField, commentButton, commentTableView, editButton, deletButton].forEach {
             view.addSubview($0)
         }
         
@@ -109,6 +131,21 @@ class CommunityDetailVC: UIViewController {
             $0.centerY.equalTo(likeButton)
             $0.leading.equalTo(likeButton.snp.trailing).offset(20)
         }
+        
+        editButton.snp.makeConstraints {
+            $0.trailing.equalTo(deletButton.snp.leading).offset(-8)
+            $0.bottom.equalTo(commentButton.snp.top).offset(-8)
+            $0.width.equalTo(60)
+            $0.height.equalTo(30)
+        }
+        
+        deletButton.snp.makeConstraints {
+            $0.trailing.equalToSuperview().inset(16)
+            $0.bottom.equalTo(commentButton.snp.top).offset(-8)
+            $0.width.equalTo(60)
+            $0.height.equalTo(30)
+        }
+        
         
         commentField.snp.makeConstraints {
             $0.top.equalTo(likeButton.snp.bottom).offset(20)
@@ -146,6 +183,27 @@ class CommunityDetailVC: UIViewController {
         }
     }
     
+    @objc private func didTapDelete() {
+        let alert = UIAlertController(title: "글 삭제", message: "이 글을 삭제하시겠습니까?", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        alert.addAction(UIAlertAction(title: "삭제", style: .destructive, handler: { _ in
+            Firestore.firestore().collection("posts").document(self.post.id).delete { error in
+                if let error = error {
+                    print("삭제 실패 \(error.localizedDescription)")
+                } else {
+                    self.navigationController?.popViewController(animated: true)
+                }
+            }
+        }))
+        present(alert, animated: true)
+    }
+    
+    @objc private func didTapEdit() {
+        let writeVC = CommunityWriteVC()
+        writeVC.editingPost = post
+        navigationController?.pushViewController(writeVC, animated: true)
+    }
+    
     @objc private func didTapComment() {
         guard let text = commentField.text, !text.isEmpty else { return }
         
@@ -169,6 +227,10 @@ class CommunityDetailVC: UIViewController {
         ])
         
         postRef.updateData(["commentsCount": FieldValue.increment(Int64(1))])
+    }
+    
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
     }
     
     private func loadComments() {
@@ -216,7 +278,6 @@ extension CommunityDetailVC: UITableViewDataSource {
     }
 }
 
-// 신고 처리 함수 추가
 extension CommunityDetailVC {
     private func reportComment(_ comment: Comment) {
         let alert = UIAlertController(title: "댓글 신고", message: "이 댓글을 신고하시겠습니까?", preferredStyle: .alert)

@@ -43,17 +43,14 @@ class NoticeDetailVC: UIViewController {
             $0.edges.equalTo(view.safeAreaLayoutGuide)
         }
 
-        // 2. contentView → scrollView
         scrollView.addSubview(contentView)
         contentView.snp.makeConstraints {
             $0.edges.equalToSuperview()
             $0.width.equalToSuperview()
         }
 
-        // 3. UI 요소들 추가
         [titleLabel, dateLabel, contentLabel].forEach { contentView.addSubview($0) }
 
-        // 4. titleLabel
         titleLabel.snp.makeConstraints {
             $0.top.equalToSuperview().offset(24)
             $0.leading.trailing.equalToSuperview().inset(20)
