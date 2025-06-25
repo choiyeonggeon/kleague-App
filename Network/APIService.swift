@@ -9,10 +9,16 @@ import Foundation
 import RxSwift
 
 class APIService {
-    static let shared = APIService()
-    private let apiKey = "51bb3fe3a2mshc34815e1d4aac36p1d7f58jsn848763975749"
     
-    private init() {}
+    static let shared = APIService()
+    private let apiKey: String
+    
+    private init() {
+        guard let key = Bundle.main.infoDictionary?["RAPID_API_KEY"] as? String else {
+            fatalError("RapidAPIKey가 Bundle에 설정되어있지 않습니다.")
+        }
+        self.apiKey = key
+    }
     
     func fetchKleagueStandings(for leagueID: Int, season: Int = 2025) -> Observable<[TeamStanding]> {
         guard let url = URL(string: "https://api-football-v1.p.rapidapi.com/v3/standings?league=\(leagueID)&season=\(season)") else {

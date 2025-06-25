@@ -17,6 +17,7 @@
 		4224C2BC2DF7FCEE00E3D330 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 4224C2BB2DF7FCEE00E3D330 /* FirebaseFirestore */; };
 		4224C2BE2DF7FCEE00E3D330 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 4224C2BD2DF7FCEE00E3D330 /* FirebaseStorage */; };
 		4228E7932DF8033400B4385B /* NMapsMap in Frameworks */ = {isa = PBXBuildFile; productRef = 4228E7922DF8033400B4385B /* NMapsMap */; };
+		424FA8C52E0C1BAB0080F8C2 /* Secret.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 424FA8C42E0C1BAB0080F8C2 /* Secret.xcconfig */; };
 		427661A82DFFFF2000499502 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 427661A72DFFFF2000499502 /* FirebaseCore */; };
 		427B1D872E095CE600113388 /* KakaoMapsSDK-SPM in Frameworks */ = {isa = PBXBuildFile; productRef = 427B1D862E095CE600113388 /* KakaoMapsSDK-SPM */; };
 		427D4C822DFC21E100B16959 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 427D4C812DFC21E100B16959 /* FirebaseMessaging */; };
@@ -45,6 +46,7 @@
 		42128B232DE7520100C83D70 /* KleagueApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KleagueApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		42128B3C2DE7520100C83D70 /* KleagueAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KleagueAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		42128B462DE7520100C83D70 /* KleagueAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KleagueAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		424FA8C42E0C1BAB0080F8C2 /* Secret.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secret.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -106,11 +108,6 @@
 			path = ViewModel;
 			sourceTree = "<group>";
 		};
-		42DA30662DEC343C00ABB45F /* Secret */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Secret;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -149,8 +146,8 @@
 		42128B1A2DE7520100C83D70 = {
 			isa = PBXGroup;
 			children = (
+				424FA8C42E0C1BAB0080F8C2 /* Secret.xcconfig */,
 				42264EB02DFAE2E8006C0045 /* Cell */,
-				42DA30662DEC343C00ABB45F /* Secret */,
 				4242C52F2DE9D824005BC4EB /* Font */,
 				4242C5032DE9D743005BC4EB /* Network */,
 				4242C5002DE9D6AD005BC4EB /* Model */,
@@ -196,7 +193,6 @@
 				4242C52F2DE9D824005BC4EB /* Font */,
 				4248593B2DE87A0C00169194 /* ViewController */,
 				4248593C2DE87A3400169194 /* ViewModel */,
-				42DA30662DEC343C00ABB45F /* Secret */,
 			);
 			name = KleagueApp;
 			packageProductDependencies = (
@@ -326,6 +322,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				424FA8C52E0C1BAB0080F8C2 /* Secret.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -385,6 +382,7 @@
 /* Begin XCBuildConfiguration section */
 		42128B502DE7520100C83D70 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 424FA8C42E0C1BAB0080F8C2 /* Secret.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -421,6 +419,7 @@
 		};
 		42128B512DE7520100C83D70 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 424FA8C42E0C1BAB0080F8C2 /* Secret.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -457,6 +456,7 @@
 		};
 		42128B522DE7520100C83D70 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 424FA8C42E0C1BAB0080F8C2 /* Secret.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -522,6 +522,7 @@
 		};
 		42128B532DE7520100C83D70 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 424FA8C42E0C1BAB0080F8C2 /* Secret.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;

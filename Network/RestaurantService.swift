@@ -14,7 +14,14 @@
 //
 //class RestaurantService {
 //    
-//    private let apiKey = "KakaoAK 74c50c9804d434cb340e063b707662f4" // KakaoAK 포함
+//    private let apiKey: String
+//    
+//    init() {
+//        guard let apiKey = Bundle.main.infoDictionary?["KAKAO_API_KEY"] as? String else {
+//            fatalError(#function + ": Missing Kakao API Key")
+//        }
+//        self.apiKey = apiKey
+//    }
 //    
 //    func fetchRestaurants(keyword: String) -> Single<[Restaurant]> {
 //        return Single.create { single in

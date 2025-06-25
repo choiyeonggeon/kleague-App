@@ -10,7 +10,14 @@
 //
 //class KakaoPlaceSearchService {
 //    
-//    private let apiKey = "d9XauxZtIs1q5zXGYGVDAtesRsZbdoMq"
+//    private let apiKey: String
+//    
+//    init() {
+//        guard let key = Bundle.main.infoDictionary?["KAKAO_API_KEY"] as? String else {
+//            fatalError(#function + ": Missing Kakao API Key")
+//        }
+//        self.apiKey = key
+//    }
 //    
 //    func search(keyword: String) -> Single<[Restaurant]> {
 //        return Single.create { single in
