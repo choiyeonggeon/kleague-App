@@ -26,7 +26,6 @@ class CommunityWriteVC: UIViewController {
         teamPicker.dataSource = self
         teamPicker.delegate = self
         setupWriteUI()
-        checkUserTeam()
         
         if let post = editingPost {
             title = "게시글 수정"
@@ -43,21 +42,6 @@ class CommunityWriteVC: UIViewController {
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         view.addGestureRecognizer(tapGesture)
-    }
-    
-    private func checkUserTeam() {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        Firestore.firestore().collection("users").document(uid).getDocument { [weak self] snapshot, error in
-            if let data = snapshot?.data(), let team = data["team"] as? String, team != "선택 안 함" {
-                self?.userTeam = team
-                self?.restrictTeamSelection()
-            } else {
-                self?.showAlert(message: "응원 팀을 선택해야 글쓰기가 가능합니다.") {
-                    self?.navigationController?.popViewController(animated: true)
-                }
-            }
-         
-        }
     }
     
     private func restrictTeamSelection() {

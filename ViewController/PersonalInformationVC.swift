@@ -72,16 +72,6 @@ class PersonalInformationVC: UIViewController {
         emailLabel.text = "이메일: \(user.email ?? "없음")"
         phoneLabel.text = "전화번호: \(user.phoneNumber ?? "없음")"
         
-        Firestore.firestore().collection("users").document(user.uid).getDocument { snapshot, error in
-            if let error = error {
-                print("팀 정보 불러오기 실패 \(error.localizedDescription)")
-                self.teamLabel.text = "선택한 팀: 오류"
-            } else if let data = snapshot?.data(), let team = data["team"] as? String {
-                self.teamLabel.text = "선택한 팀: \(team)"
-            } else {
-                self.teamLabel.text = "선택한 팀: 없음"
-            }
-        }
     }
     
     private func updateAuthButtonTitle() {
