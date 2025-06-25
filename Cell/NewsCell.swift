@@ -8,36 +8,41 @@
 import UIKit
 import SnapKit
 
-class NewsCell: UITableViewCell {
+class NewsCell: UICollectionViewCell {
     
     private let titleLabel = UILabel()
     private let sourceLabel = UILabel()
     
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
+    override init(frame: CGRect) {
+        super.init(frame: frame)
         setupCell()
     }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
     private func setupCell() {
+        contentView.backgroundColor = .systemGray6
+        contentView.layer.cornerRadius = 10
+        contentView.layer.masksToBounds = true
+        
         titleLabel.numberOfLines = 0
-        titleLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        titleLabel.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         
         sourceLabel.font = UIFont.systemFont(ofSize: 12, weight: .light)
-        sourceLabel.textColor = .systemGray
+        sourceLabel.textColor = .darkGray
         
         contentView.addSubview(titleLabel)
         contentView.addSubview(sourceLabel)
         
         titleLabel.snp.makeConstraints {
-            $0.top.leading.trailing.equalToSuperview().inset(16)
+            $0.top.leading.trailing.equalToSuperview().inset(12)
         }
         
         sourceLabel.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(4)
-            $0.leading.trailing.bottom.equalToSuperview().inset(16)
+            $0.leading.trailing.bottom.equalToSuperview().inset(12)
         }
     }
     

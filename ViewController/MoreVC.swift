@@ -17,7 +17,7 @@ class MoreVC: UIViewController {
     private let loginButton = UIButton(type: .system)
     private let moreTableView = UITableView()
     
-    let items = ["공지사항", "개인정보", "구단", "이벤트", "응원가", "고객센터", "관리자 메뉴"]
+    let items = ["공지사항", "개인정보", "예매하기", "이벤트", "응원가", "고객센터", "관리자 메뉴"]
     
     override func viewDidLoad() {
         super.viewDidLoad()

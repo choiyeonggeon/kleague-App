@@ -58,7 +58,6 @@ class NoticeDetailVC: UIViewController {
         titleLabel.font = .boldSystemFont(ofSize: 20)
         titleLabel.numberOfLines = 0
 
-        // 5. dateLabel
         dateLabel.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(8)
             $0.leading.trailing.equalTo(titleLabel)
@@ -66,7 +65,6 @@ class NoticeDetailVC: UIViewController {
         dateLabel.font = .systemFont(ofSize: 14)
         dateLabel.textColor = .gray
 
-        // 6. contentLabel
         contentLabel.snp.makeConstraints {
             $0.top.equalTo(dateLabel.snp.bottom).offset(20)
             $0.leading.trailing.equalTo(titleLabel)
@@ -87,6 +85,7 @@ class NoticeDetailVC: UIViewController {
                 .font: UIFont.boldSystemFont(ofSize: 20)
             ], range: nsRange)
         }
+        
         titleLabel.attributedText = attributedTitle
         dateLabel.text = notice.date
         contentLabel.text = notice.content

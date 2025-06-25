@@ -9,7 +9,7 @@
 
 import UIKit
 import SnapKit
-import Kingfisher // 이미지 로딩을 위해 사용 추천
+import Kingfisher
 
 class KleagueTableCell: UITableViewCell {
     
