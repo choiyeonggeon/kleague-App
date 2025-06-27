@@ -146,7 +146,6 @@ class CommunityDetailVC: UIViewController {
             $0.height.equalTo(30)
         }
         
-        
         commentField.snp.makeConstraints {
             $0.top.equalTo(likeButton.snp.bottom).offset(20)
             $0.leading.equalToSuperview().inset(16)

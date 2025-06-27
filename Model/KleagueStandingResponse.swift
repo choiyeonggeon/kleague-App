@@ -32,7 +32,7 @@ struct TeamStanding: Codable {
 struct Team: Codable {
     let id: Int?
     let name: String
-    let logo: String
+//    let logo: String
 }
 
 struct AllStats: Codable {

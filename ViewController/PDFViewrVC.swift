@@ -8,7 +8,7 @@
 import UIKit
 import PDFKit
 
-class PDFViewerVC: UIViewController {
+class PDFViewrVC: UIViewController {
     
     private var pdfView = PDFView()
     
@@ -33,7 +33,7 @@ class PDFViewerVC: UIViewController {
     }
     
     private func loadPDF() {
-        if let url = Bundle.main.url(forResource: "privacyPolicy", withExtension: "pdf") {
+        if let url = Bundle.main.url(forResource: "PrivacyPolicy", withExtension: "pdf") {
             pdfView.document = PDFDocument(url: url)
         }
     }

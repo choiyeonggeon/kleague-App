@@ -7,6 +7,7 @@ class CommunityWriteVC: UIViewController {
     
     
     var editingPost: Post?
+    private var userNickname: String?
     private let titleField = UITextField()
     private let contentTextView = UITextView()
     private let teamPicker = UIPickerView()
@@ -26,6 +27,8 @@ class CommunityWriteVC: UIViewController {
         teamPicker.dataSource = self
         teamPicker.delegate = self
         setupWriteUI()
+        
+        loadUserTeam()
         
         if let post = editingPost {
             title = "게시글 수정"
@@ -99,6 +102,45 @@ class CommunityWriteVC: UIViewController {
         }
     }
     
+    private func loadUserTeam() {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        
+        let userRef = Firestore.firestore().collection("users").document(uid)
+        userRef.getDocument { snapshot, error in
+            guard let data = snapshot?.data(), error == nil else {
+                print("유저 정보 불러오기 실패:", error?.localizedDescription ?? "")
+                return
+            }
+            
+            if let team = data["team"] as? String {
+                self.userTeam = team
+                self.userNickname = data["nickname"] as? String
+                self.restrictTeamPickerSelection()
+            } else {
+                print("⚠️ 팀 미선택 사용자입니다.")
+                self.showAlert(message: "팀을 선택해야 글을 작성할 수 있습니다.") {
+                    self.navigationController?.popViewController(animated: true)
+                }
+            }
+        }
+    }
+    
+    private func restrictTeamPickerSelection() {
+        guard editingPost == nil else { return }
+        guard let userTeam = userTeam else { return }
+        
+        // 사용자 팀을 기본 선택
+        if let index = teams.firstIndex(of: userTeam) {
+            teamPicker.selectRow(index, inComponent: 0, animated: false)
+            selectedTeam = userTeam
+        } else if let index = teams.firstIndex(of: "전체") {
+            teamPicker.selectRow(index, inComponent: 0, animated: false)
+            selectedTeam = "전체"
+        }
+        
+        teamPicker.reloadAllComponents()
+    }
+    
     @objc private func dismissKeyboard() {
         view.endEditing(true)
     }
@@ -121,7 +163,7 @@ class CommunityWriteVC: UIViewController {
             "likes": 0,
             "dislikes": 0,
             "commentsCount": 0,
-            "author": user.email ?? "알 수 없음",
+            "author": self.userNickname ?? "알 수 없음",
             "authorUid": user.uid,
             "showReportAlert": false,
             "createdAt": Timestamp()
@@ -176,6 +218,21 @@ extension CommunityWriteVC: UIPickerViewDataSource, UIPickerViewDelegate {
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        selectedTeam = teams[row]
+        let selected = teams[row]
+        
+        if editingPost == nil, selected != "전체", selected != userTeam {
+            // 제한: 전체 or 사용자 팀만 허용
+            showAlert(message: "선택할 수 없는 팀입니다.")
+            if let userTeam = userTeam, let index = teams.firstIndex(of: userTeam) {
+                pickerView.selectRow(index, inComponent: 0, animated: true)
+                selectedTeam = userTeam
+            } else if let index = teams.firstIndex(of: "전체") {
+                pickerView.selectRow(index, inComponent: 0, animated: true)
+                selectedTeam = "전체"
+            }
+        } else {
+            selectedTeam = selected
+        }
     }
+    
 }

@@ -12,6 +12,12 @@ import FirebaseFirestore
 
 class PersonalInformationVC: UIViewController {
     
+    private let teams = [
+        "서울", "서울E", "인천", "부천", "김포", "성남", "수원", "수원FC", "안양", "안산", "화성",
+        "대전", "충북청주", "충남아산", "천안", "김천상무", "대구FC", "전북", "전남", "광주FC",
+        "포항", "울산", "부산", "경남", "제주SK"
+    ]
+    
     private let teamLabel = UILabel()
     private let emailLabel = UILabel()
     private let phoneLabel = UILabel()
@@ -19,6 +25,9 @@ class PersonalInformationVC: UIViewController {
     private let deleteButton = UIButton()
     private let resetPasswordButton = UIButton()
     private let privacyPolicyButton = UIButton()
+    private let teamPickerView = UIPickerView()
+    private let pickerTextField = UITextField()
+    private let selectTeamButton = UIButton(type: .system)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -26,6 +35,14 @@ class PersonalInformationVC: UIViewController {
         title = "개인정보"
         setupPersonal()
         loadUserInfo()
+        
+        teamPickerView.delegate = self
+        teamPickerView.dataSource = self
+        
+        pickerTextField.inputView = teamPickerView
+        setupPickerToolbar()   // 툴바(완료 버튼) 세팅 추가
+        view.addSubview(pickerTextField)
+        pickerTextField.isHidden = true
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -36,6 +53,7 @@ class PersonalInformationVC: UIViewController {
     private func setupPersonal() {
         emailLabel.font = .systemFont(ofSize: 17, weight: .medium)
         phoneLabel.font = .systemFont(ofSize: 17, weight: .medium)
+        teamLabel.font = .systemFont(ofSize: 17, weight: .medium)
         
         logoutButton.setTitle("로그아웃", for: .normal)
         logoutButton.setTitleColor(.systemBlue, for: .normal)
@@ -53,7 +71,20 @@ class PersonalInformationVC: UIViewController {
         privacyPolicyButton.setTitleColor(.systemBlue, for: .normal)
         privacyPolicyButton.addTarget(self, action: #selector(TappedPrivacyPolicy), for: .touchUpInside)
         
-        let stack = UIStackView(arrangedSubviews: [emailLabel, phoneLabel, teamLabel, logoutButton, privacyPolicyButton, resetPasswordButton, deleteButton])
+        selectTeamButton.setTitle("팀 선택", for: .normal)
+        selectTeamButton.setTitleColor(.systemBlue, for: .normal)
+        selectTeamButton.addTarget(self, action: #selector(didTapSelectTeam), for: .touchUpInside)
+        
+        let stack = UIStackView(arrangedSubviews: [
+            emailLabel,
+            phoneLabel,
+            teamLabel,
+            selectTeamButton,
+            logoutButton,
+            privacyPolicyButton,
+            resetPasswordButton,
+            deleteButton
+        ])
         stack.axis = .vertical
         stack.spacing = 16
         stack.alignment = .leading
@@ -72,6 +103,38 @@ class PersonalInformationVC: UIViewController {
         emailLabel.text = "이메일: \(user.email ?? "없음")"
         phoneLabel.text = "전화번호: \(user.phoneNumber ?? "없음")"
         
+        let db = Firestore.firestore()
+        let userRef = db.collection("users").document(user.uid)
+        
+        userRef.getDocument { snapshot, error in
+            guard let data = snapshot?.data(), error == nil else { return }
+            if let team = data["team"] as? String {
+                self.teamLabel.text = "응원팀: \(team)"
+                self.selectTeamButton.isEnabled = false
+                self.selectTeamButton.setTitle("팀 선택 완료", for: .normal)
+            } else {
+                self.teamLabel.text = "응원팀: 미선택"
+                self.selectTeamButton.isEnabled = true
+                self.selectTeamButton.setTitle("팀 선택", for: .normal)
+            }
+        }
+    }
+    
+    @objc private func didTapSelectTeam() {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        
+        let db = Firestore.firestore()
+        let userRef = db.collection("users").document(uid)
+        
+        userRef.getDocument { snapshot, error in
+            guard let data = snapshot?.data(), error == nil else { return }
+            if data["team"] != nil {
+                print("❌ 이미 팀을 선택했습니다.")
+                return
+            }
+            
+            self.pickerTextField.becomeFirstResponder()
+        }
     }
     
     private func updateAuthButtonTitle() {
@@ -84,7 +147,6 @@ class PersonalInformationVC: UIViewController {
     
     @objc private func TappedLogout() {
         if Auth.auth().currentUser != nil {
-            // 로그아웃 처리
             do {
                 try Auth.auth().signOut()
                 updateAuthButtonTitle()
@@ -96,7 +158,6 @@ class PersonalInformationVC: UIViewController {
             self.navigationController?.popToRootViewController(animated: true)
         }
     }
-    
     
     @objc private func TappedReset() {
         guard let email = Auth.auth().currentUser?.email else { return }
@@ -123,14 +184,13 @@ class PersonalInformationVC: UIViewController {
                 Firestore.firestore().collection("users").document(user.uid).delete()
                 print("회원탈퇴 및 데이터 삭제 완료")
                 self.navigationController?.popToRootViewController(animated: true)
-                
             }
         }))
         present(alert, animated: true)
     }
     
     @objc private func TappedPrivacyPolicy() {
-        if let url = Bundle.main.url(forResource: "privacyPolicy", withExtension: "pdf") {
+        if let url = Bundle.main.url(forResource: "PrivacyPolicy", withExtension: "pdf") {
             let pdfVC = UIViewController()
             let pdfView = PDFView()
             pdfView.autoScales = true
@@ -141,5 +201,68 @@ class PersonalInformationVC: UIViewController {
             print("❌ PDF 파일을 찾을 수 없습니다")
         }
     }
+    
+    private func setupPickerToolbar() {
+        let toolbar = UIToolbar()
+        toolbar.sizeToFit()
+        
+        let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let doneButton = UIBarButtonItem(title: "완료", style: .done, target: self, action: #selector(didTapPickerDone))
+        
+        toolbar.setItems([flexSpace, doneButton], animated: false)
+        
+        pickerTextField.inputAccessoryView = toolbar
+    }
+    
+    @objc private func didTapPickerDone() {
+        let selectedRow = teamPickerView.selectedRow(inComponent: 0)
+        let selectedTeam = teams[selectedRow]
+        
+        guard let uid = Auth.auth().currentUser?.uid else {
+            pickerTextField.resignFirstResponder()
+            return
+        }
+        
+        let userRef = Firestore.firestore().collection("users").document(uid)
+        
+        userRef.getDocument { snapshot, error in
+            guard let data = snapshot?.data(), error == nil else {
+                self.pickerTextField.resignFirstResponder()
+                return
+            }
+            if data["team"] != nil {
+                print("❌ 이미 팀을 선택했습니다.")
+                self.pickerTextField.resignFirstResponder()
+                return
+            }
+            
+            userRef.updateData(["team": selectedTeam]) { error in
+                if let error = error {
+                    print("❌ 팀 저장 실패: \(error.localizedDescription)")
+                } else {
+                    self.teamLabel.text = "응원팀: \(selectedTeam)"
+                    self.selectTeamButton.isEnabled = false
+                    self.selectTeamButton.setTitle("팀 선택 완료", for: .normal)
+                    print("✅ 팀 저장 완료")
+                }
+                self.pickerTextField.resignFirstResponder()
+            }
+        }
+    }
 }
 
+extension PersonalInformationVC: UIPickerViewDelegate, UIPickerViewDataSource {
+    func numberOfComponents(in pickerView: UIPickerView) -> Int { 1 }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return teams.count
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return teams[row]
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+
+    }
+}

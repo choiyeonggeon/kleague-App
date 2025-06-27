@@ -2,8 +2,6 @@
 //  CommunityVC.swift
 //  KleagueApp
 //
-//  Created by 최영건 on 5/29/25.
-//
 
 import UIKit
 import SnapKit
@@ -12,6 +10,7 @@ import FirebaseFirestore
 
 class CommunityVC: UIViewController {
     
+    private var isSuspendedUser = false
     private let titleLabel = UILabel()
     private let tableView = UITableView()
     private let writeButton = UIButton(type: .system)
@@ -27,7 +26,20 @@ class CommunityVC: UIViewController {
         view.backgroundColor = .white
         setupCommunityUI()
         fetchPosts()
+        checkUserSuspendedStatus()
         title = "커뮤니티"
+    }
+    
+    private func checkUserSuspendedStatus() {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        Firestore.firestore().collection("users").document(uid).getDocument { snapshot, error in
+            if let data = snapshot?.data(),
+               let isSuspended = data["isSuspended"] as? Bool {
+                self.isSuspendedUser = isSuspended
+                self.writeButton.isEnabled = !isSuspended
+                self.writeButton.backgroundColor = isSuspended ? .lightGray : .systemBlue
+            }
+        }
     }
     
     private func setupCommunityUI() {
@@ -87,8 +99,18 @@ class CommunityVC: UIViewController {
     }
     
     @objc private func didTapWriteButton() {
+        if isSuspendedUser {
+            showAlert(title: "활동 제한", message: "신고 누적으로 인해 글쓰기 권한이 제한되었습니다.")
+            return
+        }
         let vc = CommunityWriteVC()
         navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    private func showAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        present(alert, animated: true)
     }
     
     @objc private func didTapTeamFilter() {
@@ -144,6 +166,35 @@ class CommunityVC: UIViewController {
         }
         tableView.reloadData()
     }
+    
+    private func reportUser(postId: String, reportedUserId: String, reason: String) {
+        guard let reporterUserId = Auth.auth().currentUser?.uid else { return }
+
+        let reportData: [String: Any] = [
+            "reportedUserId": reportedUserId,
+            "reporterUserId": reporterUserId,
+            "reason": reason,
+            "reportedAt": Timestamp(),
+            "postId": postId
+        ]
+
+        Firestore.firestore().collection("reports").addDocument(data: reportData) { error in
+            if let error = error {
+                self.showAlert(title: "신고 실패", message: error.localizedDescription)
+            } else {
+                self.showAlert(title: "신고 완료", message: "신고가 접수되었습니다.")
+                let userRef = Firestore.firestore().collection("users").document(reportedUserId)
+                userRef.updateData(["reportCount": FieldValue.increment(Int64(1))])
+                userRef.getDocument { doc, _ in
+                    if let data = doc?.data(),
+                       let count = data["reportCount"] as? Int,
+                       count >= 5 {
+                        userRef.updateData(["isSuspended": true])
+                    }
+                }
+            }
+        }
+    }
 }
 
 // MARK: - UITableViewDataSource & UITableViewDelegate
@@ -153,7 +204,6 @@ extension CommunityVC: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "PostCell", for: indexPath) as? PostCell else {
             return UITableViewCell()
         }
@@ -162,12 +212,15 @@ extension CommunityVC: UITableViewDataSource, UITableViewDelegate {
         cell.configure(with: post)
         
         cell.onReportButtonTapped = {
-            let alelrt = UIAlertController(title: "신고", message: "이 게시글을 신고하시겠습니까?", preferredStyle: .alert)
-            alelrt.addAction(UIAlertAction(title: "취소", style: .cancel))
-            alelrt.addAction(UIAlertAction(title: "신고", style: .destructive, handler: { _ in
-                print("신고된 게시글")
-            }))
-            self.present(alelrt, animated: true)
+            let alert = UIAlertController(title: "신고 사유 선택", message: nil, preferredStyle: .actionSheet)
+            let reasons = ["욕설 및 비방", "스팸", "음란물", "기타"]
+            for reason in reasons {
+                alert.addAction(UIAlertAction(title: reason, style: .default, handler: { _ in
+                    self.reportUser(postId: post.id, reportedUserId: post.authorUid, reason: reason)
+                }))
+            }
+            alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+            self.present(alert, animated: true)
         }
         
         cell.onLikeButtonTapped = {
@@ -181,6 +234,7 @@ extension CommunityVC: UITableViewDataSource, UITableViewDelegate {
                 }
             }
         }
+        
         return cell
     }
     

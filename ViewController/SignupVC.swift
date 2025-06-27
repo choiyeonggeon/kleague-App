@@ -3,6 +3,7 @@ import SnapKit
 import PDFKit
 import FirebaseAuth
 import FirebaseFirestore
+import FirebaseFunctions
 
 class SignupVC: UIViewController {
     
@@ -25,10 +26,10 @@ class SignupVC: UIViewController {
     private let errorLabel = UILabel()
     private let privacyButtton = UIButton(type: .system)
     
+    private var existingNicknames: [String] = []
     private var verificationID: String?
     private var verificationCredential: PhoneAuthCredential? {
         didSet {
-            // 인증 완료 시 회원가입 버튼 활성화
             signupButton.isEnabled = (verificationCredential != nil)
             signupButton.backgroundColor = signupButton.isEnabled ? .systemBlue : .systemGray
         }
@@ -63,7 +64,6 @@ class SignupVC: UIViewController {
         
         nicknameTextField.placeholder = "닉네임"
         nicknameTextField.borderStyle = .roundedRect
-        nicknameTextField.addTarget(self, action: #selector(nicknameTextChanged), for: .editingChanged)
         
         phoneTextField.placeholder = "휴대폰 번호 (+821012345678)"
         phoneTextField.borderStyle = .roundedRect
@@ -96,10 +96,9 @@ class SignupVC: UIViewController {
         signupButton.setTitle("회원가입", for: .normal)
         signupButton.setTitleColor(.white, for: .normal)
         signupButton.layer.cornerRadius = 8
-        signupButton.addTarget(self, action: #selector(handleSignup), for: .touchUpInside)
-        // 초기엔 비활성화 상태
         signupButton.isEnabled = false
         signupButton.backgroundColor = .systemGray
+        signupButton.addTarget(self, action: #selector(handleSignup), for: .touchUpInside)
         
         requestCodeButton.setTitle("인증하기", for: .normal)
         requestCodeButton.setTitleColor(.white, for: .normal)
@@ -122,7 +121,6 @@ class SignupVC: UIViewController {
             $0.width.equalTo(100)
             $0.height.equalTo(44)
         }
-        
         verifyCodeButton.snp.makeConstraints {
             $0.width.equalTo(100)
             $0.height.equalTo(44)
@@ -182,8 +180,7 @@ class SignupVC: UIViewController {
             }
             
             guard let data = snapshot?.data(),
-                  let lastLoginTimestamp = data["lastLogin"] as? Timestamp
-            else { return }
+                  let lastLoginTimestamp = data["lastLogin"] as? Timestamp else { return }
             
             let lastLoginDate = lastLoginTimestamp.dateValue()
             let now = Date()
@@ -205,7 +202,6 @@ class SignupVC: UIViewController {
     }
     
     // MARK: - Actions
-    
     @objc private func handleSignup() {
         guard let email = emailTextField.text,
               let password = passwordTextField.text,
@@ -228,8 +224,8 @@ class SignupVC: UIViewController {
             return
         }
         
-        // 닉네임 중복 체크 후 회원가입 진행
-        isNicknameAvailable(nickname) { [weak self] available in
+        let nicknameService = NicknameService()
+        nicknameService.checkNickname(nickname) { [weak self] available in
             guard let self = self else { return }
             
             DispatchQueue.main.async {
@@ -310,15 +306,7 @@ class SignupVC: UIViewController {
     
     private func navigateToMainScreen() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            let mainVC = MoreVC()
-            let nav = UINavigationController(rootViewController: mainVC)
-            nav.setNavigationBarHidden(true, animated: false)
-            
-            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-               let window = windowScene.windows.first {
-                window.rootViewController = nav
-                window.makeKeyAndVisible()
-            }
+            self.navigationController?.popToRootViewController(animated: true)
         }
     }
     
@@ -329,12 +317,14 @@ class SignupVC: UIViewController {
             return
         }
         
-        isNicknameAvailable(nickname) { [weak self] available in
+        let checker = NicknameService()
+        checker.checkNickname(nickname) { [weak self] isAvailable in
             DispatchQueue.main.async {
-                if available {
-                    self?.showSuccess("사용 가능한 닉네임입니다.")
+                guard let self = self else { return }
+                if isAvailable {
+                    self.showSuccess("사용 가능한 닉네임입니다.")
                 } else {
-                    self?.showError("이미 사용 중인 닉네임입니다.")
+                    self.showError("이미 사용 중인 닉네임입니다.")
                 }
             }
         }
@@ -386,25 +376,6 @@ class SignupVC: UIViewController {
         successLabel.isHidden = true
     }
     
-    func isNicknameAvailable(_ nickname: String, completion: @escaping (Bool) -> Void) {
-        let db = Firestore.firestore()
-        db.collection("users")
-            .whereField("nickname", isEqualTo: nickname)
-            .getDocuments { snapshot, error in
-                if let error = error {
-                    print("닉네임 조회 실패: \(error.localizedDescription)")
-                    completion(false)
-                    return
-                }
-                
-                if let snapshot = snapshot, snapshot.documents.isEmpty {
-                    completion(true)
-                } else {
-                    completion(false)
-                }
-            }
-    }
-    
     private func isValidEmail(_ email: String) -> Bool {
         let regex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
         return NSPredicate(format: "SELF MATCHES %@", regex).evaluate(with: email)
@@ -416,7 +387,7 @@ class SignupVC: UIViewController {
     }
     
     @objc private func pdfVC() {
-        let vc = PDFViewerVC()
+        let vc = PDFViewrVC()
         navigationController?.pushViewController(vc, animated: true)
     }
     

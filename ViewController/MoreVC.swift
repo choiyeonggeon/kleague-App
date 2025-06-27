@@ -17,7 +17,7 @@ class MoreVC: UIViewController {
     private let loginButton = UIButton(type: .system)
     private let moreTableView = UITableView()
     
-    let items = ["공지사항", "개인정보", "예매하기", "이벤트", "응원가", "고객센터", "관리자 메뉴"]
+    let items = ["공지사항", "개인정보", "예매하기", "이벤트", "고객센터", "관리자 메뉴"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -185,13 +185,13 @@ extension MoreVC: UITableViewDataSource, UITableViewDelegate {
         case 3:
             let eventVC = eventVC()
             navigationController?.pushViewController(eventVC, animated: true)
+//        case 4:
+//            let cheeringTeamVC = CheeringTeamListVC()
+//            navigationController?.pushViewController(cheeringTeamVC, animated: true)
         case 4:
-            let cheeringTeamVC = CheeringTeamListVC()
-            navigationController?.pushViewController(cheeringTeamVC, animated: true)
-        case 5:
             let customerServiceVC = CustomerServiceVC()
             navigationController?.pushViewController(customerServiceVC, animated: true)
-        case 6:
+        case 5:
             UserService.shared.checkIfAdmin { [weak self]isAdmin in
                 DispatchQueue.main.async {
                     if isAdmin {
@@ -207,7 +207,6 @@ extension MoreVC: UITableViewDataSource, UITableViewDelegate {
                 }
             }
         default:
-            print("선택된 항목: \(items[indexPath.row])")
             break
         }
     }

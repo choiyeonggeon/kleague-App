@@ -46,7 +46,7 @@ class FirebasePostService {
     
     func fetchReportedPosts(completion: @escaping ([Post]) -> Void) {
         Firestore.firestore().collection("posts")
-            .whereField("reportCount", isEqualTo: 0)
+            .whereField("reportCount", isGreaterThan: 0)
             .order(by: "reportCount", descending: true)
             .getDocuments { snapshot, error in
                 guard let documents = snapshot?.documents else {

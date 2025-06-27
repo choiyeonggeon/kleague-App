@@ -9,16 +9,16 @@ import UIKit
 import SnapKit
 
 class NoticeDetailVC: UIViewController {
-    
+
     private let notice: Notice
-    
+
     private let scrollView = UIScrollView()
     private let contentView = UIView()
-    
+
     private let titleLabel = UILabel()
     private let dateLabel = UILabel()
     private let contentLabel = UILabel()
-    
+
     init(notice: Notice) {
         self.notice = notice
         super.init(nibName: nil, bundle: nil)
@@ -37,7 +37,6 @@ class NoticeDetailVC: UIViewController {
     }
 
     private func setupLayout() {
-        // 1. scrollView → view
         view.addSubview(scrollView)
         scrollView.snp.makeConstraints {
             $0.edges.equalTo(view.safeAreaLayoutGuide)
@@ -76,7 +75,6 @@ class NoticeDetailVC: UIViewController {
     }
 
     private func configureContent() {
-        
         let attributedTitle = NSMutableAttributedString(string: notice.title)
         if let range = notice.title.range(of: "[공지]") {
             let nsRange = NSRange(range, in: notice.title)
@@ -85,9 +83,12 @@ class NoticeDetailVC: UIViewController {
                 .font: UIFont.boldSystemFont(ofSize: 20)
             ], range: nsRange)
         }
-        
         titleLabel.attributedText = attributedTitle
-        dateLabel.text = notice.date
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy.MM.dd"
+        dateLabel.text = formatter.string(from: notice.date)
+
         contentLabel.text = notice.content
     }
 }

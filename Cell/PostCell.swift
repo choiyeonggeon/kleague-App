@@ -38,6 +38,7 @@ class PostCell: UITableViewCell {
 
         dateLabel.font = .systemFont(ofSize: 12)
         dateLabel.textColor = .gray
+        dateLabel.textAlignment = .right
 
         commentCountLabel.font = .systemFont(ofSize: 12)
         commentCountLabel.textColor = .gray

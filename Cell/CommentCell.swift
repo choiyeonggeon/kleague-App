@@ -50,13 +50,17 @@ class CommentCell: UITableViewCell {
         mainStack.spacing = 4
         
         contentView.addSubview(mainStack)
-        mainStack.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(12)
+        mainStack.snp.makeConstraints {
+            $0.edges.equalToSuperview().inset(12)
         }
         
-        reportButton.snp.makeConstraints { make in
-            make.width.equalTo(44)
-            make.height.equalTo(24)
+        timeLabel.snp.makeConstraints {
+            $0.trailing.equalToSuperview()
+        }
+        
+        reportButton.snp.makeConstraints {
+            $0.width.equalTo(44)
+            $0.height.equalTo(24)
         }
     }
     

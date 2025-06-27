@@ -6,90 +6,84 @@
 //
 
 import UIKit
-import SnapKit
 
 class AdminPostCell: UITableViewCell {
     
     private let titleLabel = UILabel()
     private let contentLabel = UILabel()
-    private let reportCountLabel = UILabel()
-    private let deletButton = UIButton(type: .system)
     private let editButton = UIButton(type: .system)
+    private let deleteButton = UIButton(type: .system)
+    private let suspendButton = UIButton(type: .system)   // 7일 정지 버튼
     
-    var onDeleteTapped: (() -> Void)?
     var onEditTapped: (() -> Void)?
+    var onSuspendTapped: (() -> Void)?
+    var onDeleteTapped: (() -> Void)?
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
-        contentView.addSubview(titleLabel)
-        contentView.addSubview(contentLabel)
-        contentView.addSubview(reportCountLabel)
-        contentView.addSubview(deletButton)
-        contentView.addSubview(editButton)
+        contentView.backgroundColor = .white
         
-        titleLabel.font = .systemFont(ofSize: 17, weight: .bold)
-        contentLabel.font = .systemFont(ofSize: 14)
-        contentLabel.numberOfLines = 2
-        
-        reportCountLabel.font = .systemFont(ofSize: 12)
-        reportCountLabel.textColor = .systemRed
-        
-        deletButton.setTitle("삭제", for: .normal)
-        deletButton.setTitleColor(.systemRed, for: .normal)
-        deletButton.addTarget(self, action: #selector(deleteTapped), for: .touchUpInside)
-        
-        editButton.setTitle("수정", for: .normal)
-        editButton.setTitleColor(.blue, for: .normal)
-        editButton.addTarget(self, action: #selector(editTapped), for: .touchUpInside)
-        
-        setupConstraints()
-    }
-    
-    func configure(with post: Post) {
-        titleLabel.text = post.title
-        contentLabel.text = post.content
-        reportCountLabel.text = "신고: \(post.reportCount)"
-    }
-    
-    @objc private func deleteTapped() {
-        onDeleteTapped?()
-    }
-    
-    @objc private func editTapped() {
-        onEditTapped?()
-    }
-    
-    private func setupConstraints() {
-        titleLabel.snp.makeConstraints {
-            $0.top.leading.trailing.equalToSuperview().inset(12)
-        }
-        
-        contentLabel.snp.makeConstraints {
-            $0.top.equalTo(titleLabel.snp.bottom).offset(6)
-            $0.leading.equalToSuperview().inset(12)
-            $0.bottom.equalToSuperview().inset(12)
-        }
-        
-        reportCountLabel.snp.makeConstraints {
-            $0.top.equalTo(contentLabel.snp.bottom).offset(6)
-            $0.leading.equalToSuperview().inset(12)
-            $0.bottom.equalToSuperview().inset(12)
-        }
-        
-        deletButton.snp.makeConstraints {
-            $0.centerY.equalTo(reportCountLabel)
-            $0.trailing.equalToSuperview().inset(12)
-        }
-        
-        editButton.snp.makeConstraints {
-            $0.centerY.equalTo(reportCountLabel)
-            $0.trailing.equalTo(deletButton.snp.leading).offset(-12)
-        }
+        setupCell()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
+    private func setupCell() {
+        titleLabel.font = .boldSystemFont(ofSize: 16)
+        titleLabel.numberOfLines = 1
+        
+        contentLabel.font = .systemFont(ofSize: 14)
+        contentLabel.numberOfLines = 2
+        contentLabel.textColor = .darkGray
+        
+        editButton.setTitle("수정", for: .normal)
+        editButton.setTitleColor(.systemBlue, for: .normal)
+        editButton.addTarget(self, action: #selector(didTapEdit), for: .touchUpInside)
+        
+        deleteButton.setTitle("삭제", for: .normal)
+        deleteButton.setTitleColor(.systemRed, for: .normal)
+        deleteButton.addTarget(self, action: #selector(didTapDelete), for: .touchUpInside)
+        
+        suspendButton.setTitle("7일 정지", for: .normal)
+        suspendButton.setTitleColor(.systemOrange, for: .normal)
+        suspendButton.addTarget(self, action: #selector(didTapSuspend), for: .touchUpInside)
+        
+        let buttonStack = UIStackView(arrangedSubviews: [editButton, deleteButton, suspendButton])
+        buttonStack.axis = .horizontal
+        buttonStack.spacing = 12
+        
+        let mainStack = UIStackView(arrangedSubviews: [titleLabel, contentLabel, buttonStack])
+        mainStack.axis = .vertical
+        mainStack.spacing = 8
+        
+        contentView.addSubview(mainStack)
+        mainStack.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            mainStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
+            mainStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            mainStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            mainStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -12)
+        ])
+    }
+    
+    func configure(with post: Post) {
+        let reportCountText = post.reportCount ?? 0
+        titleLabel.text = "🔴 \(post.title) (\(reportCountText)회 신고)"
+        contentLabel.text = post.content
+    }
+    
+    @objc private func didTapEdit() {
+        onEditTapped?()
+    }
+    
+    @objc private func didTapDelete() {
+        onDeleteTapped?()
+    }
+    
+    @objc private func didTapSuspend() {
+        onSuspendTapped?()
+    }
 }
