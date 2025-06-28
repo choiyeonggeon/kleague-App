@@ -167,23 +167,27 @@ class CommunityVC: UIViewController {
         tableView.reloadData()
     }
     
-    private func reportUser(postId: String, reportedUserId: String, reason: String) {
+    private func reportUser(post: Post, reason: String) {
         guard let reporterUserId = Auth.auth().currentUser?.uid else { return }
-
+        
         let reportData: [String: Any] = [
-            "reportedUserId": reportedUserId,
-            "reporterUserId": reporterUserId,
+            "reportedUserId": post.authorUid,
+            "reporterId": reporterUserId,
+            "title": post.title,
+            "content": post.content,
             "reason": reason,
             "reportedAt": Timestamp(),
-            "postId": postId
+            "postId": post.id
         ]
-
+        
         Firestore.firestore().collection("reports").addDocument(data: reportData) { error in
             if let error = error {
                 self.showAlert(title: "신고 실패", message: error.localizedDescription)
             } else {
                 self.showAlert(title: "신고 완료", message: "신고가 접수되었습니다.")
-                let userRef = Firestore.firestore().collection("users").document(reportedUserId)
+                
+                // 신고 수 증가 및 정지 여부 확인
+                let userRef = Firestore.firestore().collection("users").document(post.authorUid)
                 userRef.updateData(["reportCount": FieldValue.increment(Int64(1))])
                 userRef.getDocument { doc, _ in
                     if let data = doc?.data(),
@@ -195,6 +199,7 @@ class CommunityVC: UIViewController {
             }
         }
     }
+    
 }
 
 // MARK: - UITableViewDataSource & UITableViewDelegate
@@ -216,7 +221,7 @@ extension CommunityVC: UITableViewDataSource, UITableViewDelegate {
             let reasons = ["욕설 및 비방", "스팸", "음란물", "기타"]
             for reason in reasons {
                 alert.addAction(UIAlertAction(title: reason, style: .default, handler: { _ in
-                    self.reportUser(postId: post.id, reportedUserId: post.authorUid, reason: reason)
+                    self.reportUser(post: post, reason: reason)
                 }))
             }
             alert.addAction(UIAlertAction(title: "취소", style: .cancel))

@@ -20,7 +20,6 @@ class AdminReportedPostsVC: UIViewController {
         
         setupTableView()
         loadReportedPosts()
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -33,6 +32,7 @@ class AdminReportedPostsVC: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.dataSource = self
+        
         tableView.register(AdminPostCell.self, forCellReuseIdentifier: "AdminPostCell")
         tableView.register(NoticeWriteCell.self, forCellReuseIdentifier: NoticeWriteCell.identifier)
         
@@ -72,79 +72,6 @@ class AdminReportedPostsVC: UIViewController {
         }
     }
     
-}
-
-// MARK: - UITableViewDelegate, UITableViewDataSource
-extension AdminReportedPostsVC: UITableViewDelegate, UITableViewDataSource {
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // 공지 작성 셀 1개 + 신고된 게시글 수
-        return 1 + reportedPosts.count
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
-        if indexPath.row == 0 {
-            // 공지 작성 셀
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: NoticeWriteCell.identifier, for: indexPath) as? NoticeWriteCell else {
-                return UITableViewCell()
-            }
-            return cell
-        } else {
-            // 신고 게시글 셀
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: "AdminPostCell", for: indexPath) as? AdminPostCell else {
-                return UITableViewCell()
-            }
-            let post = reportedPosts[indexPath.row - 1]
-            cell.configure(with: post)
-            
-            cell.onDeleteTapped = { [weak self] in
-                FirebasePostService.shared.deletePost(postID: post.id) { result in
-                    switch result {
-                    case .success():
-                        DispatchQueue.main.async {
-                            self?.reportedPosts.remove(at: indexPath.row - 1)
-                            self?.tableView.deleteRows(at: [indexPath], with: .automatic)
-                        }
-                    case .failure(let error):
-                        print("삭제 실패: \(error.localizedDescription)")
-                    }
-                }
-            }
-            
-            cell.onEditTapped = { [weak self] in
-                self?.showEditAlert(for: post, index: indexPath.row - 1)
-            }
-            
-            // 7일 정지 버튼 액션 추가
-            cell.onSuspendTapped = { [weak self] in
-                let alert = UIAlertController(title: "정지", message: "이 유저를 7일간 정지할까요?", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "취소", style: .cancel))
-                alert.addAction(UIAlertAction(title: "정지", style: .destructive, handler: { _ in
-                    self?.suspendUserFor7Days(userId: post.authorUid)
-                }))
-                self?.present(alert, animated: true)
-            }
-            
-            return cell
-        }
-    }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if indexPath.row == 0 {
-            return 60
-        }
-        return 120
-    }
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        if indexPath.row == 0 {
-            let noticeWriteVC = NoticeWriteVC()
-            navigationController?.pushViewController(noticeWriteVC, animated: true)
-        }
-    }
-    
     private func showEditAlert(for post: Post, index: Int) {
         let alertController = UIAlertController(title: "수정", message: nil, preferredStyle: .alert)
         alertController.addTextField { tf in tf.text = post.title }
@@ -168,5 +95,88 @@ extension AdminReportedPostsVC: UITableViewDelegate, UITableViewDataSource {
             }
         })
         present(alertController, animated: true)
+    }
+}
+
+// MARK: - UITableViewDelegate, UITableViewDataSource
+extension AdminReportedPostsVC: UITableViewDelegate, UITableViewDataSource {
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        // 공지 셀 1 + 신고 게시글 수
+        return 1 + reportedPosts.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        if indexPath.row == 0 {
+            // 공지 셀
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: NoticeWriteCell.identifier, for: indexPath) as? NoticeWriteCell else {
+                return UITableViewCell()
+            }
+            return cell
+        } else {
+            // 신고 게시글 셀 (기본 subtitle 스타일)
+            let identifier = "ReportedPostCell"
+            var cell = tableView.dequeueReusableCell(withIdentifier: identifier)
+            if cell == nil {
+                cell = UITableViewCell(style: .subtitle, reuseIdentifier: identifier)
+            }
+            let post = reportedPosts[indexPath.row - 1]
+            let reportCountText = post.reportCount ?? 0
+            
+            let emailText = post.author // 필요시 이메일 따로 로드
+            let contentSummary = post.content.count > 100 ? String(post.content.prefix(100)) + "..." : post.content
+            
+            cell?.textLabel?.text = "🔴 \(post.title) (\(reportCountText)회 신고)"
+            cell?.textLabel?.numberOfLines = 1
+            
+            cell?.detailTextLabel?.text = """
+            작성자: \(post.author)
+            이메일: \(emailText)
+            내용: \(contentSummary)
+            """
+            cell?.detailTextLabel?.numberOfLines = 5
+            cell?.selectionStyle = .none
+            cell?.accessoryType = .detailButton
+            
+            return cell!
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return indexPath.row == 0 ? 60 : 120
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        if indexPath.row == 0 {
+            let noticeWriteVC = NoticeWriteVC()
+            navigationController?.pushViewController(noticeWriteVC, animated: true)
+        } else {
+            let post = reportedPosts[indexPath.row - 1]
+            let alert = UIAlertController(title: "관리 옵션", message: "작성자: \(post.author)", preferredStyle: .actionSheet)
+            
+            alert.addAction(UIAlertAction(title: "활동 정지 (7일)", style: .destructive, handler: { [weak self] _ in
+                self?.suspendUserFor7Days(userId: post.authorUid)
+            }))
+            alert.addAction(UIAlertAction(title: "삭제", style: .destructive, handler: { [weak self] _ in
+                FirebasePostService.shared.deletePost(postID: post.id) { result in
+                    switch result {
+                    case .success():
+                        DispatchQueue.main.async {
+                            self?.reportedPosts.remove(at: indexPath.row - 1)
+                            self?.tableView.deleteRows(at: [indexPath], with: .automatic)
+                        }
+                    case .failure(let error):
+                        print("삭제 실패: \(error.localizedDescription)")
+                    }
+                }
+            }))
+            alert.addAction(UIAlertAction(title: "수정", style: .default, handler: { [weak self] _ in
+                self?.showEditAlert(for: post, index: indexPath.row - 1)
+            }))
+            alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+            
+            present(alert, animated: true)
+        }
     }
 }
