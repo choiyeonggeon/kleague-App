@@ -25,6 +25,7 @@ class CommunityVC: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupCommunityUI()
+        
         fetchPosts()
         checkUserSuspendedStatus()
         title = "커뮤니티"
@@ -99,10 +100,16 @@ class CommunityVC: UIViewController {
     }
     
     @objc private func didTapWriteButton() {
+        guard let _ = Auth.auth().currentUser else {
+            showAlert(title: "로그인 필요", message: "글쓰기를 위해 로그인해주세요.")
+            return
+        }
+
         if isSuspendedUser {
             showAlert(title: "활동 제한", message: "신고 누적으로 인해 글쓰기 권한이 제한되었습니다.")
             return
         }
+        
         let vc = CommunityWriteVC()
         navigationController?.pushViewController(vc, animated: true)
     }

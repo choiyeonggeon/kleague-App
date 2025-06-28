@@ -5,7 +5,6 @@ import FirebaseFirestore
 
 class CommunityWriteVC: UIViewController {
     
-    
     var editingPost: Post?
     private var userNickname: String?
     private let titleField = UITextField()
@@ -70,6 +69,10 @@ class CommunityWriteVC: UIViewController {
         submitButton.backgroundColor = .systemBlue
         submitButton.setTitleColor(.white, for: .normal)
         submitButton.layer.cornerRadius = 8
+        
+        submitButton.isEnabled = false
+        submitButton.alpha = 0.5
+        
         submitButton.addTarget(self, action: #selector(didTapSubmit), for: .touchUpInside)
         
         [titleField, contentTextView, teamPicker, submitButton].forEach {
@@ -116,6 +119,11 @@ class CommunityWriteVC: UIViewController {
                 self.userTeam = team
                 self.userNickname = data["nickname"] as? String
                 self.restrictTeamPickerSelection()
+                
+                DispatchQueue.main.async {
+                    self.submitButton.isEnabled = true
+                    self.submitButton.alpha = 1.0
+                }
             } else {
                 print("⚠️ 팀 미선택 사용자입니다.")
                 self.showAlert(message: "팀을 선택해야 글을 작성할 수 있습니다.") {
@@ -174,7 +182,9 @@ class CommunityWriteVC: UIViewController {
                 if let error = error {
                     self.showAlert(message: "글 수정 실패: \(error.localizedDescription)")
                 } else {
-                    self.navigationController?.popViewController(animated: true)
+                    self.showAlert(message: "글이 수정되었습니다.") {
+                        self.navigationController?.popViewController(animated: true)
+                    }
                 }
             }
         } else {
@@ -189,7 +199,9 @@ class CommunityWriteVC: UIViewController {
                 if let error = error {
                     self.showAlert(message: "글 등록 실패: \(error.localizedDescription)")
                 } else {
-                    self.navigationController?.popViewController(animated: true)
+                    self.showAlert(message: "글이 등록되었습니다.") {
+                        self.navigationController?.popViewController(animated: true)
+                    }
                 }
             }
         }

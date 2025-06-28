@@ -105,8 +105,9 @@ class MoreVC: UIViewController {
         lastLabel.text = """
         문의 및 건의 사항이 있으시다면
         gugchugyeojido@gmail.com
-        031)1234-5678
-        으로 연락해 주시기 바랍니다.
+        또는 고객센터로 문의 주시기 바랍니다.
+        고객센터 운영 시간 
+        평일 09:00~18:00
         """
         
         lastLabel.numberOfLines = 0
