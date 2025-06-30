@@ -30,7 +30,7 @@ class TeamVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
              ticketURL: "https://ticket.interpark.com/m-ticket/Sports/GoodsInfo?SportsCode=07002&TeamCode=PS061"),
         Team(name: "전남",
              ticketURL: "https://ticket.interpark.com/m-ticket/Sports/GoodsInfo?SportsCode=07002&TeamCode=PS011"),
-        Team(name: "대전(하나원큐 앱)",
+        Team(name: "대전(자사앱 이용 바람.)",
              ticketURL: ""),
         Team(name: "울산",
              ticketURL: "https://www.ticketlink.co.kr/sports/138/66"),

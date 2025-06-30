@@ -17,7 +17,6 @@ class CustomerInquiryDetailVC: UIViewController {
     private let contentLabel = UILabel()
     private let answerLabel = UILabel()
     
-    // 답변 입력용 UI (관리자용)
     private let answerTextView = UITextView()
     private let saveAnswerButton = UIButton(type: .system)
     
@@ -37,7 +36,6 @@ class CustomerInquiryDetailVC: UIViewController {
         setupInquiryUI()
         displayData()
         
-        // 관리자용 답변 UI 표시 여부 결정
         checkAdminAndSetupAnswerUI()
     }
     
@@ -84,9 +82,8 @@ class CustomerInquiryDetailVC: UIViewController {
     }
     
     private func checkAdminAndSetupAnswerUI() {
-        // 관리자 UID 체크 (예시로 하드코딩)
         guard let uid = Auth.auth().currentUser?.uid else { return }
-        let adminUIDs = ["TPW61yAyNhZ3Ee3CvhO2xsdmGej1"] // 관리자 UID 목록
+        let adminUIDs = ["TPW61yAyNhZ3Ee3CvhO2xsdmGej1"]
         if adminUIDs.contains(uid) {
             setupAnswerUI()
         }
@@ -135,7 +132,7 @@ class CustomerInquiryDetailVC: UIViewController {
         
         let inquiryRef = Firestore.firestore()
             .collection("users")
-            .document(uid) // 여기는 작성자 uid가 아니라 문의 작성자 uid 여야 함. 아래 설명 참고
+            .document(uid)
             .collection("customerInquiries")
             .document(inquiry.id)
         

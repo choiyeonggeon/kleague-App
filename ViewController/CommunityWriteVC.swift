@@ -125,7 +125,6 @@ class CommunityWriteVC: UIViewController {
                     self.submitButton.alpha = 1.0
                 }
             } else {
-                print("⚠️ 팀 미선택 사용자입니다.")
                 self.showAlert(message: "팀을 선택해야 글을 작성할 수 있습니다.") {
                     self.navigationController?.popViewController(animated: true)
                 }
@@ -137,7 +136,6 @@ class CommunityWriteVC: UIViewController {
         guard editingPost == nil else { return }
         guard let userTeam = userTeam else { return }
         
-        // 사용자 팀을 기본 선택
         if let index = teams.firstIndex(of: userTeam) {
             teamPicker.selectRow(index, inComponent: 0, animated: false)
             selectedTeam = userTeam
@@ -233,7 +231,6 @@ extension CommunityWriteVC: UIPickerViewDataSource, UIPickerViewDelegate {
         let selected = teams[row]
         
         if editingPost == nil, selected != "전체", selected != userTeam {
-            // 제한: 전체 or 사용자 팀만 허용
             showAlert(message: "선택할 수 없는 팀입니다.")
             if let userTeam = userTeam, let index = teams.firstIndex(of: userTeam) {
                 pickerView.selectRow(index, inComponent: 0, animated: true)

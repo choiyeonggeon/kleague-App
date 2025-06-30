@@ -68,8 +68,6 @@ class HomeVC: UIViewController {
                 heightDimension: .estimated(80)
             )
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
-            // ⚠️ contentInsets 제거 — 경고 발생 원인
-            // item.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8)
             
             let groupSize = NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1.0),

@@ -102,28 +102,27 @@ class AdminReportedPostsVC: UIViewController {
 extension AdminReportedPostsVC: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // 공지 셀 1 + 신고 게시글 수
         return 1 + reportedPosts.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.row == 0 {
-            // 공지 셀
+            
             guard let cell = tableView.dequeueReusableCell(withIdentifier: NoticeWriteCell.identifier, for: indexPath) as? NoticeWriteCell else {
                 return UITableViewCell()
             }
             return cell
         } else {
-            // 신고 게시글 셀 (기본 subtitle 스타일)
             let identifier = "ReportedPostCell"
             var cell = tableView.dequeueReusableCell(withIdentifier: identifier)
             if cell == nil {
                 cell = UITableViewCell(style: .subtitle, reuseIdentifier: identifier)
             }
-            let post = reportedPosts[indexPath.row - 1]
-            let reportCountText = post.reportCount ?? 0
             
-            let emailText = post.author // 필요시 이메일 따로 로드
+            let post = reportedPosts[indexPath.row - 1]
+            let reportCountText = post.reportCount
+            
+            let emailText = post.author
             let contentSummary = post.content.count > 100 ? String(post.content.prefix(100)) + "..." : post.content
             
             cell?.textLabel?.text = "🔴 \(post.title) (\(reportCountText)회 신고)"

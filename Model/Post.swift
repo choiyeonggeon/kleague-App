@@ -19,7 +19,7 @@ struct Post {
     let authorUid: String
     let showReportAlert: Bool
     let createdAt: Date
-    let reportCount: Int?
+    let reportCount: Int
 
     init?(from document: DocumentSnapshot) {
         self.id = document.documentID

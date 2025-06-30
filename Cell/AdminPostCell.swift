@@ -70,7 +70,7 @@ class AdminPostCell: UITableViewCell {
     }
     
     func configure(with post: Post) {
-        let reportCountText = post.reportCount ?? 0
+        let reportCountText = post.reportCount
         titleLabel.text = "🔴 \(post.title) (\(reportCountText)회 신고)"
         contentLabel.text = post.content
     }

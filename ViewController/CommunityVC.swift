@@ -176,37 +176,61 @@ class CommunityVC: UIViewController {
     
     private func reportUser(post: Post, reason: String) {
         guard let reporterUserId = Auth.auth().currentUser?.uid else { return }
-        
-        let reportData: [String: Any] = [
-            "reportedUserId": post.authorUid,
-            "reporterId": reporterUserId,
-            "title": post.title,
-            "content": post.content,
-            "reason": reason,
-            "reportedAt": Timestamp(),
-            "postId": post.id
-        ]
-        
-        Firestore.firestore().collection("reports").addDocument(data: reportData) { error in
+
+        let reportQuery = Firestore.firestore()
+            .collection("reports")
+            .whereField("postId", isEqualTo: post.id)
+            .whereField("reportedByUid", isEqualTo: reporterUserId)
+
+        reportQuery.getDocuments { snapshot, error in
             if let error = error {
-                self.showAlert(title: "신고 실패", message: error.localizedDescription)
-            } else {
-                self.showAlert(title: "신고 완료", message: "신고가 접수되었습니다.")
-                
-                // 신고 수 증가 및 정지 여부 확인
+                self.showAlert(title: "오류", message: "신고 중복 검사 실패: \(error.localizedDescription)")
+                return
+            }
+
+            if let documents = snapshot?.documents, !documents.isEmpty {
+                self.showAlert(title: "이미 신고함", message: "이 게시글은 이미 신고하셨습니다.")
+                return
+            }
+
+            let reportData: [String: Any] = [
+                "postId": post.id,
+                "reportedUserId": post.authorUid,
+                "reportedByUid": reporterUserId,
+                "reportedBy": Auth.auth().currentUser?.email ?? "익명",
+                "reason": reason,
+                "reportedAt": Timestamp(date: Date())
+            ]
+
+            Firestore.firestore().collection("reports").addDocument(data: reportData) { error in
+                if let error = error {
+                    self.showAlert(title: "신고 실패", message: error.localizedDescription)
+                    return
+                }
+
                 let userRef = Firestore.firestore().collection("users").document(post.authorUid)
-                userRef.updateData(["reportCount": FieldValue.increment(Int64(1))])
-                userRef.getDocument { doc, _ in
-                    if let data = doc?.data(),
-                       let count = data["reportCount"] as? Int,
-                       count >= 5 {
-                        userRef.updateData(["isSuspended": true])
+                userRef.updateData(["reportCount": FieldValue.increment(Int64(1))]) { err in
+                    if let err = err {
+                        print("reportCount 업데이트 실패: \(err.localizedDescription)")
+                    }
+                    userRef.getDocument { doc, _ in
+                        if let data = doc?.data(),
+                           let count = data["reportCount"] as? Int,
+                           count >= 5 {
+                            userRef.updateData(["isSuspended": true]) { err in
+                                if let err = err {
+                                    print("유저 정지 처리 실패: \(err.localizedDescription)")
+                                }
+                            }
+                        }
                     }
                 }
+
+                self.showAlert(title: "신고 완료", message: "신고가 접수되었습니다.")
             }
         }
     }
-    
+
 }
 
 // MARK: - UITableViewDataSource & UITableViewDelegate

@@ -12,16 +12,15 @@ import Foundation
 
 class AdminSuspendedUserVC: UIViewController {
     private var suspendedUsers: [QueryDocumentSnapshot] = []
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         fetchSuspendedUsers { [weak self] users in
             self?.suspendedUsers = users
-            // 테이블 뷰 리로드 등 처리
         }
     }
-
+    
     func fetchSuspendedUsers(completion: @escaping ([QueryDocumentSnapshot]) -> Void) {
         let db = Firestore.firestore()
         db.collection("users")

@@ -32,7 +32,6 @@ class AllNewsListVC: UIViewController {
         tableView.dataSource = self
         tableView.delegate = self
         
-        // 자동 높이 계산 설정
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 100
     }
