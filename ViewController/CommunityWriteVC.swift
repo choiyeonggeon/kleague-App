@@ -6,7 +6,11 @@ import FirebaseFirestore
 class CommunityWriteVC: UIViewController {
     
     var editingPost: Post?
+    private var badWordsLoaded = false
+    private var userTeamLoaded = false
     private var userNickname: String?
+    private var badwords: [String] = []
+    
     private let titleField = UITextField()
     private let contentTextView = UITextView()
     private let teamPicker = UIPickerView()
@@ -23,11 +27,19 @@ class CommunityWriteVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
+        
         teamPicker.dataSource = self
         teamPicker.delegate = self
-        setupWriteUI()
         
+        setupWriteUI()
         loadUserTeam()
+        fetchBadWords { words in
+            self.badwords = words
+            self.badWordsLoaded = true
+            DispatchQueue.main.async {
+                self.updateSubmitButtonState()
+            }
+        }
         
         if let post = editingPost {
             title = "게시글 수정"
@@ -40,6 +52,7 @@ class CommunityWriteVC: UIViewController {
             submitButton.setTitle("수정 완료", for: .normal)
         } else {
             title = "글쓰기"
+            
         }
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
@@ -69,10 +82,8 @@ class CommunityWriteVC: UIViewController {
         submitButton.backgroundColor = .systemBlue
         submitButton.setTitleColor(.white, for: .normal)
         submitButton.layer.cornerRadius = 8
-        
         submitButton.isEnabled = false
         submitButton.alpha = 0.5
-        
         submitButton.addTarget(self, action: #selector(didTapSubmit), for: .touchUpInside)
         
         [titleField, contentTextView, teamPicker, submitButton].forEach {
@@ -103,12 +114,16 @@ class CommunityWriteVC: UIViewController {
             $0.width.equalTo(120)
             $0.height.equalTo(44)
         }
+        
+        titleField.addTarget(self, action: #selector(textInputChanged), for: .editingChanged)
+        contentTextView.delegate = self
+        
     }
     
     private func loadUserTeam() {
         guard let uid = Auth.auth().currentUser?.uid else { return }
-        
         let userRef = Firestore.firestore().collection("users").document(uid)
+        
         userRef.getDocument { snapshot, error in
             guard let data = snapshot?.data(), error == nil else {
                 print("유저 정보 불러오기 실패:", error?.localizedDescription ?? "")
@@ -118,21 +133,35 @@ class CommunityWriteVC: UIViewController {
             if let team = data["team"] as? String {
                 self.userTeam = team
                 self.userNickname = data["nickname"] as? String
-                self.restrictTeamPickerSelection()
-                
+                self.userTeamLoaded = true
                 DispatchQueue.main.async {
-                    self.submitButton.isEnabled = true
-                    self.submitButton.alpha = 1.0
+                    self.restrictTeamPickerSelection()
+                    self.updateSubmitButtonState()
                 }
             } else {
-                self.showAlert(message: "팀을 선택해야 글을 작성할 수 있습니다.") {
-                    self.navigationController?.popViewController(animated: true)
+                DispatchQueue.main.async {
+                    self.showAlert(message: "팀을 선택해야 글을 작성할 수 있습니다.") {
+                        self.navigationController?.popViewController(animated: true)
+                    }
                 }
             }
         }
     }
     
+    private func updateSubmitButtonState() {
+        // 팀 정보와 금지어 로딩 완료 + 텍스트 필드 비어있지 않음 + 금지어 포함 안됨 체크
+        let hasTitle = !(titleField.text ?? "").isEmpty
+        let hasContent = !(contentTextView.text ?? "").isEmpty
+        let noBadWordInTitle = !containsBadWord(titleField.text ?? "", badWords: badwords)
+        let noBadWordInContent = !containsBadWord(contentTextView.text ?? "", badWords: badwords)
+        
+        let enabled = badWordsLoaded && userTeamLoaded && hasTitle && hasContent && noBadWordInTitle && noBadWordInContent
+        submitButton.isEnabled = enabled
+        submitButton.alpha = enabled ? 1.0 : 0.5
+    }
+    
     private func restrictTeamPickerSelection() {
+        // 글쓰기(새글)일 때만 userTeam으로 제한
         guard editingPost == nil else { return }
         guard let userTeam = userTeam else { return }
         
@@ -145,6 +174,34 @@ class CommunityWriteVC: UIViewController {
         }
         
         teamPicker.reloadAllComponents()
+    }
+    
+    func fetchBadWords(completion: @escaping ([String]) -> Void) {
+        Firestore.firestore().collection("badwords").getDocuments { snapshot, error in
+            if let error = error {
+                print("금지어 불러오기 실패:", error.localizedDescription)
+                completion([])
+                return
+            }
+            let words = snapshot?.documents.compactMap { $0.data()["word"] as? String } ?? []
+            print("금지어 로딩 완료: \(words)")
+            completion(words)
+        }
+    }
+    
+    func containsBadWord(_ text: String, badWords: [String]) -> Bool {
+        let loweredText = text
+            .lowercased()
+            .replacingOccurrences(of: "[^가-힣a-z0-9]", with: "", options: .regularExpression)
+        
+        for badWord in badWords {
+            let cleanedBadWord = badWord.lowercased().replacingOccurrences(of: " ", with: "")
+            if loweredText.contains(cleanedBadWord) {
+                print("금지어 감지됨: \(cleanedBadWord)")
+                return true
+            }
+        }
+        return false
     }
     
     @objc private func dismissKeyboard() {
@@ -162,17 +219,23 @@ class CommunityWriteVC: UIViewController {
             return
         }
         
+        // 금지어 체크
+        if containsBadWord(title, badWords: badwords) || containsBadWord(content, badWords: badwords) {
+            showAlert(message: "금지어가 포함되어 있습니다. 내용을 수정해주세요.")
+            return
+        }
+        
         let postData: [String: Any] = [
             "title": title,
             "content": content,
             "team": team,
-            "likes": 0,
-            "dislikes": 0,
-            "commentsCount": 0,
+            "likes": editingPost == nil ? 0 : editingPost?.likes ?? 0,
+            "dislikes": editingPost == nil ? 0 : editingPost?.dislikes ?? 0,
+            "commentsCount": editingPost == nil ? 0 : editingPost?.commentsCount ?? 0,
             "author": self.userNickname ?? "알 수 없음",
             "authorUid": user.uid,
             "showReportAlert": false,
-            "createdAt": Timestamp()
+            "createdAt": editingPost == nil ? Timestamp() : editingPost?.createdAt ?? Timestamp()
         ]
         
         if let editingPost = editingPost {
@@ -211,7 +274,17 @@ class CommunityWriteVC: UIViewController {
             completion?()
         })
         present(alert, animated: true)
-        
+    }
+    
+    @objc private func textInputChanged() {
+        updateSubmitButtonState()
+    }
+}
+
+// MARK: - UITextViewDelegate
+extension CommunityWriteVC: UITextViewDelegate {
+    func textViewDidChange(_ textView: UITextView) {
+        updateSubmitButtonState()
     }
 }
 
@@ -243,5 +316,4 @@ extension CommunityWriteVC: UIPickerViewDataSource, UIPickerViewDelegate {
             selectedTeam = selected
         }
     }
-    
 }

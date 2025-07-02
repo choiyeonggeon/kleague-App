@@ -13,9 +13,11 @@ class PostCell: UITableViewCell {
     private let commentCountLabel = UILabel()
     private let likeButton = UIButton(type: .system)
     let reportButton = UIButton(type: .system)
+    let hideButton = UIButton(type: .system)
 
     var onReportButtonTapped: (() -> Void)?
     var onLikeButtonTapped: (() -> Void)?
+    var onHideButtonTapped: (() -> Void)?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -28,7 +30,6 @@ class PostCell: UITableViewCell {
 
     private func setupUI() {
         titleLabel.font = .boldSystemFont(ofSize: 16)
-
         previewLabel.font = .systemFont(ofSize: 14)
         previewLabel.textColor = .darkGray
         previewLabel.numberOfLines = 2
@@ -43,7 +44,6 @@ class PostCell: UITableViewCell {
         commentCountLabel.font = .systemFont(ofSize: 12)
         commentCountLabel.textColor = .gray
 
-        likeButton.setTitle("👍 0", for: .normal)
         likeButton.titleLabel?.font = .systemFont(ofSize: 12)
         likeButton.setContentHuggingPriority(.required, for: .horizontal)
         likeButton.addTarget(self, action: #selector(didTapLike), for: .touchUpInside)
@@ -53,12 +53,18 @@ class PostCell: UITableViewCell {
         reportButton.setContentHuggingPriority(.required, for: .horizontal)
         reportButton.addTarget(self, action: #selector(didTapReport), for: .touchUpInside)
 
+        hideButton.setTitle("숨김", for: .normal)
+        hideButton.titleLabel?.font = .systemFont(ofSize: 12)
+        hideButton.setTitleColor(.systemRed, for: .normal)
+        hideButton.setContentHuggingPriority(.required, for: .horizontal)
+        hideButton.addTarget(self, action: #selector(didTapHide), for: .touchUpInside)
+
         let topInfoStack = UIStackView(arrangedSubviews: [authorLabel, dateLabel])
         topInfoStack.axis = .horizontal
         topInfoStack.spacing = 10
         topInfoStack.distribution = .fillProportionally
 
-        let bottomInfoStack = UIStackView(arrangedSubviews: [commentCountLabel, likeButton, UIView(), reportButton])
+        let bottomInfoStack = UIStackView(arrangedSubviews: [commentCountLabel, likeButton, UIView(), reportButton, hideButton])
         bottomInfoStack.axis = .horizontal
         bottomInfoStack.spacing = 10
 
@@ -77,24 +83,47 @@ class PostCell: UITableViewCell {
     }
 
     func configure(with post: Post) {
-        titleLabel.text = post.title
-        previewLabel.text = post.preview
-        authorLabel.text = "글쓴이: \(post.author)"
-        commentCountLabel.text = "💬 \(post.commentsCount)"
-        likeButton.setTitle("👍 \(post.likes)", for: .normal)
-
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy.MM.dd HH:mm"
         dateLabel.text = formatter.string(from: post.createdAt)
+
+        if post.isHidden {
+            titleLabel.text = "[숨김 처리된 게시글]"
+            previewLabel.text = "관리자에 의해 숨김 처리되었습니다."
+            contentView.alpha = 0.4
+            likeButton.isHidden = true
+            reportButton.isHidden = true
+            hideButton.isHidden = true
+        } else {
+            titleLabel.text = post.title
+            previewLabel.text = post.preview
+            likeButton.setTitle("👍 \(post.likes)", for: .normal)
+            authorLabel.text = "글쓴이: \(post.author)"
+            commentCountLabel.text = "💬 \(post.commentsCount)"
+            contentView.alpha = 1.0
+            likeButton.isHidden = false
+            reportButton.isHidden = false
+            hideButton.isHidden = false
+        }
+    }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        contentView.alpha = 1.0
+        likeButton.isHidden = false
+        reportButton.isHidden = false
+        hideButton.isHidden = false
     }
 
     @objc private func didTapReport() {
-        print("신고 버튼 눌림")
         onReportButtonTapped?()
     }
 
     @objc private func didTapLike() {
-        print("좋아요 버튼 눌림")
         onLikeButtonTapped?()
+    }
+
+    @objc private func didTapHide() {
+        onHideButtonTapped?()
     }
 }

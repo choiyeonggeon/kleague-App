@@ -20,6 +20,7 @@ class AdminReportedPostsVC: UIViewController {
         
         setupTableView()
         loadReportedPosts()
+        fetchUnresolvedReportsOver24Hours()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -72,6 +73,59 @@ class AdminReportedPostsVC: UIViewController {
         }
     }
     
+    private func suspendUser(userId: String, forDays days: Int) {
+        let db = Firestore.firestore()
+        let suspendedUntil = Calendar.current.date(byAdding: .day, value: days, to: Date()) ?? Date()
+        
+        let data: [String: Any] = [
+            "isSuspended": true,
+            "suspendedUntil": Timestamp(date: suspendedUntil)
+        ]
+        
+        db.collection("users").document(userId).updateData(data) { error in
+            if let error = error {
+                print("🔥 유저 정지 실패: \(error.localizedDescription)")
+            } else {
+                print("✅ 유저가 \(days)일 동안 정지되었습니다.")
+            }
+        }
+    }
+    
+    private func deleteComment(postId: String, commentId: String) {
+        let db = Firestore.firestore()
+        db.collection("posts").document(postId).collection("comments").document(commentId)
+            .delete { error in
+                if let error = error {
+                    print("❌ 댓글 삭제 실패: \(error.localizedDescription)")
+                } else {
+                    print("✅ 댓글 삭제 성공")
+                }
+            }
+    }
+    
+    private func showCustomSuspensionAlert(userId: String) {
+        let alert = UIAlertController(title: "정지 일 수 입력", message: "유저를 며칠 동안 정지시킬지 숫자로 입력하세요.", preferredStyle: .alert)
+        
+        alert.addTextField { textField in
+            textField.placeholder = "예: 3"
+            textField.keyboardType = .numberPad
+        }
+        
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        
+        alert.addAction(UIAlertAction(title: "정지", style: .destructive, handler: { [weak self] _ in
+            guard let text = alert.textFields?.first?.text,
+                  let days = Int(text),
+                  days > 0 else {
+                print("❌ 올바른 정지 일 수를 입력하세요.")
+                return
+            }
+            self?.suspendUser(userId: userId, forDays: days)
+        }))
+        
+        present(alert, animated: true)
+    }
+    
     private func showEditAlert(for post: Post, index: Int) {
         let alertController = UIAlertController(title: "수정", message: nil, preferredStyle: .alert)
         alertController.addTextField { tf in tf.text = post.title }
@@ -122,11 +176,16 @@ extension AdminReportedPostsVC: UITableViewDelegate, UITableViewDataSource {
             let post = reportedPosts[indexPath.row - 1]
             let reportCountText = post.reportCount
             
-            let emailText = post.author
-            let contentSummary = post.content.count > 100 ? String(post.content.prefix(100)) + "..." : post.content
-            
-            cell?.textLabel?.text = "🔴 \(post.title) (\(reportCountText)회 신고)"
+            if let reportedDate = post.firstReportedAt {
+                let hoursSinceReport = Int(Date().timeIntervalSince(reportedDate) / 3600)
+                cell?.textLabel?.text = "🔴 \(post.title) - 신고 \(hoursSinceReport)시간 전"
+            } else {
+                cell?.textLabel?.text = "🔴 \(post.title) (\(reportCountText)회 신고)"
+            }
             cell?.textLabel?.numberOfLines = 1
+            
+            let emailText = post.email ?? "이메일 없음"
+            let contentSummary = post.content.count > 100 ? String(post.content.prefix(100)) + "..." : post.content
             
             cell?.detailTextLabel?.text = """
             작성자: \(post.author)
@@ -157,6 +216,9 @@ extension AdminReportedPostsVC: UITableViewDelegate, UITableViewDataSource {
             alert.addAction(UIAlertAction(title: "활동 정지 (7일)", style: .destructive, handler: { [weak self] _ in
                 self?.suspendUserFor7Days(userId: post.authorUid)
             }))
+            alert.addAction(UIAlertAction(title: "커스텀 정지 (일 입력)", style: .default, handler: { [weak self] _ in
+                self?.showCustomSuspensionAlert(userId: post.authorUid)
+            }))
             alert.addAction(UIAlertAction(title: "삭제", style: .destructive, handler: { [weak self] _ in
                 FirebasePostService.shared.deletePost(postID: post.id) { result in
                     switch result {
@@ -178,4 +240,59 @@ extension AdminReportedPostsVC: UITableViewDelegate, UITableViewDataSource {
             present(alert, animated: true)
         }
     }
+    
+    private func fetchUnresolvedReportsOver24Hours() {
+        let db = Firestore.firestore()
+        let cutoffDate = Date().addingTimeInterval(-24 * 60 * 60) // 24시간 전
+
+        db.collection("reports")
+            .whereField("reportType", isEqualTo: "post")
+            .whereField("reportedAt", isLessThan: Timestamp(date: cutoffDate))
+            .whereField("resolved", isEqualTo: false)
+            .getDocuments { snapshot, error in
+                guard let documents = snapshot?.documents else { return }
+
+                let postIds = documents.compactMap { $0.data()["postId"] as? String }
+
+                // 신고된 게시글 불러오기
+                self.loadPosts(by: postIds)
+            }
+    }
+
+    private func loadPosts(by ids: [String]) {
+        let db = Firestore.firestore()
+        var loadedPosts: [Post] = []
+        let group = DispatchGroup()
+
+        for id in ids {
+            group.enter()
+            db.collection("posts").document(id).getDocument { docSnapshot, error in
+                defer { group.leave() }
+                guard let doc = docSnapshot, doc.exists,
+                      let post = Post(from: doc) else {
+                    print("⚠️ 포스트 문서 없음 또는 변환 실패 - id: \(id)")
+                    return
+                }
+                loadedPosts.append(post)
+            }
+        }
+
+        group.notify(queue: .main) {
+            self.reportedPosts = loadedPosts
+            self.tableView.reloadData()
+        }
+    }
+    
+    func markReportResolved(for postId: String) {
+        let db = Firestore.firestore()
+        db.collection("reports")
+            .whereField("postId", isEqualTo: postId)
+            .whereField("resolved", isEqualTo: false)
+            .getDocuments { snapshot, _ in
+                snapshot?.documents.forEach { doc in
+                    doc.reference.updateData(["resolved": true])
+                }
+            }
+    }
+
 }

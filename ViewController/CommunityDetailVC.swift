@@ -23,7 +23,10 @@ class CommunityDetailVC: UIViewController {
     
     var post: Post!
     private var comments: [Comment] = []
+    private var badwords: [String] = []
+    private var blockedUserIds: [String] = []
     private var currentUserNickname: String?
+    private var isAdmin: Bool = false
     
     private let titleLabel = UILabel()
     private let contentLabel = UILabel()
@@ -45,16 +48,17 @@ class CommunityDetailVC: UIViewController {
         self.post = post
         super.init(nibName: nil, bundle: nil)
     }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupDetailUI()
-        loadComments()
+        loadUserInfo()
+        fetchBadWords { self.badwords = $0 }
+        fetchBlockedUsers { [weak self] in
+            self?.loadComments()
+        }
         fetchLatestPostInfo()
         fetchCurrentUserNickname()
         
@@ -66,9 +70,30 @@ class CommunityDetailVC: UIViewController {
         commentTableView.delegate = self
         commentTableView.dataSource = self
         
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            title: "신고",
+            style: .plain,
+            target: self,
+            action: #selector(didTapReportPost)
+        )
+        
+        if isAdmin {
+            navigationItem.leftBarButtonItem = UIBarButtonItem(
+                title: "숨김",
+                style: .plain,
+                target: self,
+                action: #selector(didTapHidePost)
+            )
+        }
+        
+        commentTableView.rowHeight = UITableView.automaticDimension
+        commentTableView.estimatedRowHeight = 100
+        
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         view.addGestureRecognizer(tapGesture)
     }
+    
+    // MARK: - UI Setup
     
     private func setupDetailUI() {
         title = "글 상세"
@@ -104,11 +129,9 @@ class CommunityDetailVC: UIViewController {
         deletButton.setTitleColor(.systemRed, for: .normal)
         deletButton.addTarget(self, action: #selector(didTapDelete), for: .touchUpInside)
         
-        view.addSubview(editButton)
-        view.addSubview(deletButton)
-        
         commentTableView.dataSource = self
-        commentTableView.register(CommentCell.self, forCellReuseIdentifier: "CommentCell")
+        commentTableView.delegate = self
+        commentTableView.register(CommentCell.self, forCellReuseIdentifier: CommentCell.identifier)
         
         [titleLabel, contentLabel, authorLabel, likeButton, dislikeButton, commentField, commentButton, commentTableView, editButton, deletButton].forEach {
             view.addSubview($0)
@@ -172,21 +195,231 @@ class CommunityDetailVC: UIViewController {
         }
     }
     
+    private func loadUserInfo() {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        let userRef = Firestore.firestore().collection("users").document(uid)
+        
+        userRef.getDocument { snapshot, error in
+            guard let data = snapshot?.data(), error == nil else { return }
+            self.isAdmin = data["isAdmin"] as? Bool ?? false
+            DispatchQueue.main.async {
+                self.commentTableView.reloadData()
+            }
+        }
+    }
+    
+    // MARK: - 댓글 불러오기 및 필터링
+    
+    private func loadComments() {
+        let ref = Firestore.firestore().collection("posts").document(post.id).collection("comments").order(by: "createdAt", descending: false)
+        ref.getDocuments { [weak self] snapshot, error in
+            guard let self = self else { return }
+            if let error = error {
+                print("댓글 불러오기 실패: \(error.localizedDescription)")
+                return
+            }
+            
+            var fetchedComments: [Comment] = []
+            snapshot?.documents.forEach { doc in
+                let data = doc.data()
+                guard
+                    let author = data["author"] as? String,
+                    let authorUid = data["authorUid"] as? String,
+                    let text = data["text"] as? String,
+                    let timestamp = data["createdAt"] as? Timestamp,
+                    let isHidden = data["isHidden"] as? Bool,
+                    isHidden == false
+                else { return }
+                
+                // 차단된 유저 댓글 필터링
+                if self.blockedUserIds.contains(authorUid) {
+                    return
+                }
+                
+                let comment = Comment(
+                    id: doc.documentID,
+                    postId: self.post.id,
+                    author: author,
+                    authorUid: authorUid,
+                    text: text,
+                    createdAt: timestamp.dateValue()
+                )
+                fetchedComments.append(comment)
+            }
+            
+            self.comments = fetchedComments
+            DispatchQueue.main.async {
+                self.commentTableView.reloadData()
+            }
+        }
+    }
+    
+    // MARK: - 차단 유저 불러오기
+    
+    private func fetchBlockedUsers(completion: @escaping () -> Void) {
+        guard let currentUid = Auth.auth().currentUser?.uid else {
+            blockedUserIds = []
+            completion()
+            return
+        }
+        Firestore.firestore()
+            .collection("users")
+            .document(currentUid)
+            .collection("blockedUsers")
+            .getDocuments { [weak self] snapshot, error in
+                if let error = error {
+                    print("차단 유저 불러오기 실패: \(error)")
+                    self?.blockedUserIds = []
+                    completion()
+                    return
+                }
+                self?.blockedUserIds = snapshot?.documents.map { $0.documentID } ?? []
+                completion()
+            }
+    }
+    
+    func blockUser(uid: String, completion: @escaping () -> Void = {}) {
+        guard let currentUid = Auth.auth().currentUser?.uid else { return }
+        Firestore.firestore()
+            .collection("users")
+            .document(currentUid)
+            .collection("blockedUsers")
+            .document(uid)
+            .setData(["blockedAt": Timestamp(date: Date())]) { [weak self] error in
+                if let error = error {
+                    print("유저 차단 실패: \(error.localizedDescription)")
+                } else {
+                    print("유저 차단 성공")
+                    self?.fetchBlockedUsers {
+                        self?.loadComments()
+                        completion()
+                    }
+                    self?.showAlert(title: "차단 완료", message: "해당 사용자의 댓글 또는 게시글이 숨겨집니다.")
+                }
+            }
+    }
+    
+    func unblockUser(uid: String, completion: @escaping () -> Void = {}) {
+        guard let currentUid = Auth.auth().currentUser?.uid else { return }
+        Firestore.firestore()
+            .collection("users")
+            .document(currentUid)
+            .collection("blockedUsers")
+            .document(uid)
+            .delete { [weak self] error in
+                if let error = error {
+                    print("차단 해제 실패: \(error.localizedDescription)")
+                } else {
+                    print("차단 해제 성공")
+                    self?.fetchBlockedUsers {
+                        self?.loadComments()
+                        completion()
+                    }
+                    self?.showAlert(title: "차단 해제", message: "해당 사용자의 댓글이 다시 표시됩니다.")
+                }
+            }
+    }
+    
+    // MARK: - 금지어 불러오기
+    
+    func fetchBadWords(completion: @escaping ([String]) -> Void) {
+        Firestore.firestore().collection("badwords").getDocuments { snapshot, error in
+            if let error = error {
+                print("금지어 불러오기 실패:", error.localizedDescription)
+                completion([])
+                return
+            }
+            let words = snapshot?.documents.compactMap { $0.data()["word"] as? String } ?? []
+            completion(words)
+        }
+    }
+    
+    func containsBadWord(_ text: String, badwords: [String]) -> Bool {
+        let loweredText = text.lowercased()
+        for word in badwords {
+            if loweredText.contains(word.lowercased()) {
+                return true
+            }
+        }
+        return false
+    }
+    
+    // MARK: - 댓글 작성
+    
+    @objc private func didTapComment() {
+        guard Auth.auth().currentUser != nil else {
+            let alert = UIAlertController(title: "로그인 필요", message: "댓글을 작성하려면 로그인해야 합니다.", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "확인", style: .default))
+            present(alert, animated: true)
+            return
+        }
+        
+        guard let text = commentField.text, !text.isEmpty else {
+            let alert = UIAlertController(title: "입력 오류", message: "모든 항목을 입력해주세요.", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "확인", style: .default))
+            present(alert, animated: true)
+            return
+        }
+        
+        if containsBadWord(text, badwords: badwords) {
+            let alert = UIAlertController(title: "금지어 포함", message: "댓글에 금지어가 포함되어 있습니다.", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "확인", style: .default))
+            present(alert, animated: true)
+            return
+        }
+        
+        let authorName = self.currentUserNickname ?? self.currentUserName
+        
+        let newComment = Comment(
+            id: UUID().uuidString,
+            postId: post.id,
+            author: authorName,
+            authorUid: Auth.auth().currentUser?.uid ?? "",
+            text: text,
+            createdAt: Date()
+        )
+        
+        comments.append(newComment)
+        commentField.text = ""
+        commentTableView.reloadData()
+        
+        let postRef = Firestore.firestore().collection("posts").document(post.id)
+        postRef.collection("comments").addDocument(data: [
+            "author": authorName,
+            "authorUid": Auth.auth().currentUser?.uid ?? "",
+            "text": text,
+            "createdAt": Timestamp(date: newComment.createdAt),
+            "isHidden": false,
+            "reportCount": 0
+        ]) { error in
+            if let error = error {
+                print("댓글 저장 실패: \(error.localizedDescription)")
+                return
+            }
+            DispatchQueue.main.async {
+                self.commentField.text = ""
+                self.commentTableView.reloadData()
+            }
+            postRef.updateData(["commentsCount": FieldValue.increment(Int64(1))])
+        }
+    }
+    
+    // MARK: - 최신 게시글 좋아요/싫어요 정보 업데이트
+    
     private func fetchLatestPostInfo() {
         let ref = Firestore.firestore().collection("posts").document(post.id)
         ref.getDocument { snapshot, error in
             guard let data = snapshot?.data() else { return }
-            
             let latestLikes = data["likes"] as? Int ?? 0
             let latestDislikes = data["dislikes"] as? Int ?? 0
-            
             self.post.likes = latestLikes
             self.post.dislikes = latestDislikes
-            
             self.likeButton.setTitle("👍 \(latestLikes)", for: .normal)
             self.dislikeButton.setTitle("👎 \(latestDislikes)", for: .normal)
         }
     }
+    
+    // MARK: - 유저 닉네임 불러오기
     
     private func fetchCurrentUserNickname() {
         guard let uid = Auth.auth().currentUser?.uid else { return }
@@ -199,10 +432,11 @@ class CommunityDetailVC: UIViewController {
         }
     }
     
+    // MARK: - 좋아요 / 싫어요 액션
+    
     @objc private func didTapLike() {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         let ref = Firestore.firestore().collection("posts").document(post.id)
-        
         ref.getDocument { snapshot, error in
             guard let data = snapshot?.data() else { return }
             var likedUserIds = data["likedUserIds"] as? [String] ?? []
@@ -230,7 +464,6 @@ class CommunityDetailVC: UIViewController {
     @objc private func didTapDislike() {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         let ref = Firestore.firestore().collection("posts").document(post.id)
-        
         ref.getDocument { snapshot, error in
             guard let data = snapshot?.data() else { return }
             var dislikedUserIds = data["dislikedUserIds"] as? [String] ?? []
@@ -255,6 +488,8 @@ class CommunityDetailVC: UIViewController {
         }
     }
     
+    // MARK: - 글 수정 / 삭제
+    
     @objc private func didTapDelete() {
         let alert = UIAlertController(title: "글 삭제", message: "이 글을 삭제하시겠습니까?", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "취소", style: .cancel))
@@ -276,327 +511,184 @@ class CommunityDetailVC: UIViewController {
         navigationController?.pushViewController(writeVC, animated: true)
     }
     
-    @objc private func didTapComment() {
-        guard Auth.auth().currentUser != nil else {
-            let alert = UIAlertController(title: "로그인 필요", message: "댓글을 작성하려면 로그인해야 합니다.", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "확인", style: .default))
-            present(alert, animated: true)
-            return
-        }
-        
-        guard let text = commentField.text, !text.isEmpty else { return }
-        let authorName = self.currentUserNickname ?? self.currentUserName
-        
-        let newComment = Comment(
-            id: UUID().uuidString,
-            postId: post.id,
-            author: authorName,
-            authorUid: Auth.auth().currentUser?.uid ?? "",
-            text: text,
-            createdAt: Date(),
-        )
-        
-        comments.append(newComment)
-        commentField.text = ""
-        commentTableView.reloadData()
-        
-        let postRef = Firestore.firestore().collection("posts").document(post.id)
-        postRef.collection("comments").addDocument(data: [
-            "author": authorName,
-            "authorUid": Auth.auth().currentUser?.uid ?? "",
-            "text": text,
-            "createdAt": Timestamp(date: newComment.createdAt)
-        ])
-        
-        postRef.updateData(["commentsCount": FieldValue.increment(Int64(1))])
-    }
-    
-    
     @objc private func dismissKeyboard() {
         view.endEditing(true)
     }
     
-    private func loadComments() {
-        Firestore.firestore()
-            .collection("posts").document(post.id)
-            .collection("comments")
-            .order(by: "createdAt", descending: false)
-            .getDocuments { [weak self] snapshot, error in
-                guard let self = self else { return }
-                if let documents = snapshot?.documents {
-                    self.comments = documents.compactMap { doc in
-                        let data = doc.data()
-                        guard let author = data["author"] as? String,
-                              let text = data["text"] as? String,
-                              let timestamp = data["createdAt"] as? Timestamp else { return nil }
-                        let authorUid = data["authorUid"] as? String ?? ""
-                        
-                        return Comment(
-                            id: doc.documentID,
-                            postId: self.post.id,
-                            author: author,
-                            authorUid: authorUid,
-                            text: text,
-                            createdAt: timestamp.dateValue()
-                        )
-                    }
-                    self.commentTableView.reloadData()
-                }
-            }
-    }
+    // MARK: - 신고
     
-    func isCurrentUserAdmin() -> Bool {
-        let adminUids = ["TPW61yAyNhZ3Ee3CvhO2xsdmGej1", "관리자UID2"] // 관리자 UID 배열에 맞게 수정하세요
-        if let uid = Auth.auth().currentUser?.uid {
-            return adminUids.contains(uid)
-        }
-        return false
-    }
-    
-    func editComment(_ comment: Comment) {
-        let alert = UIAlertController(title: "댓글 수정", message: nil, preferredStyle: .alert)
-        alert.addTextField { textField in
-            textField.text = comment.text
-        }
-        
-        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
-        alert.addAction(UIAlertAction(title: "저장", style: .default, handler: { [weak self] _ in
-            guard let self = self else { return }
-            guard let newText = alert.textFields?.first?.text, !newText.isEmpty else { return }
-            
-            let commentRef = Firestore.firestore()
-                .collection("posts")
-                .document(comment.postId)
-                .collection("comments")
-                .document(comment.id)
-            
-            commentRef.updateData(["text": newText]) { error in
-                if let error = error {
-                    print("댓글 수정 실패: \(error.localizedDescription)")
-                } else {
-                    if let index = self.comments.firstIndex(where: { $0.id == comment.id }) {
-                        self.comments[index].text = newText
-                        self.commentTableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
-                    }
-                }
-            }
-        }))
-        present(alert, animated: true)
-    }
-    
-    func deleteComment(_ comment: Comment) {
-        let alert = UIAlertController(title: "댓글 삭제", message: "이 댓글을 삭제하시겠습니까?", preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
-        alert.addAction(UIAlertAction(title: "삭제", style: .destructive, handler: { [weak self] _ in
-            guard let self = self else { return }
-            
-            let commentRef = Firestore.firestore()
-                .collection("posts")
-                .document(comment.postId)
-                .collection("comments")
-                .document(comment.id)
-            
-            commentRef.delete { error in
-                if let error = error {
-                    print("댓글 삭제 실패: \(error.localizedDescription)")
-                } else {
-                    if let index = self.comments.firstIndex(where: { $0.id == comment.id }) {
-                        self.comments.remove(at: index)
-                        self.commentTableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
-                    }
-                    
-                    let postRef = Firestore.firestore()
-                        .collection("posts")
-                        .document(comment.postId)
-                    postRef.updateData(["commentsCount": FieldValue.increment(Int64(-1))])
-                }
-            }
-        }))
-        present(alert, animated: true)
-    }
-    
-}
-
-extension CommunityDetailVC: UITableViewDataSource, UITableViewDelegate {
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return comments.count
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: "CommentCell", for: indexPath) as? CommentCell else {
-            return UITableViewCell()
-        }
-        let comment = comments[indexPath.row]
-        
-        let currentUid = Auth.auth().currentUser?.uid
-        let isAdminOrAuthor = (currentUid == comment.authorUid) || isCurrentUserAdmin()
-        
-        cell.configure(
-            author: comment.author,
-            text: comment.text,
-            time: timeAgoString(from: comment.createdAt),
-            showEditDelete: isAdminOrAuthor
-        )
-        
-        cell.onReportTapped = { [weak self] in
-            self?.reportComment(comment)
-        }
-        cell.onEditTapped = { [weak self] in
-            self?.editComment(comment)
-        }
-        cell.onDeleteTapped = { [weak self] in
-            self?.deleteComment(comment)
-        }
-        
-        return cell
-    }
-}
-
-extension CommunityDetailVC {
-    func reportPost() {
-        guard let uid = Auth.auth().currentUser?.uid else {
-            return
-        }
-        
-        let reportQuery = Firestore.firestore()
-            .collection("reports")
-            .whereField("postId", isEqualTo: post.id)
-            .whereField("reportedByUid", isEqualTo: uid)
-        
-        reportQuery.getDocuments { snapshot, error in
-            if let error = error {
-                print("게시글 신고 중복 검사 실패: \(error.localizedDescription)")
-                return
-            }
-            
-            if let documents = snapshot?.documents, !documents.isEmpty {
-                let alert = UIAlertController(
-                    title: "이미 신고함",
-                    message: "이 게시글은 이미 신고하셨습니다.",
-                    preferredStyle: .alert
-                )
-                alert.addAction(UIAlertAction(title: "확인", style: .default))
-                self.present(alert, animated: true)
-                return
-            }
-            
-            let reportData: [String: Any] = [
-                "postId": self.post.id,
-                "reportedBy": self.currentUserName,
-                "reportedByUid": uid,
-                "reportType": "post",
-                "reportedAt": Timestamp(date: Date())
-            ]
-            
-            Firestore.firestore().collection("reports").addDocument(data: reportData) { error in
-                if let error = error {
-                    print("게시글 신고 저장 실패: \(error.localizedDescription)")
-                } else {
-                    let alert = UIAlertController(
-                        title: "신고 완료",
-                        message: "신고가 정상적으로 접수되었습니다.",
-                        preferredStyle: .alert
-                    )
-                    alert.addAction(UIAlertAction(title: "확인", style: .default))
-                    self.present(alert, animated: true)
-                }
-            }
-        }
-        
-    }
-}
-
-extension CommunityDetailVC {
-    func reportComment(_ comment: Comment) {
-        guard let uid = Auth.auth().currentUser?.uid else {
-            let alert = UIAlertController(title: "로그인 필요", message: "댓글 신고는 로그인 후 이용 가능합니다.", preferredStyle: .alert)
+    @objc private func didTapReportPost() {
+        guard Auth.auth().currentUser != nil else {
+            let alert = UIAlertController(title: "로그인 필요", message: "신고하려면 로그인해야 합니다.", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "확인", style: .default))
             present(alert, animated: true)
             return
         }
         
-        let reportQuery = Firestore.firestore()
-            .collection("commentReports")
-            .whereField("commentId", isEqualTo: comment.id)
-            .whereField("reportedByUid", isEqualTo: uid)
+        let alert = UIAlertController(title: "신고 사유 선택", message: nil, preferredStyle: .actionSheet)
+        let reasons = ["욕설 및 비방", "스팸", "음란물", "기타"]
+        for reason in reasons {
+            alert.addAction(UIAlertAction(title: reason, style: .default, handler: { _ in
+                self.reportPost(reason: reason)
+            }))
+        }
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        present(alert, animated: true)
+    }
+    
+    // 신고 처리 실제 로직 (예시)
+    func reportPost(reason: String) {
+        guard let currentUser = Auth.auth().currentUser else { return }
         
-        reportQuery.getDocuments { snapshot, error in
-            if let error = error {
-                print("댓글 신고 중복 검사 실패: \(error.localizedDescription)")
-                return
-            }
-            
-            if let documents = snapshot?.documents, !documents.isEmpty {
-                // 이미 신고한 댓글인 경우
-                let alert = UIAlertController(title: "이미 신고함", message: "이 댓글은 이미 신고하셨습니다.", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "확인", style: .default))
-                self.present(alert, animated: true)
-                return
-            }
-            
-            let reportData: [String: Any] = [
-                "commentId": comment.id,
-                "postId": comment.postId,
-                "reportedBy": self.currentUserName,
-                "reportedByUid": uid,
-                "reportedAt": Timestamp(date: Date())
-            ]
-            
-            Firestore.firestore().collection("commentReports").addDocument(data: reportData) { error in
+        let reportData: [String: Any] = [
+            "postId": post.id,
+            "reportedUserId": post.authorUid,
+            "reportedByUid": currentUser.uid,
+            "reportedBy": currentUser.email ?? "익명",
+            "reason": reason,
+            "reportedAt": Timestamp(date: Date()),
+            "isHidden": false
+        ]
+        
+        let firestore = Firestore.firestore()
+        let reportRef = firestore.collection("reports").document()
+        reportRef.setData(reportData) { error in
+            DispatchQueue.main.async {
                 if let error = error {
-                    print("댓글 신고 실패: \(error.localizedDescription)")
-                    return
+                    self.showAlert(title: "신고 실패", message: error.localizedDescription)
+                } else {
+                    self.showAlert(title: "신고 완료", message: "신고가 접수되었습니다. 24시간 이내에 관리자에 의해 검토 후 조치될 예정입니다.")
                 }
-                
-                let postRef = Firestore.firestore().collection("posts").document(comment.postId)
-                postRef.updateData(["reportCount": FieldValue.increment(Int64(1))]) { error in
-                    if let error = error {
-                        print("신고 횟수 증가 실패: \(error.localizedDescription)")
-                        return
-                    }
-                    
-                    postRef.getDocument { snapshot, error in
-                        if let data = snapshot?.data(),
-                           let reportCount = data["reportCount"] as? Int,
-                           reportCount >= 5 {
-                            
-                            let userRef = Firestore.firestore().collection("users").document(comment.authorUid)
-                            let suspendedUntil = Calendar.current.date(byAdding: .day, value: 7, to: Date()) ?? Date()
-                            
-                            userRef.updateData([
-                                "isSuspended": true,
-                                "suspendedUntil": Timestamp(date: suspendedUntil)
-                            ]) { error in
-                                if let error = error {
-                                    print("유저 정지 실패: \(error.localizedDescription)")
-                                } else {
-                                    print("유저가 7일간 정지되었습니다.")
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                let successAlert = UIAlertController(title: "신고 완료", message: "댓글 신고가 접수되었습니다.", preferredStyle: .alert)
-                successAlert.addAction(UIAlertAction(title: "확인", style: .default))
-                self.present(successAlert, animated: true)
             }
         }
     }
+    
+    private func showAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        present(alert, animated: true)
+    }
 }
 
-extension CommunityDetailVC {
-    private func timeAgoString(from date: Date) -> String {
-        let interval = Date().timeIntervalSince(date)
-        if interval < 60 {
-            return "방금 전"
-        } else if interval < 3600 {
-            return "\(Int(interval / 60))분 전"
-        } else if interval < 86400 {
-            return "\(Int(interval / 3600))시간 전"
-        } else {
-            return "\(Int(interval / 86400))일 전"
+// MARK: - UITableView Delegate & DataSource
+
+extension CommunityDetailVC: UITableViewDelegate, UITableViewDataSource {
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        comments.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: CommentCell.identifier, for: indexPath) as? CommentCell else {
+            return UITableViewCell()
         }
+        
+        let comment = comments[indexPath.row]
+        let isBlocked = blockedUserIds.contains(comment.authorUid)
+        
+        cell.configure(with: comment, isBlocked: isBlocked, isAdmin: self.isAdmin)
+        
+        // 차단 / 차단 해제 버튼 액션
+        cell.blockAction = { [weak self] in
+            guard let self = self else { return }
+            if isBlocked {
+                self.unblockUser(uid: comment.authorUid)
+            } else {
+                self.blockUser(uid: comment.authorUid)
+            }
+        }
+        
+        cell.deleteAction = { [weak self] in
+            guard let self = self else { return }
+            let commentRef = Firestore.firestore()
+                .collection("posts")
+                .document(self.post.id)
+                .collection("comments")
+                .document(comment.id)
+            
+            let postRef = Firestore.firestore().collection("posts").document(self.post.id)
+            
+            commentRef.delete { error in
+                if let error = error {
+                    print("댓글 삭제 실패: \(error.localizedDescription)")
+                    return
+                }
+                
+                // 댓글 수 감소 처리
+                postRef.updateData([
+                    "commentsCount": FieldValue.increment(Int64(-1))
+                ]) { updateError in
+                    if let updateError = updateError {
+                        print("댓글 수 감소 실패: \(updateError.localizedDescription)")
+                    }
+                }
+                
+                self.loadComments()
+            }
+        }
+        
+        cell.hideAction = { [weak self] in
+            guard let self = self else { return }
+            Firestore.firestore()
+                .collection("posts")
+                .document(post.id)
+                .collection("comments")
+                .document(comment.id)
+                .updateData(["isHidden": true]) { error in
+                    if error == nil {
+                        self.loadComments()
+                    }
+                }
+        }
+        
+        cell.editAction = { [weak self] in
+            guard let self = self else { return }
+            let alert = UIAlertController(title: "댓글 수정", message: nil, preferredStyle: .alert)
+            alert.addTextField { $0.text = comment.text }
+            alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+            alert.addAction(UIAlertAction(title: "저장", style: .default, handler: { _ in
+                guard let newText = alert.textFields?.first?.text, !newText.isEmpty else { return }
+                
+                if self.containsBadWord(newText, badwords: self.badwords) {
+                    self.showAlert(title: "금지어 포함", message: "금지어가 포함된 댓글은 작성할 수 없습니다.")
+                    return
+                }
+                
+                Firestore.firestore()
+                    .collection("posts")
+                    .document(comment.postId)
+                    .collection("comments")
+                    .document(comment.id)
+                    .updateData([
+                        "text": newText
+                    ]) { error in
+                        if let error = error {
+                            print("댓글 수정 실패: \(error.localizedDescription)")
+                        } else {
+                            self.loadComments()
+                        }
+                    }
+            }))
+            self.present(alert, animated: true)
+        }
+        
+        return cell
+    }
+    
+    @objc private func didTapHidePost() {
+        let alert = UIAlertController(title: "게시글 숨김", message: "이 게시글을 사용자에게 숨기시겠습니까?", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        alert.addAction(UIAlertAction(title: "숨김", style: .destructive, handler: { _ in
+            Firestore.firestore().collection("posts").document(self.post.id).updateData(["isHidden": true]) { error in
+                if let error = error {
+                    self.showAlert(title: "실패", message: error.localizedDescription)
+                } else {
+                    self.showAlert(title: "완료", message: "게시글이 숨김 처리되었습니다.")
+                    self.navigationController?.popViewController(animated: true)
+                }
+            }
+        }))
+        present(alert, animated: true)
     }
 }

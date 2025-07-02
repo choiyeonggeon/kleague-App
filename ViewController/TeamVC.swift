@@ -92,7 +92,6 @@ class TeamVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let team = teams[indexPath.row]
         
-        // 웹 예매 상세 페이지 열기 (추천)
         if let url = URL(string: team.ticketURL) {
             let safariVC = SFSafariViewController(url: url)
             present(safariVC, animated: true)
