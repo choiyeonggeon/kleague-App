@@ -155,7 +155,16 @@ class CommunityVC: UIViewController {
             }))
         }
         alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        
+        // ✅ iPad용 popover anchor 설정
+        if let popover = alert.popoverPresentationController {
+            popover.sourceView = teamFilterButton
+            popover.sourceRect = teamFilterButton.bounds
+            popover.permittedArrowDirections = .up
+        }
+        
         present(alert, animated: true)
+        
     }
     
     @objc private func didTapSearch() {
@@ -310,7 +319,7 @@ extension CommunityVC: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-
+        
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "PostCell", for: indexPath) as? PostCell else {
             return UITableViewCell()
         }
@@ -335,6 +344,17 @@ extension CommunityVC: UITableViewDataSource, UITableViewDelegate {
                 }))
             }
             alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+            
+            if let popover = alert.popoverPresentationController {
+                popover.sourceView = self.view
+                if let cellRect = tableView.cellForRow(at: indexPath)?.frame {
+                    popover.sourceRect = cellRect
+                } else {
+                    popover.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+                }
+                popover.permittedArrowDirections = [.up, .down]
+            }
+            
             self.present(alert, animated: true)
         }
         
