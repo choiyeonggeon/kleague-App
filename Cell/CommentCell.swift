@@ -11,6 +11,10 @@ class CommentCell: UITableViewCell {
     private let blockButton = UIButton(type: .system) // 필요 없으면 제거 가능
     private let moreButton = UIButton(type: .system)
     
+    // 권한 플래그
+    private var isAdmin: Bool = false
+    private var isAuthor: Bool = false
+    
     // 액션 클로저
     var editAction: (() -> Void)?
     var deleteAction: (() -> Void)?
@@ -25,7 +29,7 @@ class CommentCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    // 상대 시간 계산 함수 추가
+    // 상대 시간 계산 함수
     private func timeAgoSinceDate(_ date: Date) -> String {
         let now = Date()
         let secondsAgo = Int(now.timeIntervalSince(date))
@@ -46,16 +50,16 @@ class CommentCell: UITableViewCell {
         }
     }
     
-    func configure(with comment: Comment, isBlocked: Bool, isAdmin: Bool = false) {
+    // 권한 정보 포함하여 구성
+    func configure(with comment: Comment, isBlocked: Bool, isAdmin: Bool = false, isAuthor: Bool = false) {
         authorLabel.text = comment.author
         commentLabel.text = comment.text
-        // blockButton 숨김 처리 (더보기로 이동)
         blockButton.isHidden = true
-        // moreButton 항상 보이도록
         moreButton.isHidden = false
-        
-        // 상대 시간으로 표시
         timeLabel.text = timeAgoSinceDate(comment.createdAt)
+        
+        self.isAdmin = isAdmin
+        self.isAuthor = isAuthor
     }
     
     private func setupUI() {
@@ -102,18 +106,30 @@ class CommentCell: UITableViewCell {
         
         let alert = UIAlertController(title: "댓글 관리", message: nil, preferredStyle: .actionSheet)
         
-        alert.addAction(UIAlertAction(title: "수정", style: .default, handler: { _ in
-            self.editAction?()
-        }))
-        alert.addAction(UIAlertAction(title: "삭제", style: .destructive, handler: { _ in
-            self.deleteAction?()
-        }))
-        alert.addAction(UIAlertAction(title: "숨김", style: .default, handler: { _ in
-            self.hideAction?()
-        }))
-        alert.addAction(UIAlertAction(title: "차단/차단 해제", style: .default, handler: { _ in
-            self.blockAction?()
-        }))
+        // 수정, 삭제: 작성자 or 관리자만
+        if isAdmin || isAuthor {
+            alert.addAction(UIAlertAction(title: "수정", style: .default, handler: { _ in
+                self.editAction?()
+            }))
+            alert.addAction(UIAlertAction(title: "삭제", style: .destructive, handler: { _ in
+                self.deleteAction?()
+            }))
+        }
+        
+        // 숨김: 관리자만
+        if isAdmin {
+            alert.addAction(UIAlertAction(title: "숨김", style: .default, handler: { _ in
+                self.hideAction?()
+            }))
+        }
+        
+        // 차단/차단 해제: 관리자만 보여줄 수도 있고 필요하면 여기에 추가
+        if isAdmin || isAuthor {
+            alert.addAction(UIAlertAction(title: "차단/차단 해제", style: .default, handler: { _ in
+                self.blockAction?()
+            }))
+        }
+        
         alert.addAction(UIAlertAction(title: "취소", style: .cancel))
         
         // iPad 지원

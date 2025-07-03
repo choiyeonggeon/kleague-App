@@ -34,6 +34,7 @@ class PersonalInformationVC: UIViewController {
         view.backgroundColor = .white
         title = "개인정보"
         setupPersonal()
+        updateButtonVisibility()
         loadUserInfo()
         
         teamPickerView.delegate = self
@@ -48,6 +49,15 @@ class PersonalInformationVC: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         updateAuthButtonTitle()
+        updateButtonVisibility()
+        loadUserInfo()
+    }
+    
+    private func updateButtonVisibility() {
+        let isLoggedIn = Auth.auth().currentUser != nil
+        selectTeamButton.isHidden = !isLoggedIn
+        resetPasswordButton.isHidden = !isLoggedIn
+        deleteButton.isHidden = !isLoggedIn
     }
     
     private func setupPersonal() {
@@ -99,7 +109,12 @@ class PersonalInformationVC: UIViewController {
     }
     
     private func loadUserInfo() {
-        guard let user = Auth.auth().currentUser else { return }
+        guard let user = Auth.auth().currentUser else {
+            emailLabel.text = "이메일: 없음"
+            phoneLabel.text = "전화번호: 없음"
+            teamLabel.text = "응원팀: 미선택"
+            return
+        }
         emailLabel.text = "이메일: \(user.email ?? "없음")"
         phoneLabel.text = "전화번호: \(user.phoneNumber ?? "없음")"
         
@@ -107,7 +122,12 @@ class PersonalInformationVC: UIViewController {
         let userRef = db.collection("users").document(user.uid)
         
         userRef.getDocument { snapshot, error in
-            guard let data = snapshot?.data(), error == nil else { return }
+            guard let data = snapshot?.data(), error == nil else {
+                self.teamLabel.text = "응원팀: 미선택"
+                self.selectTeamButton.isEnabled = true
+                self.selectTeamButton.setTitle("팀 선택", for: .normal)
+                return
+            }
             if let team = data["team"] as? String {
                 self.teamLabel.text = "응원팀: \(team)"
                 self.selectTeamButton.isEnabled = false
@@ -150,6 +170,7 @@ class PersonalInformationVC: UIViewController {
             do {
                 try Auth.auth().signOut()
                 updateAuthButtonTitle()
+                updateButtonVisibility()
                 print("로그아웃 성공")
             } catch {
                 print("로그아웃 실패: \(error.localizedDescription)")
@@ -162,10 +183,12 @@ class PersonalInformationVC: UIViewController {
     @objc private func TappedReset() {
         guard let email = Auth.auth().currentUser?.email else { return }
         Auth.auth().sendPasswordReset(withEmail: email) { error in
-            if let error = error {
-                print("비밀번호 재설정 실패: \(error.localizedDescription)")
-            } else {
-                print("비밀번호 재설정 메일 전송 완료")
+            DispatchQueue.main.async {
+                if let error = error {
+                    self.showAlert(title: "실패", message: "비밀번호 재설정 메일 전송 실패: \(error.localizedDescription)")
+                } else {
+                    self.showAlert(title: "성공", message: "비밀번호 재설정 메일이 전송되었습니다.")
+                }
             }
         }
     }
@@ -263,6 +286,15 @@ extension PersonalInformationVC: UIPickerViewDelegate, UIPickerViewDataSource {
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        // 필요 시 선택 시 처리
+    }
+}
 
+// UIAlertController를 쉽게 호출하기 위한 확장
+extension UIViewController {
+    func showAlert(title: String, message: String, completion: (() -> Void)? = nil) {
+        let alertVC = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alertVC.addAction(UIAlertAction(title: "확인", style: .default) { _ in completion?() })
+        present(alertVC, animated: true)
     }
 }

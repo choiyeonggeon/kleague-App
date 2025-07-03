@@ -346,6 +346,12 @@ extension CommunityVC: UITableViewDataSource, UITableViewDelegate {
             alert.addAction(UIAlertAction(title: "취소", style: .cancel))
             
             if let popover = alert.popoverPresentationController {
+                popover.sourceView = tableView.cellForRow(at: indexPath)
+                popover.sourceRect = tableView.cellForRow(at: indexPath)?.bounds ?? CGRect(x: 0, y: 0, width: 1, height: 1)
+                popover.permittedArrowDirections = [.up, .down]
+            }
+            
+            if let popover = alert.popoverPresentationController {
                 popover.sourceView = self.view
                 if let cellRect = tableView.cellForRow(at: indexPath)?.frame {
                     popover.sourceRect = cellRect
@@ -353,6 +359,7 @@ extension CommunityVC: UITableViewDataSource, UITableViewDelegate {
                     popover.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
                 }
                 popover.permittedArrowDirections = [.up, .down]
+                
             }
             
             self.present(alert, animated: true)

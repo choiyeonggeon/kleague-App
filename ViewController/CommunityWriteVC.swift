@@ -1,5 +1,7 @@
 import UIKit
 import SnapKit
+import RxSwift
+import RxCocoa
 import FirebaseAuth
 import FirebaseFirestore
 
@@ -9,12 +11,13 @@ class CommunityWriteVC: UIViewController {
     private var badWordsLoaded = false
     private var userTeamLoaded = false
     private var userNickname: String?
-    private var badwords: [String] = []
+    private var badWords: [String] = []
     
     private let titleField = UITextField()
     private let contentTextView = UITextView()
     private let teamPicker = UIPickerView()
     private let submitButton = UIButton(type: .system)
+    private let disposeBag = DisposeBag()
     
     private let teams = ["전체", "서울", "서울E", "인천", "부천", "김포",
                          "성남", "수원", "수원FC", "안양", "안산", "화성",
@@ -30,11 +33,14 @@ class CommunityWriteVC: UIViewController {
         
         teamPicker.dataSource = self
         teamPicker.delegate = self
+        teamPicker.isHidden = (editingPost != nil)
         
         setupWriteUI()
         loadUserTeam()
+        adjustConstraintsForEditMode()
+        bindInputs()
         fetchBadWords { words in
-            self.badwords = words
+            self.badWords = words
             self.badWordsLoaded = true
             DispatchQueue.main.async {
                 self.updateSubmitButtonState()
@@ -50,6 +56,7 @@ class CommunityWriteVC: UIViewController {
                 selectedTeam = post.team
             }
             submitButton.setTitle("수정 완료", for: .normal)
+            adjustConstraintsForEditMode()
         } else {
             title = "글쓰기"
             
@@ -67,6 +74,28 @@ class CommunityWriteVC: UIViewController {
                 selectedTeam = userTeam
             }
         }
+    }
+    
+    private func bindInputs() {
+        let titleInput = titleField.rx.text.orEmpty
+        let contentInput = contentTextView.rx.text.orEmpty
+        
+        Observable.combineLatest(titleInput, contentInput)
+            .map { [weak self] title, content -> Bool in
+                guard let self = self else { return false }
+                return self.badWordsLoaded &&
+                self.userTeamLoaded &&
+                !title.isEmpty &&
+                !content.isEmpty
+                && !self.containsBadWord(title, badWords: self.badWords)
+                && !self.containsBadWord(content, badWords: self.badWords)
+            }
+            .subscribe(onNext: { [weak self] enabled in
+                self?.submitButton.isEnabled = enabled
+                self?.submitButton.alpha = enabled ? 1.0 : 0.5
+            })
+            .disposed(by: disposeBag)
+        
     }
     
     private func setupWriteUI() {
@@ -137,6 +166,7 @@ class CommunityWriteVC: UIViewController {
                 DispatchQueue.main.async {
                     self.restrictTeamPickerSelection()
                     self.updateSubmitButtonState()
+                    self.bindInputs()
                 }
             } else {
                 DispatchQueue.main.async {
@@ -148,14 +178,23 @@ class CommunityWriteVC: UIViewController {
         }
     }
     
+    private func adjustConstraintsForEditMode() {
+        if editingPost != nil {
+            teamPicker.removeFromSuperview()
+            submitButton.snp.remakeConstraints {
+                $0.top.equalTo(contentTextView.snp.bottom).offset(20)
+                $0.centerX.equalTo(view)
+                $0.width.equalTo(120)
+                $0.height.equalTo(44)
+            }
+        }
+    }
+    
     private func updateSubmitButtonState() {
-        // 팀 정보와 금지어 로딩 완료 + 텍스트 필드 비어있지 않음 + 금지어 포함 안됨 체크
         let hasTitle = !(titleField.text ?? "").isEmpty
         let hasContent = !(contentTextView.text ?? "").isEmpty
-        let noBadWordInTitle = !containsBadWord(titleField.text ?? "", badWords: badwords)
-        let noBadWordInContent = !containsBadWord(contentTextView.text ?? "", badWords: badwords)
         
-        let enabled = badWordsLoaded && userTeamLoaded && hasTitle && hasContent && noBadWordInTitle && noBadWordInContent
+        let enabled = badWordsLoaded && userTeamLoaded && hasTitle && hasContent
         submitButton.isEnabled = enabled
         submitButton.alpha = enabled ? 1.0 : 0.5
     }
@@ -177,7 +216,7 @@ class CommunityWriteVC: UIViewController {
     }
     
     func fetchBadWords(completion: @escaping ([String]) -> Void) {
-        Firestore.firestore().collection("badwords").getDocuments { snapshot, error in
+        Firestore.firestore().collection("badWords").getDocuments { snapshot, error in
             if let error = error {
                 print("금지어 불러오기 실패:", error.localizedDescription)
                 completion([])
@@ -195,12 +234,12 @@ class CommunityWriteVC: UIViewController {
             .replacingOccurrences(of: "[^가-힣a-z0-9]", with: "", options: .regularExpression)
         
         for badWord in badWords {
-            let cleanedBadWord = badWord.lowercased().replacingOccurrences(of: " ", with: "")
+            let cleanedBadWord = badWord.lowercased().replacingOccurrences(of: "[^가-힣a-z0-9]", with: "", options: .regularExpression)
             if loweredText.contains(cleanedBadWord) {
-                print("금지어 감지됨: \(cleanedBadWord)")
                 return true
             }
         }
+        
         return false
     }
     
@@ -220,7 +259,7 @@ class CommunityWriteVC: UIViewController {
         }
         
         // 금지어 체크
-        if containsBadWord(title, badWords: badwords) || containsBadWord(content, badWords: badwords) {
+        if containsBadWord(title, badWords: badWords) || containsBadWord(content, badWords: badWords) {
             showAlert(message: "금지어가 포함되어 있습니다. 내용을 수정해주세요.")
             return
         }

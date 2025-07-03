@@ -23,7 +23,7 @@ class CommunityDetailVC: UIViewController {
     
     var post: Post!
     private var comments: [Comment] = []
-    private var badwords: [String] = []
+    private var badWords: [String] = []
     private var blockedUserIds: [String] = []
     private var currentUserNickname: String?
     private var isAdmin: Bool = false
@@ -54,11 +54,27 @@ class CommunityDetailVC: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupDetailUI()
+        
+        // 1. 초기 상태: 버튼 모두 숨김
+        editButton.isHidden = true
+        deletButton.isHidden = true
+        navigationItem.leftBarButtonItem = nil
+        
+        // 2. 사용자 정보 불러와서 UI 업데이트
         loadUserInfo()
-        fetchBadWords { self.badwords = $0 }
+        
+        fetchBadWords { [weak self] words in
+            guard let self = self else { return }
+            self.badWords = words
+            self.fetchBlockedUsers {
+                self.loadComments()
+            }
+        }
+        
         fetchBlockedUsers { [weak self] in
             self?.loadComments()
         }
+        
         fetchLatestPostInfo()
         fetchCurrentUserNickname()
         
@@ -85,6 +101,10 @@ class CommunityDetailVC: UIViewController {
                 action: #selector(didTapHidePost)
             )
         }
+        
+        editButton.isHidden = true
+        deletButton.isHidden = true
+        navigationItem.leftBarButtonItem = nil
         
         commentTableView.rowHeight = UITableView.automaticDimension
         commentTableView.estimatedRowHeight = 100
@@ -196,13 +216,40 @@ class CommunityDetailVC: UIViewController {
     }
     
     private func loadUserInfo() {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        let userRef = Firestore.firestore().collection("users").document(uid)
+        guard let uid = Auth.auth().currentUser?.uid else {
+            // 비로그인 상태면 버튼 다 숨기기
+            DispatchQueue.main.async {
+                self.editButton.isHidden = true
+                self.deletButton.isHidden = true
+                self.navigationItem.leftBarButtonItem = nil
+            }
+            return
+        }
         
+        let userRef = Firestore.firestore().collection("users").document(uid)
         userRef.getDocument { snapshot, error in
             guard let data = snapshot?.data(), error == nil else { return }
+            
             self.isAdmin = data["isAdmin"] as? Bool ?? false
+            
             DispatchQueue.main.async {
+                // 작성자 본인이면 수정/삭제 버튼 노출, 아니면 숨김
+                let isAuthor = (uid == self.post.authorUid)
+                self.editButton.isHidden = !isAuthor
+                self.deletButton.isHidden = !isAuthor
+                
+                // 관리자면 좌측 숨김 버튼 노출, 아니면 숨김
+                if self.isAdmin {
+                    self.navigationItem.leftBarButtonItem = UIBarButtonItem(
+                        title: "숨김",
+                        style: .plain,
+                        target: self,
+                        action: #selector(self.didTapHidePost)
+                    )
+                } else {
+                    self.navigationItem.leftBarButtonItem = nil
+                }
+                
                 self.commentTableView.reloadData()
             }
         }
@@ -323,7 +370,7 @@ class CommunityDetailVC: UIViewController {
     // MARK: - 금지어 불러오기
     
     func fetchBadWords(completion: @escaping ([String]) -> Void) {
-        Firestore.firestore().collection("badwords").getDocuments { snapshot, error in
+        Firestore.firestore().collection("badWords").getDocuments { snapshot, error in
             if let error = error {
                 print("금지어 불러오기 실패:", error.localizedDescription)
                 completion([])
@@ -361,7 +408,7 @@ class CommunityDetailVC: UIViewController {
             return
         }
         
-        if containsBadWord(text, badwords: badwords) {
+        if containsBadWord(text, badwords: badWords) {
             let alert = UIAlertController(title: "금지어 포함", message: "댓글에 금지어가 포함되어 있습니다.", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "확인", style: .default))
             present(alert, animated: true)
@@ -435,7 +482,13 @@ class CommunityDetailVC: UIViewController {
     // MARK: - 좋아요 / 싫어요 액션
     
     @objc private func didTapLike() {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
+        guard let uid = Auth.auth().currentUser?.uid else {
+            let alert = UIAlertController(title: "로그인 필요", message: "좋아요를 누르려면 로그인해야 합니다.", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "확인", style: .default))
+            self.present(alert, animated: true)
+            return
+        }
+        
         let ref = Firestore.firestore().collection("posts").document(post.id)
         ref.getDocument { snapshot, error in
             guard let data = snapshot?.data() else { return }
@@ -460,9 +513,15 @@ class CommunityDetailVC: UIViewController {
             }
         }
     }
-    
+
     @objc private func didTapDislike() {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
+        guard let uid = Auth.auth().currentUser?.uid else {
+            let alert = UIAlertController(title: "로그인 필요", message: "싫어요를 누르려면 로그인해야 합니다.", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "확인", style: .default))
+            self.present(alert, animated: true)
+            return
+        }
+        
         let ref = Firestore.firestore().collection("posts").document(post.id)
         ref.getDocument { snapshot, error in
             guard let data = snapshot?.data() else { return }
@@ -487,7 +546,7 @@ class CommunityDetailVC: UIViewController {
             }
         }
     }
-    
+
     // MARK: - 글 수정 / 삭제
     
     @objc private func didTapDelete() {
@@ -587,7 +646,12 @@ extension CommunityDetailVC: UITableViewDelegate, UITableViewDataSource {
         let comment = comments[indexPath.row]
         let isBlocked = blockedUserIds.contains(comment.authorUid)
         
-        cell.configure(with: comment, isBlocked: isBlocked, isAdmin: self.isAdmin)
+        cell.configure(
+            with: comment,
+            isBlocked: false,
+            isAdmin: isAdmin,
+            isAuthor: comment.authorUid == Auth.auth().currentUser?.uid
+        )
         
         // 차단 / 차단 해제 버튼 액션
         cell.blockAction = { [weak self] in
@@ -650,7 +714,7 @@ extension CommunityDetailVC: UITableViewDelegate, UITableViewDataSource {
             alert.addAction(UIAlertAction(title: "저장", style: .default, handler: { _ in
                 guard let newText = alert.textFields?.first?.text, !newText.isEmpty else { return }
                 
-                if self.containsBadWord(newText, badwords: self.badwords) {
+                if self.containsBadWord(newText, badwords: self.badWords) {
                     self.showAlert(title: "금지어 포함", message: "금지어가 포함된 댓글은 작성할 수 없습니다.")
                     return
                 }
