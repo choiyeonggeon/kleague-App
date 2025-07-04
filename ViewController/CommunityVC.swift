@@ -11,7 +11,8 @@ import FirebaseFirestore
 class CommunityVC: UIViewController {
     
     private var isSuspendedUser = false
-    private var isAdminUser = false
+    private var isAdminUser = Auth.auth().currentUser?.uid == "TPW61yAyNhZ3Ee3CvhO2xsdmGej1"
+    private var blockedUserIds: [String] = []
     
     private let titleLabel = UILabel()
     private let tableView = UITableView()
@@ -31,7 +32,10 @@ class CommunityVC: UIViewController {
         setupCommunityUI()
         checkUserSuspendedStatus()
         checkIfAdminUser()
-        fetchPosts()
+        
+        fetchBlockedUsers { [weak self] in
+            self?.fetchPosts()
+        }
         
         title = "커뮤니티"
     }
@@ -65,6 +69,30 @@ class CommunityVC: UIViewController {
                 }
             }
         }
+    }
+    
+    private func fetchBlockedUsers(completion: @escaping () -> Void) {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            blockedUserIds = []
+            completion()
+            return
+        }
+        
+        Firestore.firestore()
+            .collection("users")
+            .document(uid)
+            .collection("blockedUsers")
+            .getDocuments { [weak self] snapshot, error in
+                guard let self = self else { return }
+                if let error = error {
+                    print("차단 유저 불러오기 실패: \(error.localizedDescription)")
+                    self.blockedUserIds = []
+                    completion()
+                    return
+                }
+                self.blockedUserIds = snapshot?.documents.map { $0.documentID } ?? []
+                completion()
+            }
     }
     
     private func setupCommunityUI() {
@@ -182,7 +210,9 @@ class CommunityVC: UIViewController {
     }
     
     @objc private func refreshPosts() {
-        fetchPosts()
+        fetchBlockedUsers { [weak self] in
+            self?.fetchPosts()
+        }
     }
     
     private func fetchPosts() {
@@ -192,12 +222,16 @@ class CommunityVC: UIViewController {
                 DispatchQueue.main.async {
                     self?.refreshControl.endRefreshing()
                 }
-                guard let documents = snapshot?.documents, error == nil else {
+                guard let self = self,
+                      let documents = snapshot?.documents,
+                      error == nil else {
                     print("Error fetching posts: \(error?.localizedDescription ?? "Unknown error")")
                     return
                 }
-                self?.posts = documents.compactMap { Post(from: $0) }
-                self?.applyFilter()
+                
+                let allPosts = documents.compactMap { Post(from: $0) }
+                self.posts = allPosts.filter { !self.blockedUserIds.contains($0.authorUid) }
+                self.applyFilter()
             }
     }
     
@@ -215,9 +249,11 @@ class CommunityVC: UIViewController {
     private func reportUser(post: Post, reason: String) {
         guard let reporterUserId = Auth.auth().currentUser?.uid else { return }
         
+        // 중복 신고 검사
         let reportQuery = Firestore.firestore()
             .collection("reports")
             .whereField("isHidden", isEqualTo: false)
+            .whereField("resolved", isEqualTo: false)
             .whereField("reportedByUid", isEqualTo: reporterUserId)
             .whereField("postId", isEqualTo: post.id)
         
@@ -239,7 +275,9 @@ class CommunityVC: UIViewController {
                 "reportedBy": Auth.auth().currentUser?.email ?? "익명",
                 "reason": reason,
                 "reportedAt": Timestamp(date: Date()),
-                "isHidden": false
+                "isHidden": false,
+                "resolved": false,
+                "reportCount": 0
             ]
             
             let firestore = Firestore.firestore()
@@ -346,22 +384,10 @@ extension CommunityVC: UITableViewDataSource, UITableViewDelegate {
             alert.addAction(UIAlertAction(title: "취소", style: .cancel))
             
             if let popover = alert.popoverPresentationController {
-                popover.sourceView = tableView.cellForRow(at: indexPath)
-                popover.sourceRect = tableView.cellForRow(at: indexPath)?.bounds ?? CGRect(x: 0, y: 0, width: 1, height: 1)
+                popover.sourceView = cell
+                popover.sourceRect = cell.bounds
                 popover.permittedArrowDirections = [.up, .down]
             }
-            
-            if let popover = alert.popoverPresentationController {
-                popover.sourceView = self.view
-                if let cellRect = tableView.cellForRow(at: indexPath)?.frame {
-                    popover.sourceRect = cellRect
-                } else {
-                    popover.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
-                }
-                popover.permittedArrowDirections = [.up, .down]
-                
-            }
-            
             self.present(alert, animated: true)
         }
         
@@ -376,6 +402,23 @@ extension CommunityVC: UITableViewDataSource, UITableViewDelegate {
                     self.fetchPosts()
                 }
             }
+        }
+        
+        cell.onDeleteButtonTapped = { [weak self] in
+            guard let self = self else { return }
+
+            let alert = UIAlertController(title: "삭제 확인", message: "정말로 이 게시글을 삭제하시겠습니까?", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "삭제", style: .destructive, handler: { _ in
+                Firestore.firestore().collection("posts").document(post.id).delete { error in
+                    if let error = error {
+                        self.showAlert(title: "삭제 실패", message: error.localizedDescription)
+                    } else {
+                        self.fetchPosts()
+                    }
+                }
+            }))
+            alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+            self.present(alert, animated: true)
         }
         
         // 숨김 버튼 액션

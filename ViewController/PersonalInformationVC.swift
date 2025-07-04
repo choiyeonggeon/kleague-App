@@ -28,6 +28,7 @@ class PersonalInformationVC: UIViewController {
     private let teamPickerView = UIPickerView()
     private let pickerTextField = UITextField()
     private let selectTeamButton = UIButton(type: .system)
+    private let manageBlockedUsersButton = UIButton()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -58,6 +59,7 @@ class PersonalInformationVC: UIViewController {
         selectTeamButton.isHidden = !isLoggedIn
         resetPasswordButton.isHidden = !isLoggedIn
         deleteButton.isHidden = !isLoggedIn
+        manageBlockedUsersButton.isHidden = !isLoggedIn
     }
     
     private func setupPersonal() {
@@ -77,6 +79,10 @@ class PersonalInformationVC: UIViewController {
         resetPasswordButton.setTitleColor(.systemPink, for: .normal)
         resetPasswordButton.addTarget(self, action: #selector(TappedReset), for: .touchUpInside)
         
+        manageBlockedUsersButton.setTitle("차단한 사용자 목록", for: .normal)
+        manageBlockedUsersButton.setTitleColor(.systemBlue, for: .normal)
+        manageBlockedUsersButton.addTarget(self, action: #selector(didTapManageBlockedUsers), for: .touchUpInside)
+        
         privacyPolicyButton.setTitle("개인정보처리방침 보기", for: .normal)
         privacyPolicyButton.setTitleColor(.systemBlue, for: .normal)
         privacyPolicyButton.addTarget(self, action: #selector(TappedPrivacyPolicy), for: .touchUpInside)
@@ -92,6 +98,7 @@ class PersonalInformationVC: UIViewController {
             selectTeamButton,
             logoutButton,
             privacyPolicyButton,
+            manageBlockedUsersButton,
             resetPasswordButton,
             deleteButton
         ])
@@ -235,6 +242,75 @@ class PersonalInformationVC: UIViewController {
         toolbar.setItems([flexSpace, doneButton], animated: false)
         
         pickerTextField.inputAccessoryView = toolbar
+    }
+    
+    @objc private func didTapManageBlockedUsers() {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        
+        let db = Firestore.firestore()
+        db.collection("users").document(uid).collection("blockedUsers")
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    self.showAlert(title: "오류", message: "차단 목록을 불러올 수 없습니다.: \(error.localizedDescription)")
+                    return
+                }
+                
+                guard let documents = snapshot?.documents, !documents.isEmpty else {
+                    self.showAlert(title: "차단한 사용자 없음", message: "현재 차단한 사용자가 없습니다.")
+                    return
+                }
+                
+                var blockedUsersInfo: [(uid: String, nickname: String)] = []
+                let group = DispatchGroup()
+                
+                for doc in documents {
+                    let blockedUid = doc.documentID  // ✅ 오타 수정: doc.docmentID → doc.documentID
+                    group.enter()
+                    db.collection("users").document(blockedUid).getDocument { userDoc, error in
+                        if let data = userDoc?.data(), error == nil {
+                            let nickname = data["nickname"] as? String ?? blockedUid
+                            blockedUsersInfo.append((uid: blockedUid, nickname: nickname))
+                        } else {
+                            blockedUsersInfo.append((uid: blockedUid, nickname: blockedUid))
+                        }
+                        group.leave()
+                    }
+                }
+                
+                group.notify(queue: .main) {
+                    let alert = UIAlertController(title: "차단한 사용자", message: "차단 해제할 사용자를 선택하세요.", preferredStyle: .actionSheet)  // ✅ preferredStyle 설정 완료
+                    
+                    for userInfo in blockedUsersInfo {
+                        let unblockAction = UIAlertAction(title: userInfo.nickname, style: .default) { _ in
+                            db.collection("users").document(uid)
+                                .collection("blockedUsers").document(userInfo.uid).delete { err in
+                                    if let err = err {
+                                        self.showAlert(title: "실패", message: "차단 해제 실패: \(err.localizedDescription)")
+                                    } else {
+                                        self.showAlert(title: "차단 해제", message: "\(userInfo.nickname) 님 차단이 해제되었습니다.")
+                                    }
+                                }
+                        }
+                        alert.addAction(unblockAction)
+                    }
+                    
+                    alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+                    
+                    // ✅ iPad에서도 crash 방지용 popover 설정
+                    if let popoverController = alert.popoverPresentationController {
+                        popoverController.sourceView = self.view
+                        popoverController.sourceRect = CGRect(
+                            x: self.view.bounds.midX,
+                            y: self.view.bounds.midY,
+                            width: 1,
+                            height: 1
+                        )
+                        popoverController.permittedArrowDirections = []
+                    }
+                    
+                    self.present(alert, animated: true)
+                }
+            }
     }
     
     @objc private func didTapPickerDone() {

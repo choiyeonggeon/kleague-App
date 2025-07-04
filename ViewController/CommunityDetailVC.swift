@@ -16,6 +16,7 @@ struct Comment {
     let author: String
     let authorUid: String
     var text: String
+    var isHidden: Bool
     let createdAt: Date
 }
 
@@ -26,7 +27,12 @@ class CommunityDetailVC: UIViewController {
     private var badWords: [String] = []
     private var blockedUserIds: [String] = []
     private var currentUserNickname: String?
-    private var isAdmin: Bool = false
+    var isAdmin = Auth.auth().currentUser?.uid == "TPW61yAyNhZ3Ee3CvhO2xsdmGej1"
+    var isAuthor: Bool = false
+    
+    var currentUserUid: String? {
+        return Auth.auth().currentUser?.uid
+    }
     
     private let titleLabel = UILabel()
     private let contentLabel = UILabel()
@@ -54,11 +60,11 @@ class CommunityDetailVC: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupDetailUI()
+        checkIfCurrentUserIsAdmin()
         
         // 1. 초기 상태: 버튼 모두 숨김
-        editButton.isHidden = true
-        deletButton.isHidden = true
-        navigationItem.leftBarButtonItem = nil
+        //        editButton.isHidden = true
+        //        deletButton.isHidden = true
         
         // 2. 사용자 정보 불러와서 UI 업데이트
         loadUserInfo()
@@ -72,11 +78,20 @@ class CommunityDetailVC: UIViewController {
         }
         
         fetchBlockedUsers { [weak self] in
-            self?.loadComments()
+            guard let self = self else { return }
+            
+            if self.blockedUserIds.contains(self.post.authorUid) {
+                self.showAlert(title: "차단된 사용자", message: "차단한 사용자의 게시글입니다.") {
+                    self.navigationController?.popViewController(animated: true)
+                }
+                return
+            }
+            
+            self.loadUserInfo()
+            self.loadComments()
+            self.fetchLatestPostInfo()
+            self.fetchCurrentUserNickname()
         }
-        
-        fetchLatestPostInfo()
-        fetchCurrentUserNickname()
         
         if Auth.auth().currentUser?.uid != post.authorUid {
             editButton.isHidden = true
@@ -86,20 +101,19 @@ class CommunityDetailVC: UIViewController {
         commentTableView.delegate = self
         commentTableView.dataSource = self
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
-            title: "신고",
-            style: .plain,
-            target: self,
-            action: #selector(didTapReportPost)
-        )
-        
-        if isAdmin {
-            navigationItem.leftBarButtonItem = UIBarButtonItem(
-                title: "숨김",
+        if let uid = Auth.auth().currentUser?.uid, uid != post.authorUid {
+            navigationItem.rightBarButtonItem = UIBarButtonItem(
+                image: UIImage(systemName: "ellipsis.circle"),
                 style: .plain,
                 target: self,
-                action: #selector(didTapHidePost)
+                action: #selector(didTapMoreButton)
             )
+        }
+        
+        if let currentUid = Auth.auth().currentUser?.uid, currentUid != post.authorUid {
+            navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis.circle"), style: .plain, target: self, action: #selector(didTapMoreButton))
+        } else {
+            navigationItem.rightBarButtonItem = nil
         }
         
         editButton.isHidden = true
@@ -109,8 +123,28 @@ class CommunityDetailVC: UIViewController {
         commentTableView.rowHeight = UITableView.automaticDimension
         commentTableView.estimatedRowHeight = 100
         
+        if let currentUid = Auth.auth().currentUser?.uid, currentUid != post.authorUid {
+            navigationItem.rightBarButtonItem = UIBarButtonItem(
+                image: UIImage(systemName: "ellipsis.circle"),
+                style: .plain,
+                target: self,
+                action: #selector(didTapMoreButton)
+            )
+        } else {
+            navigationItem.rightBarButtonItem = nil
+        }
+        
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         view.addGestureRecognizer(tapGesture)
+    }
+    
+    private func checkIfCurrentUserIsAdmin() {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        let userRef = Firestore.firestore().collection("users").document(uid)
+        userRef.getDocument { [weak self] snapshot, error in
+            guard let data = snapshot?.data(), error == nil else { return }
+            self?.isAdmin = (data["role"] as? String) == "admin"
+        }
     }
     
     // MARK: - UI Setup
@@ -217,7 +251,6 @@ class CommunityDetailVC: UIViewController {
     
     private func loadUserInfo() {
         guard let uid = Auth.auth().currentUser?.uid else {
-            // 비로그인 상태면 버튼 다 숨기기
             DispatchQueue.main.async {
                 self.editButton.isHidden = true
                 self.deletButton.isHidden = true
@@ -230,24 +263,18 @@ class CommunityDetailVC: UIViewController {
         userRef.getDocument { snapshot, error in
             guard let data = snapshot?.data(), error == nil else { return }
             
-            self.isAdmin = data["isAdmin"] as? Bool ?? false
+            self.isAdmin = (data["role"] as? String) == "admin"
             
             DispatchQueue.main.async {
-                // 작성자 본인이면 수정/삭제 버튼 노출, 아니면 숨김
                 let isAuthor = (uid == self.post.authorUid)
-                self.editButton.isHidden = !isAuthor
-                self.deletButton.isHidden = !isAuthor
                 
-                // 관리자면 좌측 숨김 버튼 노출, 아니면 숨김
-                if self.isAdmin {
-                    self.navigationItem.leftBarButtonItem = UIBarButtonItem(
-                        title: "숨김",
-                        style: .plain,
-                        target: self,
-                        action: #selector(self.didTapHidePost)
-                    )
+                // 작성자거나 관리자면 수정/삭제 버튼 보임
+                if isAuthor || self.isAdmin {
+                    self.editButton.isHidden = false
+                    self.deletButton.isHidden = false
                 } else {
-                    self.navigationItem.leftBarButtonItem = nil
+                    self.editButton.isHidden = true
+                    self.deletButton.isHidden = true
                 }
                 
                 self.commentTableView.reloadData()
@@ -258,7 +285,11 @@ class CommunityDetailVC: UIViewController {
     // MARK: - 댓글 불러오기 및 필터링
     
     private func loadComments() {
-        let ref = Firestore.firestore().collection("posts").document(post.id).collection("comments").order(by: "createdAt", descending: false)
+        let ref = Firestore.firestore()
+            .collection("posts")
+            .document(post.id)
+            .collection("comments")
+            .order(by: "createdAt", descending: false)
         ref.getDocuments { [weak self] snapshot, error in
             guard let self = self else { return }
             if let error = error {
@@ -289,6 +320,7 @@ class CommunityDetailVC: UIViewController {
                     author: author,
                     authorUid: authorUid,
                     text: text,
+                    isHidden: false,
                     createdAt: timestamp.dateValue()
                 )
                 fetchedComments.append(comment)
@@ -423,6 +455,7 @@ class CommunityDetailVC: UIViewController {
             author: authorName,
             authorUid: Auth.auth().currentUser?.uid ?? "",
             text: text,
+            isHidden: false,
             createdAt: Date()
         )
         
@@ -513,7 +546,7 @@ class CommunityDetailVC: UIViewController {
             }
         }
     }
-
+    
     @objc private func didTapDislike() {
         guard let uid = Auth.auth().currentUser?.uid else {
             let alert = UIAlertController(title: "로그인 필요", message: "싫어요를 누르려면 로그인해야 합니다.", preferredStyle: .alert)
@@ -546,7 +579,7 @@ class CommunityDetailVC: UIViewController {
             }
         }
     }
-
+    
     // MARK: - 글 수정 / 삭제
     
     @objc private func didTapDelete() {
@@ -592,6 +625,19 @@ class CommunityDetailVC: UIViewController {
             }))
         }
         alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        
+        if let popover = alert.popoverPresentationController {
+            if let barButtonItem = self.navigationItem.rightBarButtonItem {
+                popover.barButtonItem = barButtonItem
+            } else {
+                popover.sourceView = self.view
+                popover.sourceRect = CGRect(
+                    x: self.view.bounds.midX,
+                    y: self.view.bounds.midY,
+                    width: 0,
+                    height: 0)
+            }
+        }
         present(alert, animated: true)
     }
     
@@ -599,27 +645,121 @@ class CommunityDetailVC: UIViewController {
     func reportPost(reason: String) {
         guard let currentUser = Auth.auth().currentUser else { return }
         
-        let reportData: [String: Any] = [
-            "postId": post.id,
-            "reportedUserId": post.authorUid,
-            "reportedByUid": currentUser.uid,
-            "reportedBy": currentUser.email ?? "익명",
-            "reason": reason,
-            "reportedAt": Timestamp(date: Date()),
-            "isHidden": false
-        ]
-        
         let firestore = Firestore.firestore()
-        let reportRef = firestore.collection("reports").document()
-        reportRef.setData(reportData) { error in
-            DispatchQueue.main.async {
+        
+        // 중복 신고 방지
+        firestore.collection("reports")
+            .whereField("postId", isEqualTo: post.id)
+            .whereField("reportedByUid", isEqualTo: currentUser.uid)
+            .whereField("resolved", isEqualTo: false)
+            .whereField("isHidden", isEqualTo: false)
+            .getDocuments { snapshot, error in
                 if let error = error {
-                    self.showAlert(title: "신고 실패", message: error.localizedDescription)
-                } else {
-                    self.showAlert(title: "신고 완료", message: "신고가 접수되었습니다. 24시간 이내에 관리자에 의해 검토 후 조치될 예정입니다.")
+                    print("신고 중복 검사 실패: \(error.localizedDescription)")
+                    return
+                }
+                
+                // 이미 신고한 경우
+                if let documents = snapshot?.documents, !documents.isEmpty {
+                    self.showAlert(title: "이미 신고함", message: "이미 이 게시글을 신고하셨습니다.")
+                    return
+                }
+                
+                // 신고 등록
+                let reportData: [String: Any] = [
+                    "postId": self.post.id,
+                    "reportedUserId": self.post.authorUid,
+                    "reportedByUid": currentUser.uid,
+                    "reportedBy": currentUser.email ?? "익명",
+                    "reason": reason,
+                    "reportedAt": Timestamp(date: Date()),
+                    "reportCount": 0,
+                    "isHidden": false,
+                    "resolved": false
+                ]
+                
+                let reportRef = firestore.collection("reports").document()
+                reportRef.setData(reportData) { error in
+                    DispatchQueue.main.async {
+                        if let error = error {
+                            self.showAlert(title: "신고 실패", message: error.localizedDescription)
+                        } else {
+                            self.showAlert(title: "신고 완료", message: "신고가 접수되었습니다. 24시간 이내에 관리자에 의해 검토 후 조치될 예정입니다.")
+                        }
+                    }
                 }
             }
+    }
+    
+    func reportComment(comment: Comment) {
+        guard Auth.auth().currentUser != nil else {
+            let alert = UIAlertController(title: "로그인 필요", message: "신고하려면 로그인해야 합니다.", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "확인", style: .default))
+            present(alert, animated: true)
+            return
         }
+        
+        let alert = UIAlertController(title: "댓글 신고 사유 선택", message: nil, preferredStyle: .actionSheet)
+        let reasons = ["욕설 및 비방", "스팸", "음란물", "기타"]
+        for reason in reasons {
+            alert.addAction(UIAlertAction(title: reason, style: .default, handler: { _ in
+                self.submitCommentReport(comment: comment, reason: reason)
+            }))
+        }
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        
+        if let popover = alert.popoverPresentationController {
+            popover.sourceView = self.view
+            popover.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+        }
+        present(alert, animated: true)
+    }
+    
+    private func submitCommentReport(comment: Comment, reason: String) {
+        guard let currentUser = Auth.auth().currentUser else { return }
+        
+        let firestore = Firestore.firestore()
+        
+        // 중복 신고 검사
+        firestore.collection("reports")
+            .whereField("commentId", isEqualTo: comment.id)
+            .whereField("reportedByUid", isEqualTo: currentUser.uid)
+            .whereField("resolved", isEqualTo: false)
+            .whereField("isHidden", isEqualTo: false)
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    print("댓글 신고 중복 검사 실패: \(error.localizedDescription)")
+                    return
+                }
+                
+                if let documents = snapshot?.documents, !documents.isEmpty {
+                    self.showAlert(title: "이미 신고함", message: "이미 이 댓글을 신고하셨습니다.")
+                    return
+                }
+                
+                let reportData: [String: Any] = [
+                    "commentId": comment.id,
+                    "postId": comment.postId,
+                    "reportedUserId": comment.authorUid,
+                    "reportedByUid": currentUser.uid,
+                    "reportedBy": currentUser.email ?? "익명",
+                    "reason": reason,
+                    "reportedAt": Timestamp(date: Date()),
+                    "reportCount": 0,
+                    "isHidden": false,
+                    "resolved": false
+                ]
+                
+                firestore.collection("reports").addDocument(data: reportData) { error in
+                    DispatchQueue.main.async {
+                        if let error = error {
+                            self.showAlert(title: "신고 실패", message: error.localizedDescription)
+                        } else {
+                            self.showAlert(title: "신고 완료", message: "댓글 신고가 접수되었습니다. 24시간 이내에 검토 후 조치될 예정입니다.")
+                        }
+                    }
+                }
+            }
     }
     
     private func showAlert(title: String, message: String) {
@@ -648,7 +788,7 @@ extension CommunityDetailVC: UITableViewDelegate, UITableViewDataSource {
         
         cell.configure(
             with: comment,
-            isBlocked: false,
+            isBlocked: blockedUserIds.contains(comment.authorUid),
             isAdmin: isAdmin,
             isAuthor: comment.authorUid == Auth.auth().currentUser?.uid
         )
@@ -663,8 +803,20 @@ extension CommunityDetailVC: UITableViewDelegate, UITableViewDataSource {
             }
         }
         
+        cell.reportAction = { [weak self] in
+            guard let self = self else { return }
+            self.reportComment(comment: comment)
+        }
+        
         cell.deleteAction = { [weak self] in
             guard let self = self else { return }
+            
+            // 🔐 삭제 권한 확인: 작성자 본인 또는 관리자
+            guard self.isAdmin || comment.authorUid == self.currentUserUid else {
+                self.showAlert(title: "권한 없음", message: "댓글을 삭제할 권한이 없습니다.")
+                return
+            }
+            
             let commentRef = Firestore.firestore()
                 .collection("posts")
                 .document(self.post.id)
@@ -753,6 +905,38 @@ extension CommunityDetailVC: UITableViewDelegate, UITableViewDataSource {
                 }
             }
         }))
+        present(alert, animated: true)
+    }
+    
+    @objc private func didTapMoreButton() {
+        let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        
+        alert.addAction(UIAlertAction(title: "신고하기", style: .destructive, handler: { _ in
+            self.didTapReportPost()
+        }))
+        
+        alert.addAction(UIAlertAction(title: "작성자 차단", style: .destructive, handler: { _ in
+            self.blockUser(uid: self.post.authorUid) {
+                self.showAlert(title: "차단 완료", message: "해당 사용자의 글이 숨겨집니다.")
+                self.navigationController?.popViewController(animated: true)
+            }
+        }))
+        
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        
+        if let currentUid = Auth.auth().currentUser?.uid,
+           currentUid != post.authorUid {
+            navigationItem.rightBarButtonItem = UIBarButtonItem(
+                image: UIImage(systemName: "ellipsis.circle"),
+                style: .plain,
+                target: self,
+                action: #selector(didTapMoreButton)
+            )
+        }
+        
+        if let popover = alert.popoverPresentationController {
+            popover.barButtonItem = self.navigationItem.rightBarButtonItem
+        }
         present(alert, animated: true)
     }
 }
