@@ -18,7 +18,6 @@
 		4224C2BE2DF7FCEE00E3D330 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 4224C2BD2DF7FCEE00E3D330 /* FirebaseStorage */; };
 		4228E7932DF8033400B4385B /* NMapsMap in Frameworks */ = {isa = PBXBuildFile; productRef = 4228E7922DF8033400B4385B /* NMapsMap */; };
 		422AAC502E0D347300A247AD /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 422AAC4F2E0D347300A247AD /* FirebaseFunctions */; };
-		424FA8C52E0C1BAB0080F8C2 /* Secret.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 424FA8C42E0C1BAB0080F8C2 /* Secret.xcconfig */; };
 		427661A82DFFFF2000499502 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 427661A72DFFFF2000499502 /* FirebaseCore */; };
 		427B1D872E095CE600113388 /* KakaoMapsSDK-SPM in Frameworks */ = {isa = PBXBuildFile; productRef = 427B1D862E095CE600113388 /* KakaoMapsSDK-SPM */; };
 		427D4C822DFC21E100B16959 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 427D4C812DFC21E100B16959 /* FirebaseMessaging */; };
@@ -325,7 +324,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				424FA8C52E0C1BAB0080F8C2 /* Secret.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
