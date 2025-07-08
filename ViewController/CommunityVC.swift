@@ -406,7 +406,7 @@ extension CommunityVC: UITableViewDataSource, UITableViewDelegate {
         
         cell.onDeleteButtonTapped = { [weak self] in
             guard let self = self else { return }
-
+            
             let alert = UIAlertController(title: "삭제 확인", message: "정말로 이 게시글을 삭제하시겠습니까?", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "삭제", style: .destructive, handler: { _ in
                 Firestore.firestore().collection("posts").document(post.id).delete { error in
