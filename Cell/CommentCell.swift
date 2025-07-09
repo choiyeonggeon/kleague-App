@@ -13,6 +13,8 @@ class CommentCell: UITableViewCell {
     private let deleteButton = UIButton()
     private let blockButton = UIButton(type: .system)
     private let moreButton = UIButton(type: .system)
+    private let commentReplyButtton = UIButton(type: .system)
+    private let repliesStackView = UIStackView()
     
     // 권한 플래그
     var isAdmin: Bool = false
@@ -24,6 +26,7 @@ class CommentCell: UITableViewCell {
     var reportAction: (() -> Void)?
     var hideAction: (() -> Void)?
     var blockAction: (() -> Void)?
+    var replyAction: (() -> Void)?
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -67,7 +70,7 @@ class CommentCell: UITableViewCell {
     }
     
     private func setupUI() {
-        [authorLabel, commentLabel, timeLabel, moreButton].forEach {
+        [authorLabel, commentLabel, timeLabel, moreButton, commentReplyButtton, repliesStackView].forEach {
             contentView.addSubview($0)
         }
         
@@ -79,6 +82,14 @@ class CommentCell: UITableViewCell {
         moreButton.titleLabel?.font = .systemFont(ofSize: 24)
         moreButton.setTitleColor(.systemGray, for: .normal)
         moreButton.addTarget(self, action: #selector(didTapMore), for: .touchUpInside)
+        
+        commentReplyButtton.setTitle("답글", for: .normal)
+        commentReplyButtton.setTitleColor(.systemBlue, for: .normal)
+        commentReplyButtton.titleLabel?.font = .systemFont(ofSize: 13)
+        commentReplyButtton.addTarget(self, action: #selector(didTapReply), for: .touchUpInside)
+        
+        repliesStackView.axis = .vertical
+        repliesStackView.spacing = 4
         
         authorLabel.snp.makeConstraints {
             $0.top.leading.equalToSuperview().inset(8)
@@ -98,11 +109,26 @@ class CommentCell: UITableViewCell {
             $0.bottom.equalToSuperview().inset(30)
         }
         
+        commentReplyButtton.snp.makeConstraints {
+            $0.top.equalTo(moreButton.snp.bottom).offset(4)
+            $0.leading.equalTo(moreButton)
+            $0.bottom.equalToSuperview().inset(8)
+        }
+        
+        repliesStackView.snp.makeConstraints {
+            $0.top.equalTo(commentReplyButtton.snp.bottom).offset(4)
+            $0.leading.trailing.bottom.equalToSuperview().inset(16)
+        }
+        
         moreButton.snp.makeConstraints {
             $0.centerY.equalTo(authorLabel)
             $0.trailing.equalToSuperview().inset(8)
             $0.width.height.equalTo(30)
         }
+    }
+    
+    @objc private func didTapReply() {
+        replyAction?()
     }
     
     @objc private func didTapMore() {

@@ -27,7 +27,7 @@ class CommunityVC: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         
         setupCommunityUI()
         checkUserSuspendedStatus()
@@ -98,7 +98,7 @@ class CommunityVC: UIViewController {
     private func setupCommunityUI() {
         // 타이틀 레이블
         titleLabel.text = "국축여지도"
-        titleLabel.textColor = .black
+        titleLabel.textColor = .label
         titleLabel.font = UIFont(name: "GmarketSansTTFBold", size: 30)
         view.addSubview(titleLabel)
         

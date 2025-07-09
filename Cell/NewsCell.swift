@@ -27,7 +27,7 @@ class NewsCell: UICollectionViewCell {
         contentView.layer.cornerRadius = 10
         contentView.layer.masksToBounds = true
         
-        titleLabel.numberOfLines = 0
+        titleLabel.numberOfLines = 4
         titleLabel.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         
         sourceLabel.font = UIFont.systemFont(ofSize: 12, weight: .light)

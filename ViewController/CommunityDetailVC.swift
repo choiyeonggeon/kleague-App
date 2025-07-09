@@ -24,6 +24,8 @@ class CommunityDetailVC: UIViewController {
     
     var post: Post!
     private var comments: [Comment] = []
+    private var selectCommentForReply: Comment?
+//    private var replyInputView: ReplyInputView = ReplyInputView()
     private var badWords: [String] = []
     private var blockedUserIds: [String] = []
     private var currentUserNickname: String?
@@ -792,6 +794,12 @@ extension CommunityDetailVC: UITableViewDelegate, UITableViewDataSource {
             isAdmin: isAdmin,
             isAuthor: comment.authorUid == Auth.auth().currentUser?.uid
         )
+        
+//        cell.replyAction = {
+//            self.selectCommentForReply = comment
+//            self.replyInputView.isHidden = false
+//            self.replyInputView.tableView.becomeFirstResponder()
+//        }
         
         // 차단 / 차단 해제 버튼 액션
         cell.blockAction = { [weak self] in
