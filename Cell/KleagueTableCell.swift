@@ -63,9 +63,11 @@ class KleagueTableCell: UITableViewCell {
 
         rankLabel.font = .boldSystemFont(ofSize: 16)
         nameLabel.font = .systemFont(ofSize: 16)
+        
         pointsLabel.font = .systemFont(ofSize: 14)
         recordLabel.font = .systemFont(ofSize: 12)
-        recordLabel.textColor = .gray
+        recordLabel.textColor = .systemBlue
+        recordLabel.textAlignment = .center
 //        logoImageView.contentMode = .scaleAspectFit
 
         rankLabel.snp.makeConstraints {

@@ -1,3 +1,10 @@
+//
+//  CommentCell.swift
+//  KleagueApp
+//
+//  Created by 최영건 on 6/27/25.
+//
+
 import UIKit
 import SnapKit
 import FirebaseAuth
@@ -13,7 +20,7 @@ class CommentCell: UITableViewCell {
     private let deleteButton = UIButton()
     private let blockButton = UIButton(type: .system)
     private let moreButton = UIButton(type: .system)
-    private let commentReplyButtton = UIButton(type: .system)
+//    private let commentReplyButtton = UIButton(type: .system)
     private let repliesStackView = UIStackView()
     
     // 권한 플래그
@@ -70,7 +77,7 @@ class CommentCell: UITableViewCell {
     }
     
     private func setupUI() {
-        [authorLabel, commentLabel, timeLabel, moreButton, commentReplyButtton, repliesStackView].forEach {
+        [authorLabel, commentLabel, timeLabel, moreButton, repliesStackView].forEach {
             contentView.addSubview($0)
         }
         
@@ -83,10 +90,10 @@ class CommentCell: UITableViewCell {
         moreButton.setTitleColor(.systemGray, for: .normal)
         moreButton.addTarget(self, action: #selector(didTapMore), for: .touchUpInside)
         
-        commentReplyButtton.setTitle("답글", for: .normal)
-        commentReplyButtton.setTitleColor(.systemBlue, for: .normal)
-        commentReplyButtton.titleLabel?.font = .systemFont(ofSize: 13)
-        commentReplyButtton.addTarget(self, action: #selector(didTapReply), for: .touchUpInside)
+//        commentReplyButtton.setTitle("답글", for: .normal)
+//        commentReplyButtton.setTitleColor(.systemBlue, for: .normal)
+//        commentReplyButtton.titleLabel?.font = .systemFont(ofSize: 13)
+//        commentReplyButtton.addTarget(self, action: #selector(didTapReply), for: .touchUpInside)
         
         repliesStackView.axis = .vertical
         repliesStackView.spacing = 4
@@ -109,16 +116,16 @@ class CommentCell: UITableViewCell {
             $0.bottom.equalToSuperview().inset(30)
         }
         
-        commentReplyButtton.snp.makeConstraints {
-            $0.top.equalTo(moreButton.snp.bottom).offset(4)
-            $0.leading.equalTo(moreButton)
-            $0.bottom.equalToSuperview().inset(8)
-        }
-        
-        repliesStackView.snp.makeConstraints {
-            $0.top.equalTo(commentReplyButtton.snp.bottom).offset(4)
-            $0.leading.trailing.bottom.equalToSuperview().inset(16)
-        }
+//        commentReplyButtton.snp.makeConstraints {
+//            $0.top.equalTo(moreButton.snp.bottom).offset(4)
+//            $0.leading.equalTo(moreButton)
+//            $0.bottom.equalToSuperview().inset(8)
+//        }
+//        
+//        repliesStackView.snp.makeConstraints {
+//            $0.top.equalTo(commentReplyButtton.snp.bottom).offset(4)
+//            $0.leading.trailing.bottom.equalToSuperview().inset(16)
+//        }
         
         moreButton.snp.makeConstraints {
             $0.centerY.equalTo(authorLabel)

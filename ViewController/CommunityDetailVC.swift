@@ -52,6 +52,13 @@ class CommunityDetailVC: UIViewController {
         Auth.auth().currentUser?.email ?? "익명"
     }
     
+    let replyTextField: UITextField = {
+        let textField = UITextField()
+        textField.placeholder = "답글을 입력하세요."
+        textField.borderStyle = .roundedRect
+        return textField
+    }()
+    
     init(post: Post) {
         self.post = post
         super.init(nibName: nil, bundle: nil)
@@ -769,6 +776,33 @@ class CommunityDetailVC: UIViewController {
         alert.addAction(UIAlertAction(title: "확인", style: .default))
         present(alert, animated: true)
     }
+    
+//    @objc private func sendReply() {
+//        guard let uesr = Auth.auth().currentUser,
+//              let commentId = selectCommentForReply,
+//              let text = replyTextField.text, !text.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+//        
+//        let replyData: [String: Any] = [
+//            "text": text,
+//            "author": user.displayName ?? "익명",
+//            "authorUid": user.uid,
+//            "createdAt": Timestamp(date: Date()),
+//            "parentCommentId": commentId
+//        ]
+//        
+//        let commentRef = Firestore.firestore().collection("comments").document(commentId)
+//        commentRef.collection("replies").addDocument(data: replyData) { [weak self] error in
+//            if let error = error {
+//                print("답글 저장 실패: \(error.localizedDescription)")
+//            } else {
+//                print("답글 저장 성공")
+//                self?.replyTextField.text = ""
+//                self?.replyTextField.resignFirstResponder()
+//                self?.replyInputView.removeFromSuperview()
+//                
+//            }
+//        }
+//    }
 }
 
 // MARK: - UITableView Delegate & DataSource
