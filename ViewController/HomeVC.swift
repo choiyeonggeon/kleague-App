@@ -27,6 +27,7 @@ struct BigMatch {
 class HomeVC: UIViewController {
     
     private let titleLabel = UILabel()
+    private let instagramButton = UIButton()
     private var collectionView: UICollectionView!
     
     private var bigMatches: [BigMatch] = []
@@ -49,9 +50,20 @@ class HomeVC: UIViewController {
         titleLabel.font = UIFont(name: "GmarketSansTTFBold", size: 30)
         view.addSubview(titleLabel)
         
+        instagramButton.setImage(UIImage(named: "insta"), for: .normal)
+        instagramButton.imageView?.contentMode = .scaleAspectFit
+        instagramButton.addTarget(self, action: #selector(openInstagram), for: .touchUpInside)
+        view.addSubview(instagramButton)
+        
         titleLabel.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide.snp.top).inset(-10)
             $0.leading.trailing.equalToSuperview().inset(20)
+        }
+        
+        instagramButton.snp.makeConstraints {
+            $0.centerY.equalTo(titleLabel)
+            $0.trailing.equalToSuperview().inset(20)
+            $0.width.height.equalTo(30)
         }
         
         view.addSubview(collectionView)
@@ -190,6 +202,13 @@ extension HomeVC: UICollectionViewDataSource {
         }
         
         return header
+    }
+    
+    @objc private func openInstagram() {
+        if let url = URL(string: "https://www.instagram.com/gugchugyeojido/") {
+            let safariVC = SFSafariViewController(url: url)
+            present(safariVC, animated: true)
+        }
     }
 }
 

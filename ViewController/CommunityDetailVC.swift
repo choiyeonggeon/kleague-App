@@ -18,6 +18,7 @@ struct Comment {
     var text: String
     var isHidden: Bool
     let createdAt: Date
+    var replies: [Reply] = []
 }
 
 class CommunityDetailVC: UIViewController {
