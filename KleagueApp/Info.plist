@@ -3,9 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>UIUserInterfaceStyle</key>
-	<string></string>
-	<key>Automatic</key>
-	<string></string>
+	<string>Light</string>
 	<key>RAPID_API_KEY</key>
 	<string>$(RAPID_API_KEY)</string>
 	<key>CFBundleInfoDictionaryVersion</key>

@@ -19,10 +19,11 @@ class CommunityWriteVC: UIViewController {
     private let submitButton = UIButton(type: .system)
     private let disposeBag = DisposeBag()
     
-    private let teams = ["전체", "서울", "서울E", "인천", "부천", "김포",
-                         "성남", "수원", "수원FC", "안양", "안산", "화성",
-                         "대전", "충북청주", "충남아산", "천안", "김천상무", "대구FC",
-                         "전북", "전남", "광주FC", "포항", "울산", "부산", "경남", "제주SK"]
+    private let teams = ["전체", "강원", "경남", "김천상무", "김포",
+                         "광주FC", "대구FC", "대전", "서울", "서울E",
+                         "부산", "부천", "성남", "수원", "수원FC",
+                         "인천", "안양", "안산", "울산", "전북", "전남",
+                         "제주SK", "충북청주", "충남아산", "천안", "포항", "화성"]
     
     private var selectedTeam: String? = "전체"
     private var userTeam: String?
