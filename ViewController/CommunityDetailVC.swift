@@ -195,6 +195,8 @@ class CommunityDetailVC: UIViewController {
         
         commentTableView.dataSource = self
         commentTableView.delegate = self
+        commentTableView.estimatedRowHeight = 60
+        commentTableView.rowHeight = UITableView.automaticDimension
         commentTableView.register(CommentCell.self, forCellReuseIdentifier: CommentCell.identifier)
         
         [titleLabel, contentLabel, authorLabel, likeButton, dislikeButton, commentField, commentButton, commentTableView, editButton, deletButton].forEach {
@@ -412,7 +414,7 @@ class CommunityDetailVC: UIViewController {
     // MARK: - 금지어 불러오기
     
     func fetchBadWords(completion: @escaping ([String]) -> Void) {
-        Firestore.firestore().collection("badWords").getDocuments { snapshot, error in
+        Firestore.firestore().collection("badwwords").getDocuments { snapshot, error in
             if let error = error {
                 print("금지어 불러오기 실패:", error.localizedDescription)
                 completion([])

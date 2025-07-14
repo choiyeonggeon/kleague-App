@@ -12,6 +12,7 @@ class CommunityWriteVC: UIViewController {
     private var userTeamLoaded = false
     private var userNickname: String?
     private var badWords: [String] = []
+    private var isBadWordAlertShown = false
     
     private let titleField = UITextField()
     private let contentTextView = UITextView()
@@ -82,18 +83,29 @@ class CommunityWriteVC: UIViewController {
         let contentInput = contentTextView.rx.text.orEmpty
         
         Observable.combineLatest(titleInput, contentInput)
-            .map { [weak self] title, content -> Bool in
-                guard let self = self else { return false }
-                return self.badWordsLoaded &&
-                self.userTeamLoaded &&
-                !title.isEmpty &&
-                !content.isEmpty
-                && !self.containsBadWord(title, badWords: self.badWords)
-                && !self.containsBadWord(content, badWords: self.badWords)
-            }
-            .subscribe(onNext: { [weak self] enabled in
-                self?.submitButton.isEnabled = enabled
-                self?.submitButton.alpha = enabled ? 1.0 : 0.5
+            .subscribe(onNext: { [weak self] title, content in
+                guard let self = self else { return }
+                
+                let hasTitle = !title.isEmpty
+                let hasContent = !content.isEmpty
+                let isBadTitle = self.containsBadWord(title, badWords: self.badWords)
+                let isBadContent = self.containsBadWord(content, badWords: self.badWords)
+                
+                let enabled = self.badWordsLoaded && self.userTeamLoaded && hasTitle && hasContent && !isBadTitle && !isBadContent
+                self.submitButton.isEnabled = enabled
+                self.submitButton.alpha = enabled ? 1.0 : 0.5
+                
+                // 얼럿은 한 번만 띄우도록 제어
+                if (isBadTitle || isBadContent) && hasTitle && hasContent {
+                    if !self.isBadWordAlertShown {
+                        self.isBadWordAlertShown = true
+                        self.showAlert(message: "금지어가 포함되어 있습니다. 내용을 수정해주세요.") {
+                            self.isBadWordAlertShown = false // 얼럿 닫힌 뒤 다시 초기화
+                        }
+                    }
+                } else {
+                    self.isBadWordAlertShown = false
+                }
             })
             .disposed(by: disposeBag)
         
@@ -217,7 +229,7 @@ class CommunityWriteVC: UIViewController {
     }
     
     func fetchBadWords(completion: @escaping ([String]) -> Void) {
-        Firestore.firestore().collection("badWords").getDocuments { snapshot, error in
+        Firestore.firestore().collection("badwords").getDocuments { snapshot, error in
             if let error = error {
                 print("금지어 불러오기 실패:", error.localizedDescription)
                 completion([])
