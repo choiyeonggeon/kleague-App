@@ -414,7 +414,7 @@ class CommunityDetailVC: UIViewController {
     // MARK: - 금지어 불러오기
     
     func fetchBadWords(completion: @escaping ([String]) -> Void) {
-        Firestore.firestore().collection("badwwords").getDocuments { snapshot, error in
+        Firestore.firestore().collection("badwords").getDocuments { snapshot, error in
             if let error = error {
                 print("금지어 불러오기 실패:", error.localizedDescription)
                 completion([])
