@@ -22,6 +22,9 @@ class NoticeWriteVC: UIViewController {
         view.backgroundColor = .white
         title = "공지 작성"
         setupUI()
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        view.addGestureRecognizer(tapGesture)
     }
     
     private func setupUI() {
@@ -107,5 +110,9 @@ class NoticeWriteVC: UIViewController {
         let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "확인", style: .default) { _ in completion?() })
         present(alert, animated: true)
+    }
+    
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
     }
 }
