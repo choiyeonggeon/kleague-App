@@ -19,7 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        NMFAuthManager.shared().ncpKeyId = "cno4k7hscd"
+//        NMFAuthManager.shared().ncpKeyId = Secret.naverClientId
         
         FirebaseApp.configure()
         

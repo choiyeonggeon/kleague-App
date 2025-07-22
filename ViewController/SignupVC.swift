@@ -288,7 +288,6 @@ class SignupVC: UIViewController {
             "email": email,
             "nickname": nickname,
             "phone": phone,
-            "team": "",
             "createdAt": Timestamp(),
             "lastLogin": Timestamp()
         ]
