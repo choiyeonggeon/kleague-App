@@ -13,6 +13,7 @@ class CommunityVC: UIViewController {
     private var isSuspendedUser = false
     private var isAdminUser = Auth.auth().currentUser?.uid == "TPW61yAyNhZ3Ee3CvhO2xsdmGej1"
     private var blockedUserIds: [String] = []
+    private let popularButton = UIButton(type: .system)
     
     private let titleLabel = UILabel()
     private let tableView = UITableView()
@@ -115,8 +116,11 @@ class CommunityVC: UIViewController {
         searchButton.setTitle("🔍", for: .normal)
         searchButton.addTarget(self, action: #selector(didTapSearch), for: .touchUpInside)
         
+        popularButton.setTitle("🔥인기글", for: .normal)
+        popularButton.addTarget(self, action: #selector(didTapPopular), for: .touchUpInside)
+        
         // 상단 바 (팀 필터 + 검색)
-        let topBar = UIStackView(arrangedSubviews: [teamFilterButton, UIView(), searchButton])
+        let topBar = UIStackView(arrangedSubviews: [teamFilterButton, popularButton, UIView(), searchButton])
         topBar.axis = .horizontal
         topBar.spacing = 10
         topBar.distribution = .fill
@@ -193,6 +197,11 @@ class CommunityVC: UIViewController {
         
         present(alert, animated: true)
         
+    }
+    
+    @objc private func didTapPopular() {
+        self.filteredPosts = self.posts.filter { $0.likes >= 10 }
+        self.tableView.reloadData()
     }
     
     @objc private func didTapSearch() {

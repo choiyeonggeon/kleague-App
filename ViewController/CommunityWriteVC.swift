@@ -287,7 +287,8 @@ class CommunityWriteVC: UIViewController {
             "author": self.userNickname ?? "알 수 없음",
             "authorUid": user.uid,
             "showReportAlert": false,
-            "createdAt": editingPost == nil ? Timestamp() : editingPost?.createdAt ?? Timestamp()
+            "createdAt": editingPost == nil ? Timestamp() : editingPost?.createdAt ?? Timestamp(),
+            "category": "community"
         ]
         
         if let editingPost = editingPost {
