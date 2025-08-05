@@ -27,7 +27,7 @@ class KleagueVC: UIViewController {
         ("커뮤니티", "soccerball", CommunityVC()),
 //        ("맛집", "fork.knife.circle.fill", PlaceSearchVC()),
         ("홈", "house.fill", HomeVC()),
-        ("순위", "list.number", KleagueTableVC()),
+        ("순위", "list.number", UsedMarketListVC()),
         ("더보기", "ellipsis.circle", MoreVC())
     ]
     
