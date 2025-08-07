@@ -25,7 +25,7 @@ class KleagueVC: UIViewController {
     
     private let tabs: [(title: String, icon: String, vc: UIViewController)] = [
         ("커뮤니티", "soccerball", CommunityVC()),
-//        ("맛집", "fork.knife.circle.fill", PlaceSearchVC()),
+        //        ("맛집", "fork.knife.circle.fill", PlaceSearchVC()),
         ("홈", "house.fill", HomeVC()),
         ("순위", "list.number", UsedMarketListVC()),
         ("더보기", "ellipsis.circle", MoreVC())
@@ -36,17 +36,17 @@ class KleagueVC: UIViewController {
         view.addSubview(containerView)
         
         containerView.snp.makeConstraints {
-                  $0.top.leading.trailing.equalToSuperview()
-                  $0.bottom.equalTo(tabBarView.snp.top)
-              }
-
-              tabBarView.snp.makeConstraints {
-                  $0.leading.trailing.bottom.equalToSuperview()
-                  $0.height.equalTo(100)
-              }
-
-              tabBarView.backgroundColor = .systemBackground
-              setupTabButtons()
+            $0.top.leading.trailing.equalToSuperview()
+            $0.bottom.equalTo(tabBarView.snp.top)
+        }
+        
+        tabBarView.snp.makeConstraints {
+            $0.leading.trailing.bottom.equalToSuperview()
+            $0.height.equalTo(100)
+        }
+        
+        tabBarView.backgroundColor = .systemBackground
+        setupTabButtons()
     }
     
     private func setupTabButtons() {
@@ -61,7 +61,7 @@ class KleagueVC: UIViewController {
         
         for (index, tab) in tabs.enumerated() {
             let button = UIButton(type: .system)
-           
+            
             if #available(iOS 15.0, *) {
                 var config = UIButton.Configuration.plain()
                 config.title = tab.title
