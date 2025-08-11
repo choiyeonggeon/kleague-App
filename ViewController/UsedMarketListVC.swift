@@ -10,6 +10,7 @@ import SnapKit
 
 class UsedMarketListVC: UIViewController {
     
+    private let titleLabel = UILabel()
     private let searchBar = UISearchBar()
     private let tableView = UITableView()
     private let writeButton = UIButton()
@@ -23,6 +24,11 @@ class UsedMarketListVC: UIViewController {
         view.backgroundColor = .white
         navigationItem.title = "중고 거래"
         
+        titleLabel.text = "국축여지도"
+        titleLabel.textColor = .black
+        titleLabel.font = UIFont(name: "GmarketSansTTFBold", size: 30)
+        
+        view.addSubview(titleLabel)
         view.addSubview(searchBar)
         view.addSubview(tableView)
         view.addSubview(writeButton)
@@ -35,9 +41,15 @@ class UsedMarketListVC: UIViewController {
         writeButton.setTitleColor(.white, for: .normal)
         writeButton.backgroundColor = .systemBlue
         writeButton.layer.cornerRadius = 25
+        writeButton.addTarget(self, action: #selector(didTapWriteButton), for: .touchUpInside)
+        
+        titleLabel.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide.snp.top).inset(-10)
+            $0.leading.trailing.equalToSuperview().inset(20)
+        }
         
         searchBar.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            $0.top.equalTo(titleLabel.snp.bottom).offset(10)
             $0.leading.trailing.equalToSuperview()
         }
         
@@ -51,5 +63,9 @@ class UsedMarketListVC: UIViewController {
             $0.trailing.equalToSuperview().inset(20)
             $0.bottom.equalToSuperview().inset(30)
         }
+    }
+    
+    @objc private func didTapWriteButton() {
+        
     }
 }
