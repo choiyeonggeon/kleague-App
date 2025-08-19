@@ -7,6 +7,9 @@
 
 import UIKit
 import SnapKit
+import FirebaseFirestore
+import FirebaseStorage
+import FirebaseAuth
 
 class UsedMarketWriteVC: UIViewController {
     

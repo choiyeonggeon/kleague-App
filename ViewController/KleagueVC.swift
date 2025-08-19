@@ -25,9 +25,9 @@ class KleagueVC: UIViewController {
     
     private let tabs: [(title: String, icon: String, vc: UIViewController)] = [
         ("커뮤니티", "soccerball", CommunityVC()),
-        //        ("맛집", "fork.knife.circle.fill", PlaceSearchVC()),
+        ("마켓", "fork.knife.circle.fill", UsedMarketListVC()),
         ("홈", "house.fill", HomeVC()),
-        ("순위", "list.number", UsedMarketListVC()),
+        ("순위", "list.number", KleagueTableVC()),
         ("더보기", "ellipsis.circle", MoreVC())
     ]
     
