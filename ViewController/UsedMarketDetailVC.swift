@@ -7,8 +7,10 @@
 
 import UIKit
 import SnapKit
+import FirebaseAuth
+import FirebaseFirestore
 
-class UsedMarketDetailVC:UIViewController {
+class UsedMarketDetailVC: UIViewController {
     
     private let productImageView = UIImageView()
     private let titleLabel = UILabel()
@@ -17,12 +19,8 @@ class UsedMarketDetailVC:UIViewController {
     private let sellerLabel = UILabel()
     private let chatButton = UIButton()
     
-    var productTitle: String?
-    var productPrice: String?
-    var productDescription: String?
-    var productImage: UIImage?
-    var productImageUrl: String?
-    var sellerName: String?
+    // Firestore에서 가져올 데이터
+    var product: UsedProduct?   // 👉 모델 객체 하나로 정리
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -60,6 +58,7 @@ class UsedMarketDetailVC:UIViewController {
         chatButton.backgroundColor = .systemBlue
         chatButton.setTitleColor(.white, for: .normal)
         chatButton.layer.cornerRadius = 8
+        chatButton.addTarget(self, action: #selector(chatButtonTapped), for: .touchUpInside)
         
         productImageView.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(16)
@@ -96,15 +95,22 @@ class UsedMarketDetailVC:UIViewController {
     }
     
     private func configureData() {
-        titleLabel.text = productTitle ?? "제목 없음"
-        priceLabel.text = productPrice ?? "가격 없음"
-        descriptionTextView.text = productDescription ?? "설명 없음"
-        sellerLabel.text = sellerName != nil ? "판매자: \(sellerName!)" : "판매자 정보 없음"
+        guard let product = product else { return }
         
-        if let img = productImage {
-            productImageView.image = img
-        } else {
-            productImageView.setImage(from: productImageUrl)
-        }
+        titleLabel.text = product.title
+        priceLabel.text = product.price.isEmpty ? "가격 없음" : "\(product.price)원"
+        descriptionTextView.text = product.description.isEmpty ? "설명 없음" : product.description
+        sellerLabel.text = "판매자: \(product.sellerName)"
+        
+        productImageView.setImage(from: product.imageUrl)
+    }
+    
+    @objc private func chatButtonTapped() {
+        guard let currentUser = Auth.auth().currentUser,
+              let product = product else { return }
+        
+        // ChatVC에 product 객체 전달
+        let chatVC = ChatVC(post: product, currentUserId: currentUser.uid)
+        navigationController?.pushViewController(chatVC, animated: true)
     }
 }

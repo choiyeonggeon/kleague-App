@@ -129,11 +129,7 @@ extension UsedMarketListVC: UITableViewDelegate, UITableViewDataSource {
         tableView.deselectRow(at: indexpath, animated: true)
         let p = products[indexpath.row]
         let detail = UsedMarketDetailVC()
-        detail.productTitle = p.title
-        detail.productPrice = "\(p.price)원"
-        detail.productDescription = p.description
-        detail.sellerName = p.sellerName
-        detail.productImageUrl = p.imageUrl
+        detail.product = p
         navigationController?.pushViewController(detail, animated: true)
         
     }

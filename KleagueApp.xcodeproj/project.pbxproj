@@ -21,7 +21,6 @@
 		427661A82DFFFF2000499502 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 427661A72DFFFF2000499502 /* FirebaseCore */; };
 		427B1D872E095CE600113388 /* KakaoMapsSDK-SPM in Frameworks */ = {isa = PBXBuildFile; productRef = 427B1D862E095CE600113388 /* KakaoMapsSDK-SPM */; };
 		427D4C822DFC21E100B16959 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 427D4C812DFC21E100B16959 /* FirebaseMessaging */; };
-		42B0B9CF2E549B9900EE7D4F /* ProgressHUD.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42B0B9CE2E549B9900EE7D4F /* ProgressHUD.swift */; };
 		42C1DB0E2DF981BC00CD0409 /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 42C1DB0D2DF981BC00CD0409 /* SDWebImage */; };
 		42C1DB132DF988E200CD0409 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 42C1DB122DF988E200CD0409 /* Kingfisher */; };
 /* End PBXBuildFile section */
@@ -48,7 +47,6 @@
 		42128B3C2DE7520100C83D70 /* KleagueAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KleagueAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		42128B462DE7520100C83D70 /* KleagueAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KleagueAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		424FA8C42E0C1BAB0080F8C2 /* Secret.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secret.xcconfig; sourceTree = "<group>"; };
-		42B0B9CE2E549B9900EE7D4F /* ProgressHUD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressHUD.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -149,7 +147,6 @@
 		42128B1A2DE7520100C83D70 = {
 			isa = PBXGroup;
 			children = (
-				42B0B9CE2E549B9900EE7D4F /* ProgressHUD.swift */,
 				424FA8C42E0C1BAB0080F8C2 /* Secret.xcconfig */,
 				42264EB02DFAE2E8006C0045 /* Cell */,
 				4242C52F2DE9D824005BC4EB /* Font */,
@@ -351,7 +348,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				42B0B9CF2E549B9900EE7D4F /* ProgressHUD.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
