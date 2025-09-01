@@ -13,7 +13,7 @@ struct UsedProduct {
     let title: String
     let price: String
     let description: String
-    let imageUrl: String
+    let imageUrls: [String]
     let sellerUid: String
     let sellerName: String
     let createdAt: Date
@@ -23,7 +23,9 @@ struct UsedProduct {
         self.title = data["title"] as? String ?? ""
         self.price = data["price"] as? String ?? ""
         self.description = data["description"] as? String ?? ""
-        self.imageUrl = data["imageUrl"] as? String ?? ""
+
+        self.imageUrls = data["imageUrls"] as? [String] ?? []
+
         self.sellerUid = data["sellerUid"] as? String ?? ""
         self.sellerName = data["sellerName"] as? String ?? "판매자"
         if let ts = data["createdAt"] as? Timestamp {

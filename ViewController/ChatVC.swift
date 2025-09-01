@@ -45,7 +45,12 @@ class ChatVC: UIViewController {
         listenMessages()
         
         tableView.keyboardDismissMode = .interactive
+        tableView.separatorStyle = .none
+        tableView.register(ChatMessageCell.self, forCellReuseIdentifier: ChatMessageCell.identifier)
         tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 60, right: 0) // 입력창 높이만큼 inset
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        view.addGestureRecognizer(tapGesture)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -196,10 +201,17 @@ extension ChatVC: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: ChatMessageCell.identifier, for: indexPath) as? ChatMessageCell else {
+            return UITableViewCell()
+        }
+        
         let msg = messages[indexPath.row]
-        cell.textLabel?.numberOfLines = 0
-        cell.textLabel?.text = msg.senderId == currentUserId ? "나: \(msg.text)" : msg.text
+        let isCurrentUser = (msg.senderId == currentUserId)
+        cell.configure(with: msg, isCurrentUser: isCurrentUser)
         return cell
+    }
+    
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
     }
 }

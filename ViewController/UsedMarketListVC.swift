@@ -109,6 +109,39 @@ class UsedMarketListVC: UIViewController {
                 }
             }
     }
+    
+    private func deleteProduct(_ product: UsedProduct) {
+        db.collection("used_market").document(product.id).delete { error in
+            if let error = error {
+                print("삭제 실패: \(error.localizedDescription)")
+            } else {
+                self.products.removeAll { $0.id == product.id }
+                self.tableView.reloadData()
+            }
+        }
+    }
+    
+    private func reportProduct(_ product: UsedProduct) {
+        guard let currentUserId = Auth.auth().currentUser?.uid else { return }
+        let reportData: [String: Any] = [
+            "reporterId": currentUserId,
+            "reportedId": product.sellerUid,
+            "createdAt": Date()
+        ]
+        db.collection("reports").addDocument(data: reportData) { error in
+            let alert = UIAlertController(title: nil, message: nil, preferredStyle: .alert)
+            if let error = error {
+                alert.title = "신고 실패"
+                alert.message = error.localizedDescription
+            } else {
+                alert.title = "신고 완료"
+                alert.message = "관리자에게 신고가 접수되었습니다."
+            }
+            
+            alert.addAction(UIAlertAction(title: "확인", style: .default))
+            self.present(alert, animated: true)
+        }
+    }
 }
 
 extension UsedMarketListVC: UITableViewDelegate, UITableViewDataSource {
@@ -146,9 +179,9 @@ extension UsedMarketListVC: UISearchBarDelegate {
         self.products = filtered
         tableView.reloadData()
     }
+    
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         searchBar.text = ""
         startListening()
     }
-    
 }
