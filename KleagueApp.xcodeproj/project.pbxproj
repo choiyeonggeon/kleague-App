@@ -18,6 +18,8 @@
 		4224C2BE2DF7FCEE00E3D330 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 4224C2BD2DF7FCEE00E3D330 /* FirebaseStorage */; };
 		4228E7932DF8033400B4385B /* NMapsMap in Frameworks */ = {isa = PBXBuildFile; productRef = 4228E7922DF8033400B4385B /* NMapsMap */; };
 		422AAC502E0D347300A247AD /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 422AAC4F2E0D347300A247AD /* FirebaseFunctions */; };
+		425800B22E658C980049B147 /* KakaoSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 425800B12E658C980049B147 /* KakaoSDK */; };
+		425800B42E658C980049B147 /* KakaoSDKAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 425800B32E658C980049B147 /* KakaoSDKAuth */; };
 		427661A82DFFFF2000499502 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 427661A72DFFFF2000499502 /* FirebaseCore */; };
 		427B1D872E095CE600113388 /* KakaoMapsSDK-SPM in Frameworks */ = {isa = PBXBuildFile; productRef = 427B1D862E095CE600113388 /* KakaoMapsSDK-SPM */; };
 		427D4C822DFC21E100B16959 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 427D4C812DFC21E100B16959 /* FirebaseMessaging */; };
@@ -122,6 +124,7 @@
 				427D4C822DFC21E100B16959 /* FirebaseMessaging in Frameworks */,
 				4224C2BE2DF7FCEE00E3D330 /* FirebaseStorage in Frameworks */,
 				4224C2B42DF7FC9F00E3D330 /* RxGesture in Frameworks */,
+				425800B22E658C980049B147 /* KakaoSDK in Frameworks */,
 				4224C2B72DF7FCB900E3D330 /* SnapKit in Frameworks */,
 				4224C2B12DF7FC5B00E3D330 /* RxSwift in Frameworks */,
 				42C1DB0E2DF981BC00CD0409 /* SDWebImage in Frameworks */,
@@ -131,6 +134,7 @@
 				4224C2BC2DF7FCEE00E3D330 /* FirebaseFirestore in Frameworks */,
 				4224C2BA2DF7FCEE00E3D330 /* FirebaseAuth in Frameworks */,
 				4224C2AA2DF7FC4500E3D330 /* Alamofire in Frameworks */,
+				425800B42E658C980049B147 /* KakaoSDKAuth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -213,6 +217,8 @@
 				427661A72DFFFF2000499502 /* FirebaseCore */,
 				427B1D862E095CE600113388 /* KakaoMapsSDK-SPM */,
 				422AAC4F2E0D347300A247AD /* FirebaseFunctions */,
+				425800B12E658C980049B147 /* KakaoSDK */,
+				425800B32E658C980049B147 /* KakaoSDKAuth */,
 			);
 			productName = KleagueApp;
 			productReference = 42128B232DE7520100C83D70 /* KleagueApp.app */;
@@ -306,6 +312,7 @@
 				42C1DB0C2DF981BC00CD0409 /* XCRemoteSwiftPackageReference "SDWebImage" */,
 				42C1DB112DF988E200CD0409 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				427B1D852E095CE600113388 /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */,
+				425800B02E658C980049B147 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 42128B242DE7520100C83D70 /* Products */;
@@ -746,6 +753,14 @@
 				minimumVersion = 3.21.0;
 			};
 		};
+		425800B02E658C980049B147 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kakao/kakao-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.24.6;
+			};
+		};
 		427B1D852E095CE600113388 /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/kakao-mapsSDK/KakaoMapsSDK-SPM";
@@ -827,6 +842,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 4224C2B82DF7FCEE00E3D330 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFunctions;
+		};
+		425800B12E658C980049B147 /* KakaoSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 425800B02E658C980049B147 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
+			productName = KakaoSDK;
+		};
+		425800B32E658C980049B147 /* KakaoSDKAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 425800B02E658C980049B147 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
+			productName = KakaoSDKAuth;
 		};
 		427661A72DFFFF2000499502 /* FirebaseCore */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -9,6 +9,8 @@ import UIKit
 import Firebase
 import FirebaseAuth
 import FirebaseCore
+import KakaoSDKAuth
+import KakaoSDKCommon
 import NMapsMap
 import NMapsGeometry
 import CoreData
@@ -16,19 +18,30 @@ import CoreLocation
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
-    
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
-//        NMFAuthManager.shared().ncpKeyId = Secret.naverClientId
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+    ) -> Bool {
         
         FirebaseApp.configure()
-        
-        if let user = Auth.auth().currentUser,
-                 user.isSessionExpired(thresholdDays: 30) {
-                  try? Auth.auth().signOut()
-                  print("🔒 자동 로그아웃: 30일 이상 경과")
-              }
+
+        if let appKey = Bundle.main.object(forInfoDictionaryKey: "KAKAO_NATIVE_APP_KEY") as? String {
+            KakaoSDK.initSDK(appKey: appKey)
+        } else {
+            fatalError("카카오 네이티브 앱 키가 설정되지 않았습니다.")
+        }
         return true
+    }
+    
+    func application(
+        _ app: UIApplication,
+        open url: URL,
+        options: [UIApplication.OpenURLOptionsKey : Any] = [:]
+    ) -> Bool {
+        if AuthApi.isKakaoTalkLoginUrl(url) {
+            return AuthController.handleOpenUrl(url: url)
+        }
+        return false
     }
     
     // MARK: UISceneSession Lifecycle

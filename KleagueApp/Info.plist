@@ -31,7 +31,7 @@
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>KAKAO_NATIVE_APP_KEY</key>
-	<string></string>
+	<string>$(KAKAO_NATIVE_APP_KEY)</string>
 	<key>NSAllowsArbitraryLoads</key>
 	<string>YES</string>
 	<key>CFBundleURLTypes</key>

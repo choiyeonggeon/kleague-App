@@ -8,6 +8,9 @@
 import UIKit
 import FirebaseAuth
 import FirebaseFirestore
+import AuthenticationServices
+import KakaoSDKAuth
+import KakaoSDKUser
 
 class LoginVC: UIViewController, UITextFieldDelegate {
     
@@ -16,6 +19,9 @@ class LoginVC: UIViewController, UITextFieldDelegate {
     private let errorLabel = UILabel()
     private let loginButton = UIButton()
     private let signupButton = UIButton()
+    
+    private let kakaoLoginButton = UIButton(type: .system)
+    private let appleLoginButton = ASAuthorizationAppleIDButton(type: .signIn, style: .black)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -47,7 +53,41 @@ class LoginVC: UIViewController, UITextFieldDelegate {
         signupButton.layer.cornerRadius = 8
         signupButton.addTarget(self, action: #selector(goToSignup), for: .touchUpInside)
         
-        let stack = UIStackView(arrangedSubviews: [emailTextField, passwordTextField, loginButton, signupButton])
+        kakaoLoginButton.backgroundColor = .clear
+        kakaoLoginButton.layer.cornerRadius = 8
+        
+        
+        // MARK: - 카카오 로그인 버튼
+        if #available(iOS 15.0, *) {
+            var config = UIButton.Configuration.plain()
+            config.image = UIImage(named: "kakao_logo")
+            config.imagePlacement = .leading // 왼쪽에 이미지
+            config.imagePadding = 10         // 이미지와 타이틀 간격
+            config.baseForegroundColor = .black
+            config.cornerStyle = .medium
+            kakaoLoginButton.configuration = config
+        } else {
+            kakaoLoginButton.setImage(UIImage(named: "kakao_logo"), for: .normal)
+            kakaoLoginButton.setTitleColor(.black, for: .normal)
+            kakaoLoginButton.layer.cornerRadius = 8
+            kakaoLoginButton.imageView?.contentMode = .scaleAspectFit
+            kakaoLoginButton.imageEdgeInsets = UIEdgeInsets(top: 5, left: 10, bottom: 5, right: 10)
+            kakaoLoginButton.titleEdgeInsets = UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 0)
+        }
+        kakaoLoginButton.addTarget(self, action: #selector(handleKakaoLogin), for: .touchUpInside)
+        
+        // MARK: - 애플 로그인 버튼
+        appleLoginButton.cornerRadius = 8
+        appleLoginButton.addTarget(self, action: #selector(handleAppleLogin), for: .touchUpInside)
+        
+        let stack = UIStackView(arrangedSubviews: [
+            emailTextField,
+            passwordTextField,
+            loginButton,
+            signupButton,
+            kakaoLoginButton,
+            appleLoginButton
+        ])
         stack.axis = .vertical
         stack.spacing = 16
         view.addSubview(stack)
@@ -60,7 +100,9 @@ class LoginVC: UIViewController, UITextFieldDelegate {
             emailTextField.heightAnchor.constraint(equalToConstant: 44),
             passwordTextField.heightAnchor.constraint(equalToConstant: 44),
             loginButton.heightAnchor.constraint(equalToConstant: 44),
-            signupButton.heightAnchor.constraint(equalToConstant: 44)
+            signupButton.heightAnchor.constraint(equalToConstant: 44),
+            kakaoLoginButton.heightAnchor.constraint(equalToConstant: 50),
+            appleLoginButton.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
     
@@ -87,6 +129,40 @@ class LoginVC: UIViewController, UITextFieldDelegate {
         }
     }
     
+    // MARK: - 카카오 로그인
+    @objc private func handleKakaoLogin() {
+        if UserApi.isKakaoTalkLoginAvailable() {
+            UserApi.shared.loginWithKakaoTalk {(oauthToken, error) in
+                if let error = error {
+                    print("카카오톡 로그인 실패: \(error)")
+                } else {
+                    print("카카오톡 로그인 성공, 토큰: \(String(describing: oauthToken?.accessToken))")
+                    // Firebase 연동이나 사용자 정보 처리 로직 추가
+                }
+            }
+        } else {
+            UserApi.shared.loginWithKakaoAccount {(oauthToken, error) in
+                if let error = error {
+                    print("카카오 계정 로그인 실패: \(error)")
+                } else {
+                    print("카카오 계정 로그인 성공, 토큰: \(String(describing: oauthToken?.accessToken))")
+                    // Firebase 연동이나 사용자 정보 처리 로직 추가
+                }
+            }
+        }
+    }
+    
+    // MARK: - 애플 로그인
+    @objc private func handleAppleLogin() {
+        let request = ASAuthorizationAppleIDProvider().createRequest()
+        request.requestedScopes = [.fullName ,.email]
+        
+        let controller = ASAuthorizationController(authorizationRequests: [request])
+        controller.delegate = self
+        controller.presentationContextProvider = self
+        controller.performRequests()
+    }
+    
     @objc private func dismissKeyboard() {
         view.endEditing(true)
     }
@@ -95,4 +171,29 @@ class LoginVC: UIViewController, UITextFieldDelegate {
         let signupVC = SignupVC()
         navigationController?.pushViewController(signupVC, animated: true)
     }
+}
+
+// MARK: - ASAuthorizationControllerDelegate
+extension LoginVC: ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
+    
+    func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+        return self.view.window!
+    }
+    
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
+        if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
+            let userIdentifier = appleIDCredential.user
+            let fullName = appleIDCredential.fullName
+            let email = appleIDCredential.email
+            print("Apple 로그인 성공: \(userIdentifier), \(String(describing: fullName)), \(String(describing: email))")
+        }
+    }
+    
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
+        print("Apple 로그인 실패: \(error)")
+    }
+    
+//    func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+//        return.self.view.window!
+//    }
 }
