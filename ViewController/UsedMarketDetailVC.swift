@@ -17,7 +17,7 @@ final class UsedMarketDetailVC: UIViewController {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
         layout.minimumLineSpacing = 8
-        layout.itemSize = CGSize(width: 150, height: 150)
+        layout.sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         return UICollectionView(frame: .zero, collectionViewLayout: layout)
     }()
     
@@ -105,6 +105,8 @@ final class UsedMarketDetailVC: UIViewController {
     
     private func setupCollectionView() {
         collectionView.dataSource = self
+        collectionView.delegate = self
+        collectionView.isPrefetchingEnabled = false
     }
     
     private func configureData() {
@@ -226,20 +228,75 @@ final class UsedMarketDetailVC: UIViewController {
     
     // MARK: - Chat
     @objc private func chatButtonTapped() {
-        if Auth.auth().currentUser == nil {
-            let alert = UIAlertController(title: "로그인이 필요합니다",
-                                          message: "채팅 기능을 사용하려면 로그인해주세요.",
-                                          preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "확인", style: .default))
-            present(alert, animated: true)
+        guard let product = product else { return }
+        
+        guard let currentUser = Auth.auth().currentUser else {
+            showAlert(title: "로그인 필요", message: "채팅 기능은 로그인 후 이용할 수 있습니다.")
             return
         }
-        guard let currentUser = Auth.auth().currentUser,
-              let product = product else { return }
         
-        let chatVC = ChatVC(post: product, currentUserId: currentUser.uid)
+        let chatRoomsRef = db.collection("chatRooms")
+        let participants = [currentUser.uid, product.sellerUid].sorted()
+        
+        chatRoomsRef
+            .whereField("participants", arrayContains: currentUser.uid)
+            .getDocuments { [weak self] snapshot, error in
+                if let error = error {
+                    print("채팅방 조회 실패: \(error.localizedDescription)")
+                    return
+                }
+                
+                if let doc = snapshot?.documents.first(where: {
+                    let p = $0["participants"] as? [String] ?? []
+                    return Set(p) == Set(participants)
+                }) {
+                    // ✅ 이미 있는 방 → DocumentSnapshot 사용
+                    self?.openChatRoom(from: doc, currentUserId: currentUser.uid)
+                } else {
+                    // ✅ 새 방 생성 → ChatRoom 직접 생성
+                    let newRoomRef = chatRoomsRef.document()
+                    let roomData: [String: Any] = [
+                        "title": product.title,
+                        "participants": participants,
+                        "lastMessage": "",
+                        "lastUpdatedAt": Timestamp(date: Date()),
+                        "productId": product.id
+                    ]
+                    
+                    newRoomRef.setData(roomData) { error in
+                        if let error = error {
+                            print("채팅방 생성 실패: \(error.localizedDescription)")
+                            return
+                        }
+                        // 🔥 여기서 ChatRoom 직접 만들어서 ChatVC 열기
+                        let chatRoom = ChatRoom(
+                            id: newRoomRef.documentID,
+                            title: product.title,
+                            participants: participants,
+                            lastMessage: "",
+                            lastUpdatedAt: Date()
+                        )
+                        let chatVC = ChatVC(chatRoom: chatRoom, currentUserId: currentUser.uid)
+                        self?.navigationController?.pushViewController(chatVC, animated: true)
+                    }
+                }
+            }
+    }
+    
+    private func openChatRoom(from doc: DocumentSnapshot, currentUserId: String) {
+        let data = doc.data() ?? [:]
+        let chatRoom = ChatRoom(
+            id: doc.documentID,
+            title: data["title"] as? String ?? "채팅방",
+            participants: data["participants"] as? [String] ?? [],
+            lastMessage: data["lastMessage"] as? String,
+            lastUpdatedAt: (data["lastUpdatedAt"] as? Timestamp)?.dateValue()
+        )
+        
+        let chatVC = ChatVC(chatRoom: chatRoom, currentUserId: currentUserId)
         navigationController?.pushViewController(chatVC, animated: true)
     }
+    
     
     private func showAlert(title: String, message: String) {
         let a = UIAlertController(title: title, message: message, preferredStyle: .alert)
@@ -283,7 +340,23 @@ final class MarketImageCell: UICollectionViewCell {
     }
     
     func configure(url: String) {
-        imageView.setImage(from: url)   // 👉 네가 만든 확장 함수 활용
+        imageView.setImage(from: url)
+    }
+}
+
+extension UsedMarketDetailVC: UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let width = collectionView.bounds.width - 32
+        let height = collectionView.bounds.height
+        return CGSize(width: width, height: height)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return 8
     }
 }
 

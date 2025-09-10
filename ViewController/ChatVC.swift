@@ -12,7 +12,7 @@ import FirebaseAuth
 
 class ChatVC: UIViewController {
     
-    private let post: UsedProduct
+    private let chatRoom: ChatRoom
     private let currentUserId: String
     
     private let tableView = UITableView()
@@ -26,11 +26,11 @@ class ChatVC: UIViewController {
     // bottom constraint 저장용
     private var messageInputViewBottomConstraint: Constraint?
     
-    init(post: UsedProduct, currentUserId: String) {
-        self.post = post
+    init(chatRoom: ChatRoom, currentUserId: String) {
+        self.chatRoom = chatRoom
         self.currentUserId = currentUserId
         super.init(nibName: nil, bundle: nil)
-        self.title = "\(post.title) 채팅"
+        self.title = "\(chatRoom.title) 채팅"
     }
     
     required init?(coder: NSCoder) {
@@ -149,7 +149,7 @@ class ChatVC: UIViewController {
     private func listenMessages() {
         let db = Firestore.firestore()
         listener = db.collection("used_market")
-            .document(post.id)
+            .document(chatRoom.id)
             .collection("chats")
             .order(by: "createdAt", descending: false)
             .addSnapshotListener { [weak self] snapshot, error in
@@ -174,7 +174,7 @@ class ChatVC: UIViewController {
         ]
         
         db.collection("used_market")
-            .document(post.id)
+            .document(chatRoom.id)
             .collection("chats")
             .addDocument(data: messageData) { _ in
                 DispatchQueue.main.async {

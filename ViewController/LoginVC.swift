@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import RxSwift
 import FirebaseAuth
 import FirebaseFirestore
 import AuthenticationServices
@@ -19,6 +20,10 @@ class LoginVC: UIViewController, UITextFieldDelegate {
     private let errorLabel = UILabel()
     private let loginButton = UIButton()
     private let signupButton = UIButton()
+    private let disposeBag = DisposeBag()
+    
+    private let findIdButton = UIButton()
+    private let resetPasswordButton = UIButton()
     
     private let kakaoLoginButton = UIButton(type: .system)
     private let appleLoginButton = ASAuthorizationAppleIDButton(type: .signIn, style: .black)
@@ -53,6 +58,14 @@ class LoginVC: UIViewController, UITextFieldDelegate {
         signupButton.layer.cornerRadius = 8
         signupButton.addTarget(self, action: #selector(goToSignup), for: .touchUpInside)
         
+        findIdButton.setTitle("아이디 찾기", for: .normal)
+        findIdButton.setTitleColor(.systemBlue, for: .normal)
+        findIdButton.addTarget(self, action: #selector(handleFindId), for: .touchUpInside)
+        
+        resetPasswordButton.setTitle("비밀번호 찾기", for: .normal)
+        resetPasswordButton.setTitleColor(.systemBlue, for: .normal)
+        resetPasswordButton.addTarget(self, action: #selector(handleResetPassword), for: .touchUpInside)
+        
         kakaoLoginButton.backgroundColor = .clear
         kakaoLoginButton.layer.cornerRadius = 8
         
@@ -85,6 +98,8 @@ class LoginVC: UIViewController, UITextFieldDelegate {
             passwordTextField,
             loginButton,
             signupButton,
+            findIdButton,
+            resetPasswordButton,
             kakaoLoginButton,
             appleLoginButton
         ])
@@ -131,36 +146,53 @@ class LoginVC: UIViewController, UITextFieldDelegate {
     
     // MARK: - 카카오 로그인
     @objc private func handleKakaoLogin() {
-        if UserApi.isKakaoTalkLoginAvailable() {
-            UserApi.shared.loginWithKakaoTalk {(oauthToken, error) in
-                if let error = error {
-                    print("카카오톡 로그인 실패: \(error)")
-                } else {
-                    print("카카오톡 로그인 성공, 토큰: \(String(describing: oauthToken?.accessToken))")
-                    // Firebase 연동이나 사용자 정보 처리 로직 추가
+        AuthManager.shared.signInWithKakao()
+            .observe(on: MainScheduler.instance)
+            .subscribe(
+                onNext: { authResult in
+                    print("Firebase 로그인 성공: \(authResult.user.uid)")
+                    
+                    let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                    if let homeVC = storyboard.instantiateViewController(withIdentifier: "HomeVC") as? HomeVC {
+                        homeVC.modalPresentationStyle = .fullScreen
+                        self.present(homeVC, animated: true, completion: nil)
+                    }
+                },
+                onError: { error in
+                    print("로그인 실패: \(error.localizedDescription)")
+                    let alert = UIAlertController(title: "로그인 실패", message: error.localizedDescription, preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "확인", style: .default))
+                    self.present(alert, animated: true)
                 }
-            }
-        } else {
-            UserApi.shared.loginWithKakaoAccount {(oauthToken, error) in
-                if let error = error {
-                    print("카카오 계정 로그인 실패: \(error)")
-                } else {
-                    print("카카오 계정 로그인 성공, 토큰: \(String(describing: oauthToken?.accessToken))")
-                    // Firebase 연동이나 사용자 정보 처리 로직 추가
-                }
-            }
-        }
+            )
+            .disposed(by: disposeBag)
     }
     
     // MARK: - 애플 로그인
     @objc private func handleAppleLogin() {
-        let request = ASAuthorizationAppleIDProvider().createRequest()
-        request.requestedScopes = [.fullName ,.email]
+        guard let window = view.window else { return }
         
-        let controller = ASAuthorizationController(authorizationRequests: [request])
-        controller.delegate = self
-        controller.presentationContextProvider = self
-        controller.performRequests()
+        AuthManager.shared.signInWithApple(presentationAnchor: window)
+            .observe(on: MainScheduler.instance)
+            .subscribe(
+                onNext: { authResult in
+                    print("애플 로그인 성공: \(authResult.user.uid)")
+                    
+                    let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                    if let homeVC = storyboard.instantiateViewController(withIdentifier: "HomeVC") as? HomeVC {
+                        homeVC.modalPresentationStyle = .fullScreen
+                        self.present(homeVC, animated: true, completion: nil)
+                    } else {
+                        self.navigationController?.popViewController(animated: true)
+                    }
+                }, onError: { error in
+                    print("애플 로그인 실패: \(error.localizedDescription)")
+                    let alert = UIAlertController(title: "로그인 실패", message: error.localizedDescription, preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "확인", style: .default))
+                    self.present(alert, animated: true)
+                }
+            )
+            .disposed(by: disposeBag)
     }
     
     @objc private func dismissKeyboard() {
@@ -171,29 +203,51 @@ class LoginVC: UIViewController, UITextFieldDelegate {
         let signupVC = SignupVC()
         navigationController?.pushViewController(signupVC, animated: true)
     }
-}
-
-// MARK: - ASAuthorizationControllerDelegate
-extension LoginVC: ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
     
-    func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
-        return self.view.window!
-    }
-    
-    func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
-        if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
-            let userIdentifier = appleIDCredential.user
-            let fullName = appleIDCredential.fullName
-            let email = appleIDCredential.email
-            print("Apple 로그인 성공: \(userIdentifier), \(String(describing: fullName)), \(String(describing: email))")
+    @objc private func handleFindId() {
+        let alert = UIAlertController(title: "아이디 찾기", message: "가입 시 사용한 닉네임을 입력해주세요.", preferredStyle: .alert)
+        alert.addTextField { textFiled in
+            textFiled.placeholder = "닉네임"
         }
+        alert.addAction(UIAlertAction(title: "조회", style: .default, handler: { _ in
+            guard let nickname = alert.textFields?.first?.text, !nickname.isEmpty else { return }
+            
+            Firestore.firestore().collection("users")
+                .whereField("nickname", isEqualTo: nickname)
+                .getDocuments { snapshot, error in
+                    if let error = error {
+                        self.showAlert(title: "조회 실패", message: error.localizedDescription)
+                        return
+                    }
+                    
+                    if let doc = snapshot?.documents.first, let email = doc.data()["email"] as? String {
+                        self.showAlert(title: "가입 이메일", message: "등록된 이메일: \(email)")
+                    } else {
+                        self.showAlert(title: "조회 실패", message: "해당 닉네임으로 가입된 계정이 없습니다.")
+                    }
+                }
+        }))
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        present(alert, animated: true)
     }
     
-    func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
-        print("Apple 로그인 실패: \(error)")
+    @objc private func handleResetPassword() {
+        let alert = UIAlertController(title: "비밀번호 재설정", message: "가입한 이메일을 입력해주세요.", preferredStyle: .alert)
+        alert.addTextField { textField in
+            textField.placeholder = "이메일"
+        }
+        alert.addAction(UIAlertAction(title: "전송", style: .default, handler: { _ in
+            guard let email = alert.textFields?.first?.text, !email.isEmpty else { return }
+            
+            Auth.auth().sendPasswordReset(withEmail: email) { error in
+                if let error = error {
+                    self.showAlert(title: "전송 실패", message: error.localizedDescription)
+                } else {
+                    self.showAlert(title: "전송 완료", message: "비밀번호 재설정 이메일이 전송되었습니다.")
+                }
+            }
+        }))
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        present(alert, animated: true)
     }
-    
-//    func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
-//        return.self.view.window!
-//    }
 }

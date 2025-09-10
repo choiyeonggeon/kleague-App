@@ -25,6 +25,8 @@
 	<array>
 		<string>interparkticket</string>
 		<string>ticketlink</string>
+		<string>kakaokompassauth</string>
+		<string>kakaolink</string>
 	</array>
 	<key>CFBundleShortVersionString</key>
 	<string>1.0</string>

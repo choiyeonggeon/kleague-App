@@ -21,6 +21,8 @@ final class UsedMarketWriteVC: UIViewController {
     private let addImageButton = UIButton(type: .system)
     private let submitButton = UIButton(type: .system)
     
+    private var loadingView: UIView?
+    
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
@@ -120,6 +122,23 @@ final class UsedMarketWriteVC: UIViewController {
         }
     }
     
+    private func showLoading(_ show: Bool) {
+        if show {
+            let overlay = UIView(frame: view.bounds)
+            overlay.backgroundColor = UIColor.black.withAlphaComponent(0.4)
+            
+            let indicator = UIActivityIndicatorView(style: .large)
+            indicator.center = overlay.center
+            indicator.startAnimating()
+            
+            overlay.addSubview(indicator)
+            view.addSubview(overlay)
+        } else {
+            loadingView?.removeFromSuperview()
+            loadingView = nil
+        }
+    }
+    
     private func setupActions() {
         addImageButton.addTarget(self, action: #selector(addImageTapped), for: .touchUpInside)
         submitButton.addTarget(self, action: #selector(submitPost), for: .touchUpInside)
@@ -203,19 +222,22 @@ final class UsedMarketWriteVC: UIViewController {
             simpleAlert("입력 필요", "모든 항목을 입력해주세요.")
             return
         }
-
+        
+        showLoading(true)
+        
         uploadSelectedImages { [weak self] uploadedUrls in
             guard let self = self else { return }
-
+            
             // 기존 이미지 + 새로 업로드된 이미지
             let finalUrls = self.existingImageUrls + uploadedUrls
-
+            
             // 🚨 여기서 방어
             if self.selectedImages.count > 0 && uploadedUrls.isEmpty {
+                self.showLoading(false)
                 self.simpleAlert("업로드 실패", "선택한 사진 업로드에 실패했습니다.")
                 return
             }
-
+            
             self.savePostDocument(
                 user: user,
                 title: title,
@@ -225,52 +247,60 @@ final class UsedMarketWriteVC: UIViewController {
             )
         }
     }
-
+    
     private func uploadSelectedImages(completion: @escaping ([String]) -> Void) {
         guard !selectedImages.isEmpty, let user = Auth.auth().currentUser else {
             completion([])
             return
         }
+        
         var uploaded: [String] = []
         let group = DispatchGroup()
-
-        for img in selectedImages {
+        let storageRef = storage.reference().child("used_market/\(user.uid)")
+        
+        for (index, img) in selectedImages.enumerated() {
             group.enter()
+            
             guard let data = img.jpegData(compressionQuality: 0.8) else {
+                print("❌ JPEG 변환 실패 (index \(index))")
                 group.leave()
                 continue
             }
-
-            let fileName = UUID().uuidString + ".jpg"
-            let ref = storage.reference().child("used_market/\(user.uid)/\(fileName)")
-
+            
+            let fileName = "\(UUID().uuidString)_\(index).jpg"
+            let ref = storageRef.child(fileName)
+            
             let meta = StorageMetadata()
             meta.contentType = "image/jpeg"
-
+            
             ref.putData(data, metadata: meta) { _, error in
                 if let error = error {
-                    print("업로드 실패:", error.localizedDescription)
+                    print("❌ 업로드 실패 (index \(index)): \(error.localizedDescription)")
                     group.leave()
                     return
                 }
-                // putData 성공 후에만 downloadURL 실행
+                
                 ref.downloadURL { url, error in
                     if let error = error {
-                        print("URL 가져오기 실패:", error.localizedDescription)
-                    }
-                    if let url = url?.absoluteString {
-                        uploaded.append(url)
+                        print("❌ URL 가져오기 실패 (index \(index)): \(error.localizedDescription)")
+                    } else if let urlStr = url?.absoluteString {
+                        print("✅ 업로드 성공 (index \(index)): \(urlStr)")
+                        uploaded.append(urlStr)
                     }
                     group.leave()
                 }
             }
         }
-
+        
         group.notify(queue: .main) {
+            if uploaded.count != self.selectedImages.count {
+                print("⚠️ 일부 업로드 실패: \(uploaded.count)/\(self.selectedImages.count)")
+            }
             completion(uploaded)
         }
     }
-
+    
+    
     private func savePostDocument(user: User, title: String, price: String, description: String, imageUrls: [String]) {
         if let product = editingProduct {
             let update: [String: Any] = [
@@ -306,6 +336,7 @@ final class UsedMarketWriteVC: UIViewController {
                     if err != nil {
                         self.simpleAlert("저장 실패", err!.localizedDescription)
                     } else {
+                        self.showLoading(false)
                         self.simpleAlert("완료", "거래 글이 등록되었습니다.") {
                             self.navigationController?.popViewController(animated: true)
                         }

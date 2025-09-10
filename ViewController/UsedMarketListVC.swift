@@ -28,6 +28,10 @@ class UsedMarketListVC: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         startListening()
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
     }
     
     deinit {
@@ -183,5 +187,9 @@ extension UsedMarketListVC: UISearchBarDelegate {
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         searchBar.text = ""
         startListening()
+    }
+    
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
     }
 }

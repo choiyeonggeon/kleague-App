@@ -258,84 +258,76 @@ class CommunityVC: UIViewController {
     private func reportUser(post: Post, reason: String) {
         guard let reporterUserId = Auth.auth().currentUser?.uid else { return }
         
-        // 중복 신고 검사
-        let reportQuery = Firestore.firestore()
-            .collection("reports")
-            .whereField("isHidden", isEqualTo: false)
-            .whereField("resolved", isEqualTo: false)
+        let firestore = Firestore.firestore()
+        
+        // 🔹 본인 신고만 쿼리 (Rules 준수)
+        firestore.collection("reports")
             .whereField("reportedByUid", isEqualTo: reporterUserId)
             .whereField("postId", isEqualTo: post.id)
-        
-        reportQuery.getDocuments { snapshot, error in
-            if let error = error {
-                self.showAlert(title: "오류", message: "신고 중복 검사 실패: \(error.localizedDescription)")
-                return
-            }
-            
-            if let documents = snapshot?.documents, !documents.isEmpty {
-                self.showAlert(title: "이미 신고함", message: "이 게시글은 이미 신고하셨습니다.")
-                return
-            }
-            
-            let reportData: [String: Any] = [
-                "postId": post.id,
-                "reportedUserId": post.authorUid,
-                "reportedByUid": reporterUserId,
-                "reportedBy": Auth.auth().currentUser?.email ?? "익명",
-                "reason": reason,
-                "reportedAt": Timestamp(date: Date()),
-                "isHidden": false,
-                "resolved": false,
-                "reportCount": 0
-            ]
-            
-            let firestore = Firestore.firestore()
-            let batch = firestore.batch()
-            
-            // 신고 기록 추가
-            let reportRef = firestore.collection("reports").document()
-            batch.setData(reportData, forDocument: reportRef)
-            
-            // 게시글 신고 횟수 증가
-            let postRef = firestore.collection("posts").document(post.id)
-            batch.updateData(["reportCount": FieldValue.increment(Int64(1))], forDocument: postRef)
-            
-            // 신고당한 유저 신고 횟수 증가
-            let userRef = firestore.collection("users").document(post.authorUid)
-            batch.updateData(["reportCount": FieldValue.increment(Int64(1))], forDocument: userRef)
-            
-            // 커밋 후 추가 작업
-            batch.commit { error in
+            .getDocuments { snapshot, error in
                 if let error = error {
-                    self.showAlert(title: "신고 실패", message: error.localizedDescription)
+                    self.showAlert(title: "오류", message: "신고 중복 검사 실패: \(error.localizedDescription)")
                     return
                 }
                 
-                // 신고 횟수 조회 후 정지 처리
-                userRef.getDocument { docSnapshot, error in
-                    if let data = docSnapshot?.data(),
-                       let count = data["reportCount"] as? Int {
-                        
-                        if count >= 10 {
-                            // 영구 정지
-                            userRef.updateData([
-                                "isSuspended": true,
-                                "isSuspendedUntil": FieldValue.delete()
-                            ])
-                        } else if count >= 5 {
-                            // 7일 정지
-                            let suspensionUntil = Calendar.current.date(byAdding: .day, value: 7, to: Date())
-                            userRef.updateData([
-                                "isSuspended": true,
-                                "isSuspendedUntil": suspensionUntil != nil ? Timestamp(date: suspensionUntil!) : FieldValue.delete()
-                            ])
-                        }
-                    }
+                if let documents = snapshot?.documents, !documents.isEmpty {
+                    self.showAlert(title: "이미 신고함", message: "이 게시글은 이미 신고하셨습니다.")
+                    return
                 }
                 
-                self.showAlert(title: "신고 완료", message: "신고가 접수되었습니다. 24시간 이내에 관리자에 의해 검토 후 조치될 예정입니다.")
+                // 🔹 신고 등록
+                let reportData: [String: Any] = [
+                    "postId": post.id,
+                    "reportedUserId": post.authorUid,
+                    "reportedByUid": reporterUserId,
+                    "reportedBy": Auth.auth().currentUser?.email ?? "익명",
+                    "reason": reason,
+                    "reportedAt": Timestamp(date: Date()),
+                    "isHidden": false,
+                    "resolved": false,
+                    "reportCount": 0
+                ]
+                
+                let reportRef = firestore.collection("reports").document()
+                let postRef = firestore.collection("posts").document(post.id)
+                let userRef = firestore.collection("users").document(post.authorUid)
+                
+                let batch = firestore.batch()
+                batch.setData(reportData, forDocument: reportRef)
+                batch.updateData(["reportCount": FieldValue.increment(Int64(1))], forDocument: postRef)
+                batch.updateData(["reportCount": FieldValue.increment(Int64(1))], forDocument: userRef)
+                
+                batch.commit { error in
+                    if let error = error {
+                        self.showAlert(title: "신고 실패", message: error.localizedDescription)
+                        return
+                    }
+                    
+                    // 신고 횟수 기반 정지 처리
+                    userRef.getDocument { docSnapshot, error in
+                        if let data = docSnapshot?.data(),
+                           let count = data["reportCount"] as? Int {
+                            
+                            if count >= 10 {
+                                userRef.updateData([
+                                    "isSuspended": true,
+                                    "isSuspendedUntil": FieldValue.delete()
+                                ])
+                            } else if count >= 5 {
+                                let suspensionUntil = Calendar.current.date(byAdding: .day, value: 7, to: Date())
+                                if let until = suspensionUntil {
+                                    userRef.updateData([
+                                        "isSuspended": true,
+                                        "isSuspendedUntil": Timestamp(date: until)
+                                    ])
+                                }
+                            }
+                        }
+                    }
+                    
+                    self.showAlert(title: "신고 완료", message: "신고가 접수되었습니다.")
+                }
             }
-        }
     }
     
     func hidePost(_ post: Post, hide: Bool) {
