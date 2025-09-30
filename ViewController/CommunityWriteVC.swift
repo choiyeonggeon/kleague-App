@@ -1,13 +1,23 @@
+//
+//  CommunityWriteVC.swift
+//  KleagueApp
+//
+//  Created by 최영건 on 7/1/25.
+//
+
 import UIKit
 import SnapKit
 import RxSwift
-import RxCocoa
 import FirebaseAuth
+import FirebaseStorage
 import FirebaseFirestore
+import PhotosUI
 
 class CommunityWriteVC: UIViewController {
     
     var editingPost: Post?
+    private var collectionView: UICollectionView!
+    
     private var badWordsLoaded = false
     private var userTeamLoaded = false
     private var userNickname: String?
@@ -19,6 +29,10 @@ class CommunityWriteVC: UIViewController {
     private let teamPicker = UIPickerView()
     private let submitButton = UIButton(type: .system)
     private let disposeBag = DisposeBag()
+    
+//    private let addImageButton = UIButton()
+    private var selectedImages: [UIImage] = []
+    private var existingImageUrls: [String] = []
     
     private let teams = ["전체", "강원", "경남", "김천상무", "김포",
                          "광주FC", "대구FC", "대전", "서울", "서울E",
@@ -37,7 +51,7 @@ class CommunityWriteVC: UIViewController {
         teamPicker.delegate = self
         teamPicker.isHidden = (editingPost != nil)
         
-        setupWriteUI()
+        setupUI()
         loadUserTeam()
         adjustConstraintsForEditMode()
         bindInputs()
@@ -53,6 +67,7 @@ class CommunityWriteVC: UIViewController {
             title = "게시글 수정"
             titleField.text = post.title
             contentTextView.text = post.content
+            existingImageUrls = post.imageUrls
             if let index = teams.firstIndex(of: post.team) {
                 teamPicker.selectRow(index, inComponent: 0, animated: false)
                 selectedTeam = post.team
@@ -61,21 +76,10 @@ class CommunityWriteVC: UIViewController {
             adjustConstraintsForEditMode()
         } else {
             title = "글쓰기"
-            
         }
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         view.addGestureRecognizer(tapGesture)
-    }
-    
-    private func restrictTeamSelection() {
-        guard editingPost == nil else { return }
-        teams.enumerated().forEach { index, name in
-            if name != "전체" && name != userTeam {
-                teamPicker.selectRow(teams.firstIndex(of: userTeam!) ?? 0, inComponent: 0, animated: false)
-                selectedTeam = userTeam
-            }
-        }
     }
     
     private func bindInputs() {
@@ -95,12 +99,11 @@ class CommunityWriteVC: UIViewController {
                 self.submitButton.isEnabled = enabled
                 self.submitButton.alpha = enabled ? 1.0 : 0.5
                 
-                // 얼럿은 한 번만 띄우도록 제어
                 if (isBadTitle || isBadContent) && hasTitle && hasContent {
                     if !self.isBadWordAlertShown {
                         self.isBadWordAlertShown = true
                         self.showAlert(message: "금지어가 포함되어 있습니다. 내용을 수정해주세요.") {
-                            self.isBadWordAlertShown = false // 얼럿 닫힌 뒤 다시 초기화
+                            self.isBadWordAlertShown = false
                         }
                     }
                 } else {
@@ -108,17 +111,30 @@ class CommunityWriteVC: UIViewController {
                 }
             })
             .disposed(by: disposeBag)
-        
     }
     
-    private func setupWriteUI() {
-        
+    private func setupUI() {
         titleField.placeholder = "제목을 입력하세요"
         titleField.borderStyle = .roundedRect
         
         contentTextView.layer.borderWidth = 1
         contentTextView.layer.borderColor = UIColor.lightGray.cgColor
         contentTextView.layer.cornerRadius = 8
+        
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        layout.itemSize = CGSize(width: 80, height: 80)
+        layout.minimumLineSpacing = 8
+        
+        collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.backgroundColor = .clear
+        collectionView.register(ImageCell.self, forCellWithReuseIdentifier: "ImageCell")
+        collectionView.dataSource = self
+        collectionView.delegate = self
+        
+//        addImageButton.setTitle("사진 추가", for: .normal)
+//        addImageButton.setTitleColor(.systemBlue, for: .normal)
+//        addImageButton.addTarget(self, action: #selector(didTapAddImage), for: .touchUpInside)
         
         submitButton.setTitle("등록하기", for: .normal)
         submitButton.backgroundColor = .systemBlue
@@ -128,7 +144,7 @@ class CommunityWriteVC: UIViewController {
         submitButton.alpha = 0.5
         submitButton.addTarget(self, action: #selector(didTapSubmit), for: .touchUpInside)
         
-        [titleField, contentTextView, teamPicker, submitButton].forEach {
+        [titleField, contentTextView, collectionView, /*addImageButton,*/ teamPicker, submitButton].forEach {
             view.addSubview($0)
         }
         
@@ -144,8 +160,20 @@ class CommunityWriteVC: UIViewController {
             $0.height.equalTo(200)
         }
         
+//        addImageButton.snp.makeConstraints {
+//            $0.top.equalTo(contentTextView.snp.bottom).offset(8)
+//            $0.leading.equalToSuperview().inset(20)
+//            $0.height.equalTo(30)
+//        }
+        
+        collectionView.snp.makeConstraints {
+            $0.top.equalTo(contentTextView.snp.bottom).offset(8)
+            $0.leading.trailing.equalToSuperview().inset(20)
+            $0.height.equalTo(80)
+        }
+        
         teamPicker.snp.makeConstraints {
-            $0.top.equalTo(contentTextView.snp.bottom).offset(20)
+            $0.top.equalTo(collectionView.snp.bottom).offset(20)
             $0.leading.trailing.equalToSuperview()
             $0.height.equalTo(100)
         }
@@ -159,7 +187,6 @@ class CommunityWriteVC: UIViewController {
         
         titleField.addTarget(self, action: #selector(textInputChanged), for: .editingChanged)
         contentTextView.delegate = self
-        
     }
     
     private func loadUserTeam() {
@@ -195,7 +222,7 @@ class CommunityWriteVC: UIViewController {
         if editingPost != nil {
             teamPicker.removeFromSuperview()
             submitButton.snp.remakeConstraints {
-                $0.top.equalTo(contentTextView.snp.bottom).offset(20)
+                $0.top.equalTo(collectionView.snp.bottom).offset(20)
                 $0.centerX.equalTo(view)
                 $0.width.equalTo(120)
                 $0.height.equalTo(44)
@@ -206,14 +233,12 @@ class CommunityWriteVC: UIViewController {
     private func updateSubmitButtonState() {
         let hasTitle = !(titleField.text ?? "").isEmpty
         let hasContent = !(contentTextView.text ?? "").isEmpty
-        
         let enabled = badWordsLoaded && userTeamLoaded && hasTitle && hasContent
         submitButton.isEnabled = enabled
         submitButton.alpha = enabled ? 1.0 : 0.5
     }
     
     private func restrictTeamPickerSelection() {
-        // 글쓰기(새글)일 때만 userTeam으로 제한
         guard editingPost == nil else { return }
         guard let userTeam = userTeam else { return }
         
@@ -236,7 +261,6 @@ class CommunityWriteVC: UIViewController {
                 return
             }
             let words = snapshot?.documents.compactMap { $0.data()["word"] as? String } ?? []
-            print("금지어 로딩 완료: \(words)")
             completion(words)
         }
     }
@@ -252,8 +276,57 @@ class CommunityWriteVC: UIViewController {
                 return true
             }
         }
-        
         return false
+    }
+    
+    @objc private func didTapAddImage() {
+        var configuration = PHPickerConfiguration()
+        configuration.selectionLimit = 0
+        configuration.filter = .images
+        
+        let picker = PHPickerViewController(configuration: configuration)
+        picker.delegate = self
+        present(picker, animated: true)
+    }
+    
+    @objc private func uploadImages(completion: @escaping ([String]) -> Void) {
+        guard !selectedImages.isEmpty else {
+            completion(existingImageUrls)
+            return
+        }
+        
+        let storageRef = Storage.storage().reference().child("post_images")
+        var urls: [String] = existingImageUrls
+        let group = DispatchGroup()
+        
+        for image in selectedImages {
+            group.enter()
+            guard let data = image.jpegData(compressionQuality: 0.8) else {
+                group.leave()
+                continue
+            }
+            
+            let filename = UUID().uuidString + ".jpg"
+            let ref = storageRef.child(filename)
+            ref.putData(data, metadata: nil) { _, error in
+                if let error = error {
+                    print("이미지 업로드 실패:", error.localizedDescription)
+                    group.leave()
+                    return
+                }
+                
+                ref.downloadURL { url, _ in
+                    if let url = url {
+                        urls.append(url.absoluteString)
+                    }
+                    group.leave()
+                }
+            }
+        }
+        
+        group.notify(queue: .main) {
+            completion(urls)
+        }
     }
     
     @objc private func dismissKeyboard() {
@@ -271,50 +344,45 @@ class CommunityWriteVC: UIViewController {
             return
         }
         
-        // 금지어 체크
         if containsBadWord(title, badWords: badWords) || containsBadWord(content, badWords: badWords) {
             showAlert(message: "금지어가 포함되어 있습니다. 내용을 수정해주세요.")
             return
         }
         
-        let postData: [String: Any] = [
-            "title": title,
-            "content": content,
-            "team": team,
-            "likes": editingPost == nil ? 0 : editingPost?.likes ?? 0,
-            "dislikes": editingPost == nil ? 0 : editingPost?.dislikes ?? 0,
-            "commentsCount": editingPost == nil ? 0 : editingPost?.commentsCount ?? 0,
-            "author": self.userNickname ?? "알 수 없음",
-            "authorUid": user.uid,
-            "showReportAlert": false,
-            "createdAt": editingPost == nil ? Timestamp() : editingPost?.createdAt ?? Timestamp(),
-            "category": "community"
-        ]
-        
-        if let editingPost = editingPost {
-            Firestore.firestore().collection("posts").document(editingPost.id).updateData(postData) { error in
-                if let error = error {
-                    self.showAlert(message: "글 수정 실패: \(error.localizedDescription)")
-                } else {
-                    self.showAlert(message: "글이 수정되었습니다.") {
-                        self.navigationController?.popViewController(animated: true)
+        uploadImages { imageUrls in
+            let postData: [String: Any] = [
+                "title": title,
+                "content": content,
+                "team": team,
+                "likes": self.editingPost?.likes ?? 0,
+                "dislikes": self.editingPost?.dislikes ?? 0,
+                "commentsCount": self.editingPost?.commentsCount ?? 0,
+                "author": self.userNickname ?? "알 수 없음",
+                "authorUid": user.uid,
+                "showReportAlert": false,
+                "createdAt": self.editingPost?.createdAt ?? Timestamp(),
+                "category": "community",
+                "imageUrls": imageUrls
+            ]
+            
+            if let editingPost = self.editingPost {
+                Firestore.firestore().collection("posts").document(editingPost.id).updateData(postData) { error in
+                    if let error = error {
+                        self.showAlert(message: "글 수정 실패: \(error.localizedDescription)")
+                    } else {
+                        self.showAlert(message: "글이 수정되었습니다.") {
+                            self.navigationController?.popViewController(animated: true)
+                        }
                     }
                 }
-            }
-        } else {
-            var newPostData = postData
-            newPostData["likes"] = 0
-            newPostData["dislikes"] = 0
-            newPostData["commentsCount"] = 0
-            newPostData["createdAt"] = Timestamp()
-            newPostData["showReportAlert"] = false
-            
-            Firestore.firestore().collection("posts").addDocument(data: newPostData) { error in
-                if let error = error {
-                    self.showAlert(message: "글 등록 실패: \(error.localizedDescription)")
-                } else {
-                    self.showAlert(message: "글이 등록되었습니다.") {
-                        self.navigationController?.popViewController(animated: true)
+            } else {
+                Firestore.firestore().collection("posts").addDocument(data: postData) { error in
+                    if let error = error {
+                        self.showAlert(message: "글 등록 실패: \(error.localizedDescription)")
+                    } else {
+                        self.showAlert(message: "글이 등록되었습니다.") {
+                            self.navigationController?.popViewController(animated: true)
+                        }
                     }
                 }
             }
@@ -368,5 +436,67 @@ extension CommunityWriteVC: UIPickerViewDataSource, UIPickerViewDelegate {
         } else {
             selectedTeam = selected
         }
+    }
+}
+
+// MARK: - UICollectionView
+extension CommunityWriteVC: UICollectionViewDataSource, UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        selectedImages.count
+    }
+
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ImageCell", for: indexPath) as! ImageCell
+        cell.imageView.image = selectedImages[indexPath.item]
+        return cell
+    }
+}
+
+// MARK: - PHPickerViewControllerDelegate
+extension CommunityWriteVC: PHPickerViewControllerDelegate {
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        picker.dismiss(animated: true)
+
+        let group = DispatchGroup()
+        var newImages: [UIImage] = []
+
+        for result in results {
+            group.enter()
+            if result.itemProvider.canLoadObject(ofClass: UIImage.self) {
+                result.itemProvider.loadObject(ofClass: UIImage.self) { reading, error in
+                    if let image = reading as? UIImage {
+                        newImages.append(image)
+                    }
+                    group.leave()
+                }
+            } else {
+                group.leave()
+            }
+        }
+
+        group.notify(queue: .main) {
+            self.selectedImages.append(contentsOf: newImages)
+            self.collectionView.reloadData()
+        }
+    }
+}
+
+// MARK: - ImageCell
+class ImageCell: UICollectionViewCell {
+    let imageView = UIImageView()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        contentView.addSubview(imageView)
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        imageView.layer.cornerRadius = 8
+        imageView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }

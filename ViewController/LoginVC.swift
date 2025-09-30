@@ -22,11 +22,11 @@ class LoginVC: UIViewController, UITextFieldDelegate {
     private let signupButton = UIButton()
     private let disposeBag = DisposeBag()
     
-    private let findIdButton = UIButton()
+//    private let findIdButton = UIButton()
     private let resetPasswordButton = UIButton()
     
-    private let kakaoLoginButton = UIButton(type: .system)
-    private let appleLoginButton = ASAuthorizationAppleIDButton(type: .signIn, style: .black)
+//    private let kakaoLoginButton = UIButton(type: .system)
+//    private let appleLoginButton = ASAuthorizationAppleIDButton(type: .signIn, style: .black)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -58,50 +58,50 @@ class LoginVC: UIViewController, UITextFieldDelegate {
         signupButton.layer.cornerRadius = 8
         signupButton.addTarget(self, action: #selector(goToSignup), for: .touchUpInside)
         
-        findIdButton.setTitle("아이디 찾기", for: .normal)
-        findIdButton.setTitleColor(.systemBlue, for: .normal)
-        findIdButton.addTarget(self, action: #selector(handleFindId), for: .touchUpInside)
+//        findIdButton.setTitle("아이디 찾기", for: .normal)
+//        findIdButton.setTitleColor(.systemBlue, for: .normal)
+//        findIdButton.addTarget(self, action: #selector(handleFindId), for: .touchUpInside)
         
         resetPasswordButton.setTitle("비밀번호 찾기", for: .normal)
         resetPasswordButton.setTitleColor(.systemBlue, for: .normal)
         resetPasswordButton.addTarget(self, action: #selector(handleResetPassword), for: .touchUpInside)
         
-        kakaoLoginButton.backgroundColor = .clear
-        kakaoLoginButton.layer.cornerRadius = 8
+//        kakaoLoginButton.backgroundColor = .clear
+//        kakaoLoginButton.layer.cornerRadius = 8
         
         
         // MARK: - 카카오 로그인 버튼
-        if #available(iOS 15.0, *) {
-            var config = UIButton.Configuration.plain()
-            config.image = UIImage(named: "kakao_logo")
-            config.imagePlacement = .leading // 왼쪽에 이미지
-            config.imagePadding = 10         // 이미지와 타이틀 간격
-            config.baseForegroundColor = .black
-            config.cornerStyle = .medium
-            kakaoLoginButton.configuration = config
-        } else {
-            kakaoLoginButton.setImage(UIImage(named: "kakao_logo"), for: .normal)
-            kakaoLoginButton.setTitleColor(.black, for: .normal)
-            kakaoLoginButton.layer.cornerRadius = 8
-            kakaoLoginButton.imageView?.contentMode = .scaleAspectFit
-            kakaoLoginButton.imageEdgeInsets = UIEdgeInsets(top: 5, left: 10, bottom: 5, right: 10)
-            kakaoLoginButton.titleEdgeInsets = UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 0)
-        }
-        kakaoLoginButton.addTarget(self, action: #selector(handleKakaoLogin), for: .touchUpInside)
+//        if #available(iOS 15.0, *) {
+//            var config = UIButton.Configuration.plain()
+//            config.image = UIImage(named: "kakao_logo")
+//            config.imagePlacement = .leading // 왼쪽에 이미지
+//            config.imagePadding = 10         // 이미지와 타이틀 간격
+//            config.baseForegroundColor = .black
+//            config.cornerStyle = .medium
+//            kakaoLoginButton.configuration = config
+//        } else {
+//            kakaoLoginButton.setImage(UIImage(named: "kakao_logo"), for: .normal)
+//            kakaoLoginButton.setTitleColor(.black, for: .normal)
+//            kakaoLoginButton.layer.cornerRadius = 8
+//            kakaoLoginButton.imageView?.contentMode = .scaleAspectFit
+//            kakaoLoginButton.imageEdgeInsets = UIEdgeInsets(top: 5, left: 10, bottom: 5, right: 10)
+//            kakaoLoginButton.titleEdgeInsets = UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 0)
+//        }
+//        kakaoLoginButton.addTarget(self, action: #selector(handleKakaoLogin), for: .touchUpInside)
         
         // MARK: - 애플 로그인 버튼
-        appleLoginButton.cornerRadius = 8
-        appleLoginButton.addTarget(self, action: #selector(handleAppleLogin), for: .touchUpInside)
+//        appleLoginButton.cornerRadius = 8
+//        appleLoginButton.addTarget(self, action: #selector(handleAppleLogin), for: .touchUpInside)
         
         let stack = UIStackView(arrangedSubviews: [
             emailTextField,
             passwordTextField,
             loginButton,
             signupButton,
-            findIdButton,
-            resetPasswordButton,
-            kakaoLoginButton,
-            appleLoginButton
+//            findIdButton,
+            resetPasswordButton
+//            kakaoLoginButton,
+//            appleLoginButton
         ])
         stack.axis = .vertical
         stack.spacing = 16
@@ -115,9 +115,9 @@ class LoginVC: UIViewController, UITextFieldDelegate {
             emailTextField.heightAnchor.constraint(equalToConstant: 44),
             passwordTextField.heightAnchor.constraint(equalToConstant: 44),
             loginButton.heightAnchor.constraint(equalToConstant: 44),
-            signupButton.heightAnchor.constraint(equalToConstant: 44),
-            kakaoLoginButton.heightAnchor.constraint(equalToConstant: 50),
-            appleLoginButton.heightAnchor.constraint(equalToConstant: 50)
+            signupButton.heightAnchor.constraint(equalToConstant: 44)
+//            kakaoLoginButton.heightAnchor.constraint(equalToConstant: 50),
+//            appleLoginButton.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
     
@@ -205,15 +205,15 @@ class LoginVC: UIViewController, UITextFieldDelegate {
     }
     
     @objc private func handleFindId() {
-        let alert = UIAlertController(title: "아이디 찾기", message: "가입 시 사용한 닉네임을 입력해주세요.", preferredStyle: .alert)
+        let alert = UIAlertController(title: "아이디 찾기", message: "가입 시 사용한 전화번호를 입력해주세요.", preferredStyle: .alert)
         alert.addTextField { textFiled in
-            textFiled.placeholder = "닉네임"
+            textFiled.placeholder = "전화번호"
         }
         alert.addAction(UIAlertAction(title: "조회", style: .default, handler: { _ in
             guard let nickname = alert.textFields?.first?.text, !nickname.isEmpty else { return }
             
             Firestore.firestore().collection("users")
-                .whereField("nickname", isEqualTo: nickname)
+                .whereField("phoneNumber", isEqualTo: nickname)
                 .getDocuments { snapshot, error in
                     if let error = error {
                         self.showAlert(title: "조회 실패", message: error.localizedDescription)
@@ -223,7 +223,7 @@ class LoginVC: UIViewController, UITextFieldDelegate {
                     if let doc = snapshot?.documents.first, let email = doc.data()["email"] as? String {
                         self.showAlert(title: "가입 이메일", message: "등록된 이메일: \(email)")
                     } else {
-                        self.showAlert(title: "조회 실패", message: "해당 닉네임으로 가입된 계정이 없습니다.")
+                        self.showAlert(title: "조회 실패", message: "해당 전화번호로 가입된 계정이 없습니다.")
                     }
                 }
         }))

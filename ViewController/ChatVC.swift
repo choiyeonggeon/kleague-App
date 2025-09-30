@@ -8,9 +8,10 @@
 import UIKit
 import SnapKit
 import FirebaseFirestore
+import FirebaseStorage
 import FirebaseAuth
 
-class ChatVC: UIViewController {
+class ChatVC: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     private let chatRoom: ChatRoom
     private let currentUserId: String
@@ -18,6 +19,7 @@ class ChatVC: UIViewController {
     private let tableView = UITableView()
     private let messageInputView = UIView()
     private let messageTextField = UITextField()
+    private let addButton = UIButton(type: .system)
     private let sendButton = UIButton(type: .system)
     
     private var messages: [ChatMessage] = []
@@ -33,9 +35,7 @@ class ChatVC: UIViewController {
         self.title = "\(chatRoom.title) 채팅"
     }
     
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
     
     // MARK: - Life Cycle
     override func viewDidLoad() {
@@ -78,6 +78,8 @@ class ChatVC: UIViewController {
     private func setupUI() {
         view.addSubview(tableView)
         view.addSubview(messageInputView)
+        
+        messageInputView.addSubview(addButton)
         messageInputView.addSubview(messageTextField)
         messageInputView.addSubview(sendButton)
         
@@ -98,11 +100,20 @@ class ChatVC: UIViewController {
             messageInputViewBottomConstraint = $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).constraint
         }
         
+        addButton.setTitle("+", for: .normal)
+        addButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 24)
+        addButton.addTarget(self, action: #selector(selectImage), for: .touchUpInside)
+        addButton.snp.makeConstraints {
+            $0.left.equalToSuperview().offset(8)
+            $0.centerY.equalToSuperview()
+            $0.width.height.equalTo(40)
+        }
+        
         // 메시지 텍스트필드
         messageTextField.borderStyle = .roundedRect
-        messageTextField.placeholder = "메시지를 입력하세요..."
+        messageTextField.placeholder = "메시지를 입력하세요."
         messageTextField.snp.makeConstraints {
-            $0.left.equalToSuperview().offset(12)
+            $0.left.equalTo(addButton.snp.right).offset(8)
             $0.centerY.equalToSuperview()
             $0.right.equalTo(sendButton.snp.left).offset(-8)
             $0.height.equalTo(40)
@@ -123,12 +134,12 @@ class ChatVC: UIViewController {
               let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
               let duration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double else { return }
         
-        let keyboardHeight = keyboardFrame.height
+        let keyboardHeight = keyboardFrame.height - view.safeAreaInsets.bottom
         messageInputViewBottomConstraint?.update(offset: -keyboardHeight)
         
         UIView.animate(withDuration: duration) {
             self.view.layoutIfNeeded()
-            self.tableView.contentInset.bottom = keyboardHeight + 60
+            self.tableView.contentInset.bottom = keyboardHeight
             self.scrollToBottom()
         }
     }
@@ -141,7 +152,8 @@ class ChatVC: UIViewController {
         
         UIView.animate(withDuration: duration) {
             self.view.layoutIfNeeded()
-            self.tableView.contentInset.bottom = 60
+            self.tableView.contentInset.bottom = 0
+            self.tableView.verticalScrollIndicatorInsets.bottom = 0
         }
     }
     
@@ -191,6 +203,48 @@ class ChatVC: UIViewController {
             let indexPath = IndexPath(row: messages.count - 1, section: 0)
             tableView.scrollToRow(at: indexPath, at: .bottom, animated: true)
         }
+    }
+    
+    // MARK: - 이미지 선택
+    @objc private func selectImage() {
+        let picker = UIImagePickerController()
+        picker.delegate = self
+        picker.sourceType = .photoLibrary
+        present(picker, animated: true)
+    }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        picker.dismiss(animated: true)
+        guard let image = info[.originalImage] as? UIImage,
+              let imageData = image.jpegData(compressionQuality: 0.8) else { return }
+        
+        let fileName = UUID().uuidString + ".jpg"
+        let storageRef = Storage.storage().reference().child("chat_images/\(chatRoom.id)/\(fileName)")
+        
+        storageRef.putData(imageData) { [weak self] _, error in
+            guard let self = self else { return }
+            if let error = error {
+                print("이미지 업로드 실패: \(error.localizedDescription)")
+                return
+            }
+            storageRef.downloadURL { url, _ in
+                guard let url = url else { return }
+                self.sendImageMessage(url.absoluteString)
+            }
+        }
+    }
+    
+    private func sendImageMessage(_ imageUrl: String) {
+        let db = Firestore.firestore()
+        let messageData: [String: Any] = [
+            "imageUrl": imageUrl,
+            "senderId": currentUserId,
+            "createdAt": Timestamp()
+        ]
+        db.collection("used_market")
+            .document(chatRoom.id)
+            .collection("chats")
+            .addDocument(data: messageData)
     }
 }
 

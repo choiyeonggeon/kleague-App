@@ -19,6 +19,7 @@ class PersonalInformationVC: UIViewController {
     ]
     
     private let teamLabel = UILabel()
+    private let nicknameLabel = UILabel()
     private let emailLabel = UILabel()
     private let phoneLabel = UILabel()
     private let logoutButton = UIButton()
@@ -29,6 +30,7 @@ class PersonalInformationVC: UIViewController {
     private let pickerTextField = UITextField()
     private let selectTeamButton = UIButton(type: .system)
     private let manageBlockedUsersButton = UIButton()
+    private let changeNicknameButton = UIButton()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -91,11 +93,17 @@ class PersonalInformationVC: UIViewController {
         selectTeamButton.setTitleColor(.systemBlue, for: .normal)
         selectTeamButton.addTarget(self, action: #selector(didTapSelectTeam), for: .touchUpInside)
         
+        changeNicknameButton.setTitle("닉네임 변경", for: .normal)
+        changeNicknameButton.setTitleColor(.systemBlue, for: .normal)
+        changeNicknameButton.addTarget(self, action: #selector(didTapChangeNickname), for: .touchUpInside)
+        
         let stack = UIStackView(arrangedSubviews: [
+            nicknameLabel,
             emailLabel,
             phoneLabel,
             teamLabel,
             selectTeamButton,
+            changeNicknameButton,
             logoutButton,
             privacyPolicyButton,
             manageBlockedUsersButton,
@@ -117,6 +125,7 @@ class PersonalInformationVC: UIViewController {
     
     private func loadUserInfo() {
         guard let user = Auth.auth().currentUser else {
+            nicknameLabel.text = "닉네임: 없음"
             emailLabel.text = "이메일: 없음"
             phoneLabel.text = "전화번호: 없음"
             teamLabel.text = "응원팀: 미선택"
@@ -130,11 +139,13 @@ class PersonalInformationVC: UIViewController {
         
         userRef.getDocument { snapshot, error in
             guard let data = snapshot?.data(), error == nil else {
+                self.nicknameLabel.text = "닉네임: 없음"
                 self.teamLabel.text = "응원팀: 미선택"
                 self.selectTeamButton.isEnabled = true
                 self.selectTeamButton.setTitle("팀 선택", for: .normal)
                 return
             }
+            self.nicknameLabel.text = "닉네임: \(data["nickname"] as? String ?? "없음")"
             if let team = data["team"] as? String {
                 self.teamLabel.text = "응원팀: \(team)"
                 self.selectTeamButton.isEnabled = false
@@ -145,6 +156,40 @@ class PersonalInformationVC: UIViewController {
                 self.selectTeamButton.setTitle("팀 선택", for: .normal)
             }
         }
+    }
+    
+    @objc private func didTapChangeNickname() {
+        let alert = UIAlertController(title: "닉네임 변경", message: "변경하실 닉네임을 입력해주세요.", preferredStyle: .alert)
+        alert.addTextField { textFiled in
+            textFiled.placeholder = "닉네임"
+        }
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        alert.addAction(UIAlertAction(title: "변경", style: .default, handler: { _ in
+            guard let newNickname = alert.textFields?.first?.text?.trimmingCharacters(in: .whitespacesAndNewlines),
+                  !newNickname.isEmpty,
+                  let uid = Auth.auth().currentUser?.uid else { return }
+            
+            let db = Firestore.firestore()
+            db.collection("users").whereField("nickname", isEqualTo: newNickname).getDocuments { snapshot, error in
+                if let error = error {
+                    self.showAlert(title: "오류", message: "닉네임 확인 실패: \(error.localizedDescription)")
+                    return
+                }
+                if let docs = snapshot?.documents, !docs.isEmpty {
+                    self.showAlert(title: "중복된 닉네임", message: "이미 사용 중인 닉네임입니다.")
+                    return
+                }
+                db.collection("users").document(uid).updateData(["nickname": newNickname]) { error in
+                    if let error = error {
+                        self.showAlert(title: "실패", message: "닉네임 변경 실패: \(error.localizedDescription)")
+                    } else {
+                        self.nicknameLabel.text = "닉네임: \(newNickname)"
+                        self.showAlert(title: "성공", message: "닉네임이 정상적으로 변경되었습니다.")
+                    }
+                }
+            }
+        }))
+        present(alert, animated: true)
     }
     
     @objc private func didTapSelectTeam() {

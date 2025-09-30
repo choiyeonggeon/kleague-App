@@ -14,5 +14,7 @@ struct ChatRoom: Codable {
     let participants: [String]
     let lastMessage: String?
     let lastUpdatedAt: Date?
+    var otherUserNickname: String?
+    var productImageUrl: String?
 //    let productId: String
 }

@@ -10,6 +10,8 @@ import FirebaseFirestore
 
 class CommunityVC: UIViewController {
     
+    private var userTeam: String?
+    
     private var isSuspendedUser = false
     private var isAdminUser = Auth.auth().currentUser?.uid == "TPW61yAyNhZ3Ee3CvhO2xsdmGej1"
     private var blockedUserIds: [String] = []
@@ -30,15 +32,40 @@ class CommunityVC: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         
-        setupCommunityUI()
+        setupUI()
+        fetchUserTeam()
         checkUserSuspendedStatus()
         checkIfAdminUser()
-        
+        checkSessionExpired()
         fetchBlockedUsers { [weak self] in
             self?.fetchPosts()
         }
         
         title = "커뮤니티"
+    }
+    
+    private func checkSessionExpired() {
+        guard let currentUser = Auth.auth().currentUser else { return }
+        
+        if currentUser.isSessionExpired() {
+            let alert = UIAlertController(
+                title: "세션 만료",
+                message: "30일 동안 미접속으로 인해 로그아웃 되었습니다. 다시 로그인해주세요.",
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "확인", style: .default) { _ in
+                do {
+                    try Auth.auth().signOut()
+                    if let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate {
+                        sceneDelegate.window?.rootViewController = LoginVC()
+                    }
+                } catch {
+                    print("로그아웃 실패: \(error.localizedDescription)")
+                }
+            })
+            
+            present(alert, animated: true)
+        }
     }
     
     // 관리자 여부 확인
@@ -54,6 +81,17 @@ class CommunityVC: UIViewController {
                 DispatchQueue.main.async {
                     self.tableView.reloadData() // 버튼 표시 반영
                 }
+            }
+        }
+    }
+    
+    private func fetchUserTeam() {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        
+        Firestore.firestore().collection("users").document(uid).getDocument { snapshot, error in
+            if let data = snapshot?.data(),
+               let team = data["team"] as? String {
+                self.userTeam = team
             }
         }
     }
@@ -96,7 +134,7 @@ class CommunityVC: UIViewController {
             }
     }
     
-    private func setupCommunityUI() {
+    private func setupUI() {
         // 타이틀 레이블
         titleLabel.text = "국축여지도"
         titleLabel.textColor = .black
@@ -178,7 +216,12 @@ class CommunityVC: UIViewController {
     }
     
     @objc private func didTapTeamFilter() {
-        let teams = ["전체", "강원", "경남", "김천상무", "김포", "광주FC", "대구FC", "대전", "서울", "서울E", "부산", "부천", "성남", "수원", "수원FC", "인천", "안양", "안산", "울산", "전북", "전남", "제주SK", "충북청주", "충남아산", "천안", "포항", "화성"]
+        
+        var teams = ["전체"]
+        if let team = userTeam {
+            teams.append(team)
+        }
+        
         let alert = UIAlertController(title: "팀 선택", message: nil, preferredStyle: .actionSheet)
         for team in teams {
             alert.addAction(UIAlertAction(title: team, style: .default, handler: { _ in
@@ -239,17 +282,27 @@ class CommunityVC: UIViewController {
                 }
                 
                 let allPosts = documents.compactMap { Post(from: $0) }
+                
+                // 블록된 유저 제외
                 self.posts = allPosts.filter { !self.blockedUserIds.contains($0.authorUid) }
+                
+                // 필터 적용
                 self.applyFilter()
             }
     }
     
     private func applyFilter() {
-        if let team = selectedTeam {
-            filteredPosts = posts.filter { $0.team == team }
-        } else {
-            filteredPosts = posts
+        filteredPosts = posts.filter { post in
+            // 블록된 유저는 이미 제외됨
+            if let team = selectedTeam {
+                // 팀 필터 선택 시: 선택한 팀 글만 보여줌
+                return post.team == team
+            } else {
+                // 전체 게시판: team 필드가 nil이거나 "전체"인 경우만 표시
+                return post.team == nil || post.team == "전체"
+            }
         }
+        
         DispatchQueue.main.async {
             self.tableView.reloadData()
         }
@@ -257,10 +310,10 @@ class CommunityVC: UIViewController {
     
     private func reportUser(post: Post, reason: String) {
         guard let reporterUserId = Auth.auth().currentUser?.uid else { return }
-        
+
         let firestore = Firestore.firestore()
         
-        // 🔹 본인 신고만 쿼리 (Rules 준수)
+        // 🔹 본인 신고만 쿼리 (중복 신고 방지)
         firestore.collection("reports")
             .whereField("reportedByUid", isEqualTo: reporterUserId)
             .whereField("postId", isEqualTo: post.id)
@@ -283,9 +336,9 @@ class CommunityVC: UIViewController {
                     "reportedBy": Auth.auth().currentUser?.email ?? "익명",
                     "reason": reason,
                     "reportedAt": Timestamp(date: Date()),
+                    "reportCount": 0,
                     "isHidden": false,
-                    "resolved": false,
-                    "reportCount": 0
+                    "resolved": false
                 ]
                 
                 let reportRef = firestore.collection("reports").document()
@@ -297,7 +350,8 @@ class CommunityVC: UIViewController {
                 batch.updateData(["reportCount": FieldValue.increment(Int64(1))], forDocument: postRef)
                 batch.updateData(["reportCount": FieldValue.increment(Int64(1))], forDocument: userRef)
                 
-                batch.commit { error in
+                batch.commit { [weak self] error in
+                    guard let self = self else { return }
                     if let error = error {
                         self.showAlert(title: "신고 실패", message: error.localizedDescription)
                         return
@@ -308,18 +362,24 @@ class CommunityVC: UIViewController {
                         if let data = docSnapshot?.data(),
                            let count = data["reportCount"] as? Int {
                             
+                            var updateData: [String: Any] = [:]
+                            
                             if count >= 10 {
-                                userRef.updateData([
-                                    "isSuspended": true,
-                                    "isSuspendedUntil": FieldValue.delete()
-                                ])
+                                updateData["isSuspended"] = true
+                                updateData["isSuspendedUntil"] = FieldValue.delete()
                             } else if count >= 5 {
                                 let suspensionUntil = Calendar.current.date(byAdding: .day, value: 7, to: Date())
                                 if let until = suspensionUntil {
-                                    userRef.updateData([
-                                        "isSuspended": true,
-                                        "isSuspendedUntil": Timestamp(date: until)
-                                    ])
+                                    updateData["isSuspended"] = true
+                                    updateData["isSuspendedUntil"] = Timestamp(date: until)
+                                }
+                            }
+                            
+                            if !updateData.isEmpty {
+                                userRef.updateData(updateData) { error in
+                                    if let error = error {
+                                        print("정지 처리 실패: \(error.localizedDescription)")
+                                    }
                                 }
                             }
                         }
@@ -329,7 +389,7 @@ class CommunityVC: UIViewController {
                 }
             }
     }
-    
+
     func hidePost(_ post: Post, hide: Bool) {
         let postRef = Firestore.firestore().collection("posts").document(post.id)
         postRef.updateData(["isHidden": hide]) { error in

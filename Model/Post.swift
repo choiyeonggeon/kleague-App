@@ -10,6 +10,7 @@ struct Post {
     var firstReportedAt: Date?
     var id: String
     var title: String
+    let imageUrls: [String] = []
     var content: String
     var preview: String
     var likes: Int
