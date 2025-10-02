@@ -20,7 +20,7 @@ class AdminReportedPostsVC: UIViewController {
         
         setupTableView()
         loadReportedPosts()
-        fetchUnresolvedReportsOver24Hours()
+        fetchUnresolvedReports()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -241,13 +241,11 @@ extension AdminReportedPostsVC: UITableViewDelegate, UITableViewDataSource {
         }
     }
     
-    private func fetchUnresolvedReportsOver24Hours() {
+    private func fetchUnresolvedReports() {
         let db = Firestore.firestore()
-        let cutoffDate = Date().addingTimeInterval(-24 * 60 * 60) // 24시간 전
 
         db.collection("reports")
             .whereField("reportType", isEqualTo: "post")
-            .whereField("reportedAt", isLessThan: Timestamp(date: cutoffDate))
             .whereField("resolved", isEqualTo: false)
             .getDocuments { snapshot, error in
                 guard let documents = snapshot?.documents else { return }

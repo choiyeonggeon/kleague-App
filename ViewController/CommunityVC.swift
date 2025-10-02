@@ -310,10 +310,10 @@ class CommunityVC: UIViewController {
     
     private func reportUser(post: Post, reason: String) {
         guard let reporterUserId = Auth.auth().currentUser?.uid else { return }
-
+        
         let firestore = Firestore.firestore()
         
-        // 🔹 본인 신고만 쿼리 (중복 신고 방지)
+        // 🔹 중복 신고 검사
         firestore.collection("reports")
             .whereField("reportedByUid", isEqualTo: reporterUserId)
             .whereField("postId", isEqualTo: post.id)
@@ -328,7 +328,7 @@ class CommunityVC: UIViewController {
                     return
                 }
                 
-                // 🔹 신고 등록
+                // 🔹 신고 등록 (batch 없이 단일 set)
                 let reportData: [String: Any] = [
                     "postId": post.id,
                     "reportedUserId": post.authorUid,
@@ -336,60 +336,22 @@ class CommunityVC: UIViewController {
                     "reportedBy": Auth.auth().currentUser?.email ?? "익명",
                     "reason": reason,
                     "reportedAt": Timestamp(date: Date()),
-                    "reportCount": 0,
                     "isHidden": false,
-                    "resolved": false
+                    "resolved": false,
+                    "reportType": "post"
                 ]
                 
-                let reportRef = firestore.collection("reports").document()
-                let postRef = firestore.collection("posts").document(post.id)
-                let userRef = firestore.collection("users").document(post.authorUid)
-                
-                let batch = firestore.batch()
-                batch.setData(reportData, forDocument: reportRef)
-                batch.updateData(["reportCount": FieldValue.increment(Int64(1))], forDocument: postRef)
-                batch.updateData(["reportCount": FieldValue.increment(Int64(1))], forDocument: userRef)
-                
-                batch.commit { [weak self] error in
-                    guard let self = self else { return }
+                firestore.collection("reports").document().setData(reportData) { error in
                     if let error = error {
                         self.showAlert(title: "신고 실패", message: error.localizedDescription)
                         return
-                    }
-                    
-                    // 신고 횟수 기반 정지 처리
-                    userRef.getDocument { docSnapshot, error in
-                        if let data = docSnapshot?.data(),
-                           let count = data["reportCount"] as? Int {
-                            
-                            var updateData: [String: Any] = [:]
-                            
-                            if count >= 10 {
-                                updateData["isSuspended"] = true
-                                updateData["isSuspendedUntil"] = FieldValue.delete()
-                            } else if count >= 5 {
-                                let suspensionUntil = Calendar.current.date(byAdding: .day, value: 7, to: Date())
-                                if let until = suspensionUntil {
-                                    updateData["isSuspended"] = true
-                                    updateData["isSuspendedUntil"] = Timestamp(date: until)
-                                }
-                            }
-                            
-                            if !updateData.isEmpty {
-                                userRef.updateData(updateData) { error in
-                                    if let error = error {
-                                        print("정지 처리 실패: \(error.localizedDescription)")
-                                    }
-                                }
-                            }
-                        }
                     }
                     
                     self.showAlert(title: "신고 완료", message: "신고가 접수되었습니다.")
                 }
             }
     }
-
+    
     func hidePost(_ post: Post, hide: Bool) {
         let postRef = Firestore.firestore().collection("posts").document(post.id)
         postRef.updateData(["isHidden": hide]) { error in
