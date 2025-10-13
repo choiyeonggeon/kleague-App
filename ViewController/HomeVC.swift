@@ -22,6 +22,7 @@ struct BigMatch {
     let match: String
     let stadium: String
     let datetime: Date
+    let url: String
 }
 
 class HomeVC: UIViewController {
@@ -127,7 +128,17 @@ class HomeVC: UIViewController {
                       let match = data["match"] as? String,
                       let stadium = data["stadium"] as? String,
                       let timestamp = data["datetime"] as? Timestamp else { return nil }
-                return BigMatch(id: doc.documentID, league: league, match: match, stadium: stadium, datetime: timestamp.dateValue())
+                
+                let url = data["url"] as? String ?? ""
+                
+                return BigMatch(
+                    id: doc.documentID,
+                    league: league,
+                    match: match,
+                    stadium: stadium,
+                    datetime: timestamp.dateValue(),
+                    url: url
+                )
             }
             self.collectionView.reloadData()
         }
@@ -214,7 +225,15 @@ extension HomeVC: UICollectionViewDataSource {
 
 extension HomeVC: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if indexPath.section == 1 {
+        if indexPath.section == 0 {
+            
+            let match = bigMatches[indexPath.item]
+            if let url = URL(string: match.url), !match.url.isEmpty {
+                let safariVC = SFSafariViewController(url: url)
+                present(safariVC, animated: true)
+            }
+        } else if indexPath.section == 1 {
+            
             let news = newsList[indexPath.item]
             if let url = URL(string: news.url) {
                 let safariVC = SFSafariViewController(url: url)
