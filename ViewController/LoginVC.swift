@@ -6,239 +6,128 @@
 //
 
 import UIKit
-import RxSwift
 import FirebaseAuth
 import FirebaseFirestore
 import AuthenticationServices
 import KakaoSDKAuth
 import KakaoSDKUser
+import CryptoKit
 
-class LoginVC: UIViewController, UITextFieldDelegate {
+final class LoginVC: UIViewController {
+    
+    private var currentNonce: String?
     
     private let emailTextField = UITextField()
     private let passwordTextField = UITextField()
-    private let errorLabel = UILabel()
-    private let loginButton = UIButton()
-    private let signupButton = UIButton()
-    private let disposeBag = DisposeBag()
-    
-//    private let findIdButton = UIButton()
-    private let resetPasswordButton = UIButton()
-    
-//    private let kakaoLoginButton = UIButton(type: .system)
-//    private let appleLoginButton = ASAuthorizationAppleIDButton(type: .signIn, style: .black)
+    private let loginButton = UIButton(type: .system)
+    private let signupButton = UIButton(type: .system)
+    private let resetPasswordButton = UIButton(type: .system)
+    private let appleLoginButton = ASAuthorizationAppleIDButton(type: .signIn, style: .black)
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
-        setupLoginVC()
-        
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-        view.addGestureRecognizer(tapGesture)
+        view.backgroundColor = .systemBackground
+        setupUI()
+        setupActions()
     }
     
-    private func setupLoginVC() {
-        
-        emailTextField.delegate = self
-        passwordTextField.delegate = self
-        
+    // MARK: - UI 설정
+    private func setupUI() {
         emailTextField.placeholder = "이메일"
         emailTextField.borderStyle = .roundedRect
+        emailTextField.keyboardType = .emailAddress
+        
         passwordTextField.placeholder = "비밀번호"
         passwordTextField.borderStyle = .roundedRect
         passwordTextField.isSecureTextEntry = true
         
-        loginButton.setTitle( "로그인", for: .normal)
+        loginButton.setTitle("로그인", for: .normal)
         loginButton.backgroundColor = .systemBlue
+        loginButton.setTitleColor(.white, for: .normal)
         loginButton.layer.cornerRadius = 8
-        loginButton.addTarget(self, action: #selector(handleLogin), for: .touchUpInside)
+        loginButton.titleLabel?.font = .boldSystemFont(ofSize: 16)
         
         signupButton.setTitle("회원가입", for: .normal)
-        signupButton.backgroundColor = .systemGray
-        signupButton.layer.cornerRadius = 8
-        signupButton.addTarget(self, action: #selector(goToSignup), for: .touchUpInside)
+        signupButton.setTitleColor(.systemGray, for: .normal)
+        signupButton.titleLabel?.font = .systemFont(ofSize: 15, weight: .medium)
         
-//        findIdButton.setTitle("아이디 찾기", for: .normal)
-//        findIdButton.setTitleColor(.systemBlue, for: .normal)
-//        findIdButton.addTarget(self, action: #selector(handleFindId), for: .touchUpInside)
-        
-        resetPasswordButton.setTitle("비밀번호 찾기", for: .normal)
+        resetPasswordButton.setTitle("비밀번호 재설정", for: .normal)
         resetPasswordButton.setTitleColor(.systemBlue, for: .normal)
-        resetPasswordButton.addTarget(self, action: #selector(handleResetPassword), for: .touchUpInside)
+        resetPasswordButton.titleLabel?.font = .systemFont(ofSize: 15, weight: .medium)
         
-//        kakaoLoginButton.backgroundColor = .clear
-//        kakaoLoginButton.layer.cornerRadius = 8
-        
-        
-        // MARK: - 카카오 로그인 버튼
-//        if #available(iOS 15.0, *) {
-//            var config = UIButton.Configuration.plain()
-//            config.image = UIImage(named: "kakao_logo")
-//            config.imagePlacement = .leading // 왼쪽에 이미지
-//            config.imagePadding = 10         // 이미지와 타이틀 간격
-//            config.baseForegroundColor = .black
-//            config.cornerStyle = .medium
-//            kakaoLoginButton.configuration = config
-//        } else {
-//            kakaoLoginButton.setImage(UIImage(named: "kakao_logo"), for: .normal)
-//            kakaoLoginButton.setTitleColor(.black, for: .normal)
-//            kakaoLoginButton.layer.cornerRadius = 8
-//            kakaoLoginButton.imageView?.contentMode = .scaleAspectFit
-//            kakaoLoginButton.imageEdgeInsets = UIEdgeInsets(top: 5, left: 10, bottom: 5, right: 10)
-//            kakaoLoginButton.titleEdgeInsets = UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 0)
-//        }
-//        kakaoLoginButton.addTarget(self, action: #selector(handleKakaoLogin), for: .touchUpInside)
-        
-        // MARK: - 애플 로그인 버튼
-//        appleLoginButton.cornerRadius = 8
-//        appleLoginButton.addTarget(self, action: #selector(handleAppleLogin), for: .touchUpInside)
+        appleLoginButton.cornerRadius = 8
+        appleLoginButton.translatesAutoresizingMaskIntoConstraints = false
+        appleLoginButton.isUserInteractionEnabled = true
         
         let stack = UIStackView(arrangedSubviews: [
             emailTextField,
             passwordTextField,
             loginButton,
             signupButton,
-//            findIdButton,
-            resetPasswordButton
-//            kakaoLoginButton,
-//            appleLoginButton
+            resetPasswordButton,
+            appleLoginButton
         ])
         stack.axis = .vertical
         stack.spacing = 16
+        stack.alignment = .fill
+        stack.distribution = .fill
         view.addSubview(stack)
+        
         stack.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            stack.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             stack.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             stack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             stack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             emailTextField.heightAnchor.constraint(equalToConstant: 44),
             passwordTextField.heightAnchor.constraint(equalToConstant: 44),
             loginButton.heightAnchor.constraint(equalToConstant: 44),
-            signupButton.heightAnchor.constraint(equalToConstant: 44)
-//            kakaoLoginButton.heightAnchor.constraint(equalToConstant: 50),
-//            appleLoginButton.heightAnchor.constraint(equalToConstant: 50)
+            signupButton.heightAnchor.constraint(equalToConstant: 44),
+            appleLoginButton.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
     
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
-        return true
+    // MARK: - 버튼 액션
+    private func setupActions() {
+        loginButton.addTarget(self, action: #selector(handleLogin), for: .touchUpInside)
+        signupButton.addTarget(self, action: #selector(goToSignup), for: .touchUpInside)
+        resetPasswordButton.addTarget(self, action: #selector(handleResetPassword), for: .touchUpInside)
+        appleLoginButton.addTarget(self, action: #selector(handleAppleLogin), for: .touchUpInside)
     }
     
+    // MARK: - 이메일 로그인
     @objc private func handleLogin() {
-        guard let email = emailTextField.text, let password = passwordTextField.text else { return }
+        guard let email = emailTextField.text, !email.isEmpty,
+              let password = passwordTextField.text, !password.isEmpty else {
+            showAlert(title: "입력 오류", message: "이메일과 비밀번호를 모두 입력해주세요.")
+            return
+        }
         
-        Auth.auth().signIn(withEmail: email, password: password) { result, error in
+        Auth.auth().signIn(withEmail: email, password: password) { [weak self] result, error in
+            guard let self = self else { return }
             if let error = error {
-                print("로그인 실패: \(error.localizedDescription)")
-                
-                let alert = UIAlertController(title: "로그인 실패", message: "이메일 또는 비밀번호를 다시 확인해주세요.", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "확인", style: .default))
-                self.present(alert, animated: true)
-                
+                self.showAlert(title: "로그인 실패", message: error.localizedDescription)
                 return
             }
             
-            self.navigationController?.popViewController(animated: true)
+            print("✅ 이메일 로그인 성공:", result?.user.uid ?? "unknown")
+            DispatchQueue.main.async {
+                self.navigationController?.popToRootViewController(animated: true)
+            }
         }
     }
     
-    // MARK: - 카카오 로그인
-    @objc private func handleKakaoLogin() {
-        AuthManager.shared.signInWithKakao()
-            .observe(on: MainScheduler.instance)
-            .subscribe(
-                onNext: { authResult in
-                    print("Firebase 로그인 성공: \(authResult.user.uid)")
-                    
-                    let storyboard = UIStoryboard(name: "Main", bundle: nil)
-                    if let homeVC = storyboard.instantiateViewController(withIdentifier: "HomeVC") as? HomeVC {
-                        homeVC.modalPresentationStyle = .fullScreen
-                        self.present(homeVC, animated: true, completion: nil)
-                    }
-                },
-                onError: { error in
-                    print("로그인 실패: \(error.localizedDescription)")
-                    let alert = UIAlertController(title: "로그인 실패", message: error.localizedDescription, preferredStyle: .alert)
-                    alert.addAction(UIAlertAction(title: "확인", style: .default))
-                    self.present(alert, animated: true)
-                }
-            )
-            .disposed(by: disposeBag)
-    }
-    
-    // MARK: - 애플 로그인
-    @objc private func handleAppleLogin() {
-        guard let window = view.window else { return }
-        
-        AuthManager.shared.signInWithApple(presentationAnchor: window)
-            .observe(on: MainScheduler.instance)
-            .subscribe(
-                onNext: { authResult in
-                    print("애플 로그인 성공: \(authResult.user.uid)")
-                    
-                    let storyboard = UIStoryboard(name: "Main", bundle: nil)
-                    if let homeVC = storyboard.instantiateViewController(withIdentifier: "HomeVC") as? HomeVC {
-                        homeVC.modalPresentationStyle = .fullScreen
-                        self.present(homeVC, animated: true, completion: nil)
-                    } else {
-                        self.navigationController?.popViewController(animated: true)
-                    }
-                }, onError: { error in
-                    print("애플 로그인 실패: \(error.localizedDescription)")
-                    let alert = UIAlertController(title: "로그인 실패", message: error.localizedDescription, preferredStyle: .alert)
-                    alert.addAction(UIAlertAction(title: "확인", style: .default))
-                    self.present(alert, animated: true)
-                }
-            )
-            .disposed(by: disposeBag)
-    }
-    
-    @objc private func dismissKeyboard() {
-        view.endEditing(true)
-    }
-    
+    // MARK: - 회원가입 이동
     @objc private func goToSignup() {
         let signupVC = SignupVC()
         navigationController?.pushViewController(signupVC, animated: true)
     }
     
-    @objc private func handleFindId() {
-        let alert = UIAlertController(title: "아이디 찾기", message: "가입 시 사용한 전화번호를 입력해주세요.", preferredStyle: .alert)
-        alert.addTextField { textFiled in
-            textFiled.placeholder = "전화번호"
-        }
-        alert.addAction(UIAlertAction(title: "조회", style: .default, handler: { _ in
-            guard let nickname = alert.textFields?.first?.text, !nickname.isEmpty else { return }
-            
-            Firestore.firestore().collection("users")
-                .whereField("phoneNumber", isEqualTo: nickname)
-                .getDocuments { snapshot, error in
-                    if let error = error {
-                        self.showAlert(title: "조회 실패", message: error.localizedDescription)
-                        return
-                    }
-                    
-                    if let doc = snapshot?.documents.first, let email = doc.data()["email"] as? String {
-                        self.showAlert(title: "가입 이메일", message: "등록된 이메일: \(email)")
-                    } else {
-                        self.showAlert(title: "조회 실패", message: "해당 전화번호로 가입된 계정이 없습니다.")
-                    }
-                }
-        }))
-        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
-        present(alert, animated: true)
-    }
-    
+    // MARK: - 비밀번호 재설정
     @objc private func handleResetPassword() {
         let alert = UIAlertController(title: "비밀번호 재설정", message: "가입한 이메일을 입력해주세요.", preferredStyle: .alert)
-        alert.addTextField { textField in
-            textField.placeholder = "이메일"
-        }
-        alert.addAction(UIAlertAction(title: "전송", style: .default, handler: { _ in
+        alert.addTextField { $0.placeholder = "이메일" }
+        alert.addAction(UIAlertAction(title: "전송", style: .default) { _ in
             guard let email = alert.textFields?.first?.text, !email.isEmpty else { return }
-            
             Auth.auth().sendPasswordReset(withEmail: email) { error in
                 if let error = error {
                     self.showAlert(title: "전송 실패", message: error.localizedDescription)
@@ -246,8 +135,141 @@ class LoginVC: UIViewController, UITextFieldDelegate {
                     self.showAlert(title: "전송 완료", message: "비밀번호 재설정 이메일이 전송되었습니다.")
                 }
             }
-        }))
+        })
         alert.addAction(UIAlertAction(title: "취소", style: .cancel))
         present(alert, animated: true)
+    }
+    
+    // MARK: - Apple 로그인
+    @objc private func handleAppleLogin() {
+        let provider = ASAuthorizationAppleIDProvider()
+        let request = provider.createRequest()
+        currentNonce = randomNonceString()
+        request.requestedScopes = [.fullName, .email]
+        request.nonce = sha256(currentNonce!)
+        let controller = ASAuthorizationController(authorizationRequests: [request])
+        controller.delegate = self
+        controller.presentationContextProvider = self
+        controller.performRequests()
+    }
+    
+    // MARK: - Alert Helper
+    private func showAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        present(alert, animated: true)
+    }
+}
+
+// MARK: - Apple Login Delegate
+extension LoginVC: ASAuthorizationControllerPresentationContextProviding {
+    func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+        self.view.window ?? UIWindow()
+    }
+}
+
+extension LoginVC: ASAuthorizationControllerDelegate {
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: any Error) {
+        print("❌ Apple 로그인 실패:", error.localizedDescription)
+    }
+    
+    func authorizationController(controller: ASAuthorizationController,
+                                 didCompleteWithAuthorization authorization: ASAuthorization) {
+        switch authorization.credential {
+        case let appleIDCredential as ASAuthorizationAppleIDCredential:
+            guard
+                let identityToken = appleIDCredential.identityToken,
+                let tokenString = String(data: identityToken, encoding: .utf8),
+                let rawNonce = currentNonce
+            else {
+                print("❌ Apple 토큰 없음")
+                return
+            }
+            
+            let credential = OAuthProvider.credential(
+                withProviderID: "apple.com",
+                idToken: tokenString,
+                rawNonce: rawNonce
+            )
+            
+            Auth.auth().signIn(with: credential) { [weak self] authResult, error in
+                guard let self = self else { return }
+                if let error = error {
+                    print("❌ Firebase 로그인 실패:", error.localizedDescription)
+                    return
+                }
+                
+                guard let user = authResult?.user else { return }
+                print("✅ Firebase 로그인 성공:", user.uid)
+                
+                let db = Firestore.firestore()
+                let userRef = db.collection("users").document(user.uid)
+                
+                userRef.getDocument { snapshot, _ in
+                    if let snapshot = snapshot, snapshot.exists {
+                        print("🔹 기존 사용자 문서 존재")
+                    } else {
+                        userRef.setData([
+                            "uid": user.uid,
+                            "email": user.email ?? "비공개",
+                            "nickname": "닉네임 미설정",
+                            "phoneNumber": "",
+                            "createdAt": FieldValue.serverTimestamp()
+                        ]) { err in
+                            if let err = err {
+                                print("❌ Firestore 문서 생성 실패:", err.localizedDescription)
+                            } else {
+                                print("✅ Firestore 사용자 문서 생성 완료")
+                            }
+                        }
+                    }
+                }
+                
+                // ✅ 탭바 깨짐 방지: 팝뷰 복귀
+                DispatchQueue.main.async {
+                    self.navigationController?.popToRootViewController(animated: true)
+                }
+            }
+            
+        default:
+            break
+        }
+    }
+}
+
+// MARK: - Nonce Helper
+extension LoginVC {
+    func randomNonceString(length: Int = 32) -> String {
+        precondition(length > 0)
+        let charset: [Character] =
+        Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
+        var result = ""
+        var remainingLength = length
+        
+        while remainingLength > 0 {
+            let randoms: [UInt8] = (0..<16).map { _ in
+                var random: UInt8 = 0
+                let errorCode = SecRandomCopyBytes(kSecRandomDefault, 1, &random)
+                if errorCode != errSecSuccess {
+                    fatalError("Unable to generate nonce. OSStatus \(errorCode)")
+                }
+                return random
+            }
+            
+            randoms.forEach { random in
+                if remainingLength == 0 { return }
+                if random < charset.count {
+                    result.append(charset[Int(random)])
+                    remainingLength -= 1
+                }
+            }
+        }
+        return result
+    }
+    
+    func sha256(_ input: String) -> String {
+        let inputData = Data(input.utf8)
+        let hashed = SHA256.hash(data: inputData)
+        return hashed.compactMap { String(format: "%02x", $0) }.joined()
     }
 }
