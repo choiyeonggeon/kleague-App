@@ -1,0 +1,896 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		4224C2AA2DF7FC4500E3D330 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 4224C2A92DF7FC4500E3D330 /* Alamofire */; };
+		4224C2AD2DF7FC5B00E3D330 /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = 4224C2AC2DF7FC5B00E3D330 /* RxCocoa */; };
+		4224C2AF2DF7FC5B00E3D330 /* RxRelay in Frameworks */ = {isa = PBXBuildFile; productRef = 4224C2AE2DF7FC5B00E3D330 /* RxRelay */; };
+		4224C2B12DF7FC5B00E3D330 /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 4224C2B02DF7FC5B00E3D330 /* RxSwift */; };
+		4224C2B42DF7FC9F00E3D330 /* RxGesture in Frameworks */ = {isa = PBXBuildFile; productRef = 4224C2B32DF7FC9F00E3D330 /* RxGesture */; };
+		4224C2B72DF7FCB900E3D330 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 4224C2B62DF7FCB900E3D330 /* SnapKit */; };
+		4224C2BA2DF7FCEE00E3D330 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 4224C2B92DF7FCEE00E3D330 /* FirebaseAuth */; };
+		4224C2BC2DF7FCEE00E3D330 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 4224C2BB2DF7FCEE00E3D330 /* FirebaseFirestore */; };
+		4224C2BE2DF7FCEE00E3D330 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 4224C2BD2DF7FCEE00E3D330 /* FirebaseStorage */; };
+		4228E7932DF8033400B4385B /* NMapsMap in Frameworks */ = {isa = PBXBuildFile; productRef = 4228E7922DF8033400B4385B /* NMapsMap */; };
+		422AAC502E0D347300A247AD /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 422AAC4F2E0D347300A247AD /* FirebaseFunctions */; };
+		425800B22E658C980049B147 /* KakaoSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 425800B12E658C980049B147 /* KakaoSDK */; };
+		425800B42E658C980049B147 /* KakaoSDKAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 425800B32E658C980049B147 /* KakaoSDKAuth */; };
+		427661A82DFFFF2000499502 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 427661A72DFFFF2000499502 /* FirebaseCore */; };
+		427B1D872E095CE600113388 /* KakaoMapsSDK-SPM in Frameworks */ = {isa = PBXBuildFile; productRef = 427B1D862E095CE600113388 /* KakaoMapsSDK-SPM */; };
+		427D4C822DFC21E100B16959 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 427D4C812DFC21E100B16959 /* FirebaseMessaging */; };
+		42C1DB0E2DF981BC00CD0409 /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 42C1DB0D2DF981BC00CD0409 /* SDWebImage */; };
+		42C1DB132DF988E200CD0409 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 42C1DB122DF988E200CD0409 /* Kingfisher */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		42128B3D2DE7520100C83D70 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 42128B1B2DE7520100C83D70 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 42128B222DE7520100C83D70;
+			remoteInfo = KleagueApp;
+		};
+		425E41B32E0ADF3E00B7BCC3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 42128B1B2DE7520100C83D70 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 42128B222DE7520100C83D70;
+			remoteInfo = KleagueApp;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		42128B232DE7520100C83D70 /* KleagueApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KleagueApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		42128B3C2DE7520100C83D70 /* KleagueAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KleagueAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		42128B462DE7520100C83D70 /* KleagueAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KleagueAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		424FA8C42E0C1BAB0080F8C2 /* Secret.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secret.xcconfig; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		425E41B42E0AE08300B7BCC3 /* Exceptions for "KleagueApp" folder in "KleagueApp" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 42128B222DE7520100C83D70 /* KleagueApp */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		42128B252DE7520100C83D70 /* KleagueApp */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				425E41B42E0AE08300B7BCC3 /* Exceptions for "KleagueApp" folder in "KleagueApp" target */,
+			);
+			path = KleagueApp;
+			sourceTree = "<group>";
+		};
+		42128B3F2DE7520100C83D70 /* KleagueAppTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = KleagueAppTests;
+			sourceTree = "<group>";
+		};
+		42128B492DE7520100C83D70 /* KleagueAppUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = KleagueAppUITests;
+			sourceTree = "<group>";
+		};
+		42264EB02DFAE2E8006C0045 /* Cell */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Cell;
+			sourceTree = "<group>";
+		};
+		4242C5002DE9D6AD005BC4EB /* Model */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Model;
+			sourceTree = "<group>";
+		};
+		4242C5032DE9D743005BC4EB /* Network */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Network;
+			sourceTree = "<group>";
+		};
+		4242C52F2DE9D824005BC4EB /* Font */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Font;
+			sourceTree = "<group>";
+		};
+		4248593B2DE87A0C00169194 /* ViewController */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ViewController;
+			sourceTree = "<group>";
+		};
+		4248593C2DE87A3400169194 /* ViewModel */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		42128B202DE7520100C83D70 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4224C2AF2DF7FC5B00E3D330 /* RxRelay in Frameworks */,
+				427661A82DFFFF2000499502 /* FirebaseCore in Frameworks */,
+				427B1D872E095CE600113388 /* KakaoMapsSDK-SPM in Frameworks */,
+				4224C2AD2DF7FC5B00E3D330 /* RxCocoa in Frameworks */,
+				427D4C822DFC21E100B16959 /* FirebaseMessaging in Frameworks */,
+				4224C2BE2DF7FCEE00E3D330 /* FirebaseStorage in Frameworks */,
+				4224C2B42DF7FC9F00E3D330 /* RxGesture in Frameworks */,
+				425800B22E658C980049B147 /* KakaoSDK in Frameworks */,
+				4224C2B72DF7FCB900E3D330 /* SnapKit in Frameworks */,
+				4224C2B12DF7FC5B00E3D330 /* RxSwift in Frameworks */,
+				42C1DB0E2DF981BC00CD0409 /* SDWebImage in Frameworks */,
+				4228E7932DF8033400B4385B /* NMapsMap in Frameworks */,
+				422AAC502E0D347300A247AD /* FirebaseFunctions in Frameworks */,
+				42C1DB132DF988E200CD0409 /* Kingfisher in Frameworks */,
+				4224C2BC2DF7FCEE00E3D330 /* FirebaseFirestore in Frameworks */,
+				4224C2BA2DF7FCEE00E3D330 /* FirebaseAuth in Frameworks */,
+				4224C2AA2DF7FC4500E3D330 /* Alamofire in Frameworks */,
+				425800B42E658C980049B147 /* KakaoSDKAuth in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		42128B392DE7520100C83D70 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		42128B1A2DE7520100C83D70 = {
+			isa = PBXGroup;
+			children = (
+				424FA8C42E0C1BAB0080F8C2 /* Secret.xcconfig */,
+				42264EB02DFAE2E8006C0045 /* Cell */,
+				4242C52F2DE9D824005BC4EB /* Font */,
+				4242C5032DE9D743005BC4EB /* Network */,
+				4242C5002DE9D6AD005BC4EB /* Model */,
+				4248593C2DE87A3400169194 /* ViewModel */,
+				4248593B2DE87A0C00169194 /* ViewController */,
+				42128B252DE7520100C83D70 /* KleagueApp */,
+				42128B3F2DE7520100C83D70 /* KleagueAppTests */,
+				42128B492DE7520100C83D70 /* KleagueAppUITests */,
+				42128B242DE7520100C83D70 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		42128B242DE7520100C83D70 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				42128B232DE7520100C83D70 /* KleagueApp.app */,
+				42128B3C2DE7520100C83D70 /* KleagueAppTests.xctest */,
+				42128B462DE7520100C83D70 /* KleagueAppUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		42128B222DE7520100C83D70 /* KleagueApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 42128B4F2DE7520100C83D70 /* Build configuration list for PBXNativeTarget "KleagueApp" */;
+			buildPhases = (
+				42128B1F2DE7520100C83D70 /* Sources */,
+				42128B202DE7520100C83D70 /* Frameworks */,
+				42128B212DE7520100C83D70 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				42128B252DE7520100C83D70 /* KleagueApp */,
+				42264EB02DFAE2E8006C0045 /* Cell */,
+				4242C5002DE9D6AD005BC4EB /* Model */,
+				4242C5032DE9D743005BC4EB /* Network */,
+				4242C52F2DE9D824005BC4EB /* Font */,
+				4248593B2DE87A0C00169194 /* ViewController */,
+				4248593C2DE87A3400169194 /* ViewModel */,
+			);
+			name = KleagueApp;
+			packageProductDependencies = (
+				4224C2A92DF7FC4500E3D330 /* Alamofire */,
+				4224C2AC2DF7FC5B00E3D330 /* RxCocoa */,
+				4224C2AE2DF7FC5B00E3D330 /* RxRelay */,
+				4224C2B02DF7FC5B00E3D330 /* RxSwift */,
+				4224C2B32DF7FC9F00E3D330 /* RxGesture */,
+				4224C2B62DF7FCB900E3D330 /* SnapKit */,
+				4224C2B92DF7FCEE00E3D330 /* FirebaseAuth */,
+				4224C2BB2DF7FCEE00E3D330 /* FirebaseFirestore */,
+				4224C2BD2DF7FCEE00E3D330 /* FirebaseStorage */,
+				4228E7922DF8033400B4385B /* NMapsMap */,
+				42C1DB0D2DF981BC00CD0409 /* SDWebImage */,
+				42C1DB122DF988E200CD0409 /* Kingfisher */,
+				427D4C812DFC21E100B16959 /* FirebaseMessaging */,
+				427661A72DFFFF2000499502 /* FirebaseCore */,
+				427B1D862E095CE600113388 /* KakaoMapsSDK-SPM */,
+				422AAC4F2E0D347300A247AD /* FirebaseFunctions */,
+				425800B12E658C980049B147 /* KakaoSDK */,
+				425800B32E658C980049B147 /* KakaoSDKAuth */,
+			);
+			productName = KleagueApp;
+			productReference = 42128B232DE7520100C83D70 /* KleagueApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+		42128B3B2DE7520100C83D70 /* KleagueAppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 42128B542DE7520100C83D70 /* Build configuration list for PBXNativeTarget "KleagueAppTests" */;
+			buildPhases = (
+				42128B382DE7520100C83D70 /* Sources */,
+				42128B392DE7520100C83D70 /* Frameworks */,
+				42128B3A2DE7520100C83D70 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				42128B3E2DE7520100C83D70 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				42128B3F2DE7520100C83D70 /* KleagueAppTests */,
+			);
+			name = KleagueAppTests;
+			packageProductDependencies = (
+			);
+			productName = KleagueAppTests;
+			productReference = 42128B3C2DE7520100C83D70 /* KleagueAppTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		42128B452DE7520100C83D70 /* KleagueAppUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 42128B572DE7520100C83D70 /* Build configuration list for PBXNativeTarget "KleagueAppUITests" */;
+			buildPhases = (
+				42128B422DE7520100C83D70 /* Sources */,
+				42128B442DE7520100C83D70 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				42128B482DE7520100C83D70 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				42128B492DE7520100C83D70 /* KleagueAppUITests */,
+			);
+			name = KleagueAppUITests;
+			packageProductDependencies = (
+			);
+			productName = KleagueAppUITests;
+			productReference = 42128B462DE7520100C83D70 /* KleagueAppUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		42128B1B2DE7520100C83D70 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1630;
+				LastUpgradeCheck = 1640;
+				TargetAttributes = {
+					42128B222DE7520100C83D70 = {
+						CreatedOnToolsVersion = 16.3;
+					};
+					42128B3B2DE7520100C83D70 = {
+						CreatedOnToolsVersion = 16.3;
+						TestTargetID = 42128B222DE7520100C83D70;
+					};
+					42128B452DE7520100C83D70 = {
+						CreatedOnToolsVersion = 16.3;
+						TestTargetID = 42128B222DE7520100C83D70;
+					};
+				};
+			};
+			buildConfigurationList = 42128B1E2DE7520100C83D70 /* Build configuration list for PBXProject "KleagueApp" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+				ko,
+			);
+			mainGroup = 42128B1A2DE7520100C83D70;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				4224C2A82DF7FC4500E3D330 /* XCRemoteSwiftPackageReference "Alamofire" */,
+				4224C2AB2DF7FC5B00E3D330 /* XCRemoteSwiftPackageReference "RxSwift" */,
+				4224C2B22DF7FC9F00E3D330 /* XCRemoteSwiftPackageReference "RxGesture" */,
+				4224C2B52DF7FCB900E3D330 /* XCRemoteSwiftPackageReference "SnapKit" */,
+				4224C2B82DF7FCEE00E3D330 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				4228E7912DF8033400B4385B /* XCRemoteSwiftPackageReference "SPM-NMapsMap" */,
+				42C1DB0C2DF981BC00CD0409 /* XCRemoteSwiftPackageReference "SDWebImage" */,
+				42C1DB112DF988E200CD0409 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				427B1D852E095CE600113388 /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */,
+				425800B02E658C980049B147 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 42128B242DE7520100C83D70 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				42128B222DE7520100C83D70 /* KleagueApp */,
+				42128B3B2DE7520100C83D70 /* KleagueAppTests */,
+				42128B452DE7520100C83D70 /* KleagueAppUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		42128B212DE7520100C83D70 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		42128B3A2DE7520100C83D70 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		42128B442DE7520100C83D70 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		42128B1F2DE7520100C83D70 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		42128B382DE7520100C83D70 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		42128B422DE7520100C83D70 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		42128B3E2DE7520100C83D70 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 42128B222DE7520100C83D70 /* KleagueApp */;
+			targetProxy = 42128B3D2DE7520100C83D70 /* PBXContainerItemProxy */;
+		};
+		42128B482DE7520100C83D70 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 42128B222DE7520100C83D70 /* KleagueApp */;
+			targetProxy = 425E41B32E0ADF3E00B7BCC3 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		42128B502DE7520100C83D70 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 424FA8C42E0C1BAB0080F8C2 /* Secret.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = KleagueApp/KleagueApp.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = N5PZ4NS352;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = KleagueApp/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "국축여지도";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
+				INFOPLIST_KEY_NSCameraUsageDescription = "마켓에 사진을 찍어 업로드하려면 카메라 접근 권한이 필요합니다.";
+				INFOPLIST_KEY_NSLocationUsageDescription = "지도를 사용하기 위해 위치 정보가 필요합니다.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "지도를 사용하기 위해 위치 정보가 필요합니다.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "마켓에 사진을 업로드하려면 사진 접근 권한이 필요합니다.";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = "";
+				INFOPLIST_KEY_UIRequiresFullScreen = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
+				INFOPLIST_PREFIX_HEADER = Secret.xcconfig;
+				"INFOPLIST_PREFIX_HEADER[sdk=*]" = Secret.xcconfig;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.2.1;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cyg050217.112399;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		42128B512DE7520100C83D70 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 424FA8C42E0C1BAB0080F8C2 /* Secret.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = KleagueApp/KleagueApp.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = N5PZ4NS352;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = KleagueApp/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "국축여지도";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
+				INFOPLIST_KEY_NSCameraUsageDescription = "마켓에 사진을 찍어 업로드하려면 카메라 접근 권한이 필요합니다.";
+				INFOPLIST_KEY_NSLocationUsageDescription = "지도를 사용하기 위해 위치 정보가 필요합니다.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "지도를 사용하기 위해 위치 정보가 필요합니다.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "마켓에 사진을 업로드하려면 사진 접근 권한이 필요합니다.";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = "";
+				INFOPLIST_KEY_UIRequiresFullScreen = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
+				INFOPLIST_PREFIX_HEADER = Secret.xcconfig;
+				"INFOPLIST_PREFIX_HEADER[sdk=*]" = Secret.xcconfig;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.2.1;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cyg050217.112399;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		42128B522DE7520100C83D70 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 424FA8C42E0C1BAB0080F8C2 /* Secret.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_PREFIX_HEADER = Secret.xcconfig;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				NMF_CLIENT_ID = cno4k7hscd;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = KleagueApp;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		42128B532DE7520100C83D70 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 424FA8C42E0C1BAB0080F8C2 /* Secret.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_PREFIX_HEADER = Secret.xcconfig;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				MTL_FAST_MATH = YES;
+				NMF_CLIENT_ID = cno4k7hscd;
+				PRODUCT_NAME = KleagueApp;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		42128B552DE7520100C83D70 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cyg050217.112349.KleagueAppTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KleagueApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/KleagueApp";
+			};
+			name = Debug;
+		};
+		42128B562DE7520100C83D70 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cyg050217.112349.KleagueAppTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KleagueApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/KleagueApp";
+			};
+			name = Release;
+		};
+		42128B582DE7520100C83D70 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cyg050217.112349.KleagueAppUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = KleagueApp;
+			};
+			name = Debug;
+		};
+		42128B592DE7520100C83D70 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cyg050217.112349.KleagueAppUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = KleagueApp;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		42128B1E2DE7520100C83D70 /* Build configuration list for PBXProject "KleagueApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				42128B522DE7520100C83D70 /* Debug */,
+				42128B532DE7520100C83D70 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		42128B4F2DE7520100C83D70 /* Build configuration list for PBXNativeTarget "KleagueApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				42128B502DE7520100C83D70 /* Debug */,
+				42128B512DE7520100C83D70 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		42128B542DE7520100C83D70 /* Build configuration list for PBXNativeTarget "KleagueAppTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				42128B552DE7520100C83D70 /* Debug */,
+				42128B562DE7520100C83D70 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		42128B572DE7520100C83D70 /* Build configuration list for PBXNativeTarget "KleagueAppUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				42128B582DE7520100C83D70 /* Debug */,
+				42128B592DE7520100C83D70 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		4224C2A82DF7FC4500E3D330 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.10.2;
+			};
+		};
+		4224C2AB2DF7FC5B00E3D330 /* XCRemoteSwiftPackageReference "RxSwift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ReactiveX/RxSwift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.9.0;
+			};
+		};
+		4224C2B22DF7FC9F00E3D330 /* XCRemoteSwiftPackageReference "RxGesture" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/RxSwiftCommunity/RxGesture.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.0.4;
+			};
+		};
+		4224C2B52DF7FCB900E3D330 /* XCRemoteSwiftPackageReference "SnapKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SnapKit/SnapKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.7.1;
+			};
+		};
+		4224C2B82DF7FCEE00E3D330 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.14.0;
+			};
+		};
+		4228E7912DF8033400B4385B /* XCRemoteSwiftPackageReference "SPM-NMapsMap" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/navermaps/SPM-NMapsMap";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.21.0;
+			};
+		};
+		425800B02E658C980049B147 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kakao/kakao-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.24.6;
+			};
+		};
+		427B1D852E095CE600113388 /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kakao-mapsSDK/KakaoMapsSDK-SPM";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.12.6;
+			};
+		};
+		42C1DB0C2DF981BC00CD0409 /* XCRemoteSwiftPackageReference "SDWebImage" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SDWebImage/SDWebImage.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.21.1;
+			};
+		};
+		42C1DB112DF988E200CD0409 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.3.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		4224C2A92DF7FC4500E3D330 /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4224C2A82DF7FC4500E3D330 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
+		};
+		4224C2AC2DF7FC5B00E3D330 /* RxCocoa */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4224C2AB2DF7FC5B00E3D330 /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxCocoa;
+		};
+		4224C2AE2DF7FC5B00E3D330 /* RxRelay */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4224C2AB2DF7FC5B00E3D330 /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxRelay;
+		};
+		4224C2B02DF7FC5B00E3D330 /* RxSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4224C2AB2DF7FC5B00E3D330 /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxSwift;
+		};
+		4224C2B32DF7FC9F00E3D330 /* RxGesture */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4224C2B22DF7FC9F00E3D330 /* XCRemoteSwiftPackageReference "RxGesture" */;
+			productName = RxGesture;
+		};
+		4224C2B62DF7FCB900E3D330 /* SnapKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4224C2B52DF7FCB900E3D330 /* XCRemoteSwiftPackageReference "SnapKit" */;
+			productName = SnapKit;
+		};
+		4224C2B92DF7FCEE00E3D330 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4224C2B82DF7FCEE00E3D330 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		4224C2BB2DF7FCEE00E3D330 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4224C2B82DF7FCEE00E3D330 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		4224C2BD2DF7FCEE00E3D330 /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4224C2B82DF7FCEE00E3D330 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
+		4228E7922DF8033400B4385B /* NMapsMap */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4228E7912DF8033400B4385B /* XCRemoteSwiftPackageReference "SPM-NMapsMap" */;
+			productName = NMapsMap;
+		};
+		422AAC4F2E0D347300A247AD /* FirebaseFunctions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4224C2B82DF7FCEE00E3D330 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFunctions;
+		};
+		425800B12E658C980049B147 /* KakaoSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 425800B02E658C980049B147 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
+			productName = KakaoSDK;
+		};
+		425800B32E658C980049B147 /* KakaoSDKAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 425800B02E658C980049B147 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
+			productName = KakaoSDKAuth;
+		};
+		427661A72DFFFF2000499502 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4224C2B82DF7FCEE00E3D330 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		427B1D862E095CE600113388 /* KakaoMapsSDK-SPM */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 427B1D852E095CE600113388 /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */;
+			productName = "KakaoMapsSDK-SPM";
+		};
+		427D4C812DFC21E100B16959 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4224C2B82DF7FCEE00E3D330 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
+		42C1DB0D2DF981BC00CD0409 /* SDWebImage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 42C1DB0C2DF981BC00CD0409 /* XCRemoteSwiftPackageReference "SDWebImage" */;
+			productName = SDWebImage;
+		};
+		42C1DB122DF988E200CD0409 /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 42C1DB112DF988E200CD0409 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 42128B1B2DE7520100C83D70 /* Project object */;
+}

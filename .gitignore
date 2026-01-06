@@ -63,3 +63,4 @@ fastlane/test_output
 
 # Ignore Secret.xcconfig
 Secret.xcconfig
+.DS_Store
